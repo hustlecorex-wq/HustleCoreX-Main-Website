@@ -7,376 +7,316 @@ import { insertLeadSchema, type InsertLead } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Zap, Target, TrendingUp, CheckCircle2, ArrowRight, Star,
-  Instagram, Globe, BarChart3, Layers, ChevronDown, Terminal,
-  Rocket, Shield, Clock, Award, MessageSquare,
-  Play, X, Menu, Mail, Sparkles, BrainCircuit,
+  ArrowRight, CheckCircle2, ChevronDown, Menu, X,
+  Instagram, Mail, Clock, Shield, Star, Zap,
+  Globe, Target, BarChart3, BrainCircuit, Sparkles, Layers,
+  TrendingUp, Award,
 } from "lucide-react";
 
-function AnimateIn({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+/* ─── helpers ─────────────────────────────────────── */
+
+function FadeIn({
+  children, className = "", delay = 0, once = true,
+}: { children: React.ReactNode; className?: string; delay?: number; once?: boolean }) {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-60px" });
+  const inView = useInView(ref, { once, margin: "-60px" });
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 32 }}
+    <motion.div ref={ref} initial={{ opacity: 0, y: 18 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.65, delay, ease: [0.16, 1, 0.3, 1] }}
-      className={className}
-    >
+      transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
+      className={className}>
       {children}
     </motion.div>
   );
 }
 
 function Counter({ end, suffix = "", prefix = "" }: { end: number; suffix?: string; prefix?: string }) {
-  const [count, setCount] = useState(0);
+  const [n, setN] = useState(0);
   const ref = useRef(null);
   const inView = useInView(ref, { once: true });
   useEffect(() => {
     if (!inView) return;
     let c = 0;
-    const step = end / (1800 / 16);
-    const t = setInterval(() => {
-      c = Math.min(c + step, end);
-      setCount(Math.floor(c));
-      if (c >= end) clearInterval(t);
-    }, 16);
+    const step = end / (1600 / 16);
+    const t = setInterval(() => { c = Math.min(c + step, end); setN(Math.floor(c)); if (c >= end) clearInterval(t); }, 16);
     return () => clearInterval(t);
   }, [inView, end]);
-  return <span ref={ref}>{prefix}{count.toLocaleString()}{suffix}</span>;
+  return <span ref={ref}>{prefix}{n.toLocaleString()}{suffix}</span>;
 }
 
-function NavBar() {
+const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+
+/* ─── navbar ─────────────────────────────────────── */
+
+function Nav() {
   const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 30);
+    const fn = () => setScrolled(window.scrollY > 24);
     window.addEventListener("scroll", fn);
     return () => window.removeEventListener("scroll", fn);
   }, []);
-  const to = (id: string) => { document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); setMenuOpen(false); };
+
+  const links = [["system", "System"], ["services", "Services"], ["results", "Results"], ["pricing", "Pricing"]];
 
   return (
-    <nav
-      data-testid="navbar"
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? "bg-black/95 backdrop-blur-xl border-b border-white/[0.06] py-3" : "bg-transparent py-5"}`}
-    >
-      <div className="max-w-7xl mx-auto px-5 flex items-center justify-between">
-        <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => to("hero")}>
-          <div className="w-8 h-8 rounded-xl bg-[#FF4500] flex items-center justify-center font-mono text-white font-bold text-xs" style={{ boxShadow: "0 0 16px rgba(255,69,0,0.4)" }}>
+    <header data-testid="navbar"
+      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${scrolled ? "border-b border-white/[0.06] bg-[#0A0A0A]/95 backdrop-blur-md" : ""}`}>
+      <div className="max-w-6xl mx-auto px-5 md:px-8 h-16 flex items-center justify-between">
+
+        <button onClick={() => scrollTo("hero")} className="flex items-center gap-2.5 group">
+          <div className="w-7 h-7 rounded-lg bg-[#FF4500] flex items-center justify-center text-white font-mono font-bold text-[11px] leading-none flex-shrink-0">
             &gt;_
           </div>
-          <span className="font-black text-white text-lg tracking-tight">APEX<span className="text-[#FF4500]">.</span></span>
-        </div>
+          <span className="font-bold text-[15px] text-white tracking-tight">APEX</span>
+        </button>
 
-        <div className="hidden md:flex items-center gap-7">
-          {[["system","System"],["services","Services"],["results","Results"],["pricing","Pricing"]].map(([id,label]) => (
-            <button key={id} data-testid={`nav-${id}`} onClick={() => to(id)}
-              className="text-sm text-white/50 hover:text-white transition-colors font-medium">{label}</button>
+        <nav className="hidden md:flex items-center gap-8">
+          {links.map(([id, label]) => (
+            <button key={id} data-testid={`nav-${id}`} onClick={() => scrollTo(id)}
+              className="text-[13px] text-white/45 hover:text-white/90 transition-colors font-medium tracking-wide">
+              {label}
+            </button>
           ))}
-        </div>
+        </nav>
 
-        <div className="hidden md:block">
-          <button data-testid="nav-cta" onClick={() => to("apply")}
-            className="px-5 py-2.5 rounded-full bg-[#FF4500] hover:bg-[#FF5500] text-white text-sm font-bold transition-all duration-200 hover:scale-105 active:scale-95"
-            style={{ boxShadow: "0 0 20px rgba(255,69,0,0.35)" }}>
-            Apply Now →
+        <div className="flex items-center gap-3">
+          <button data-testid="nav-cta" onClick={() => scrollTo("apply")}
+            className="hidden md:flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#FF4500] hover:bg-[#FF5500] text-white text-[13px] font-semibold transition-colors">
+            Apply Now
+          </button>
+          <button data-testid="mobile-menu-toggle" onClick={() => setOpen(!open)}
+            className="md:hidden text-white/60 hover:text-white p-1">
+            {open ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
-
-        <button data-testid="mobile-menu-toggle" className="md:hidden text-white p-2 rounded-lg active:bg-white/5" onClick={() => setMenuOpen(!menuOpen)}>
-          {menuOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
       </div>
 
       <AnimatePresence>
-        {menuOpen && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-black/98 border-t border-white/[0.06] overflow-hidden">
-            <div className="px-5 py-5 flex flex-col gap-1">
-              {[["system","The System"],["services","Services"],["results","Results"],["pricing","Pricing"],["apply","Apply Now"]].map(([id,label]) => (
-                <button key={id} onClick={() => to(id)}
-                  className="text-white/70 hover:text-white text-left text-base font-medium py-3 border-b border-white/[0.04] last:border-0">
+        {open && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22 }}
+            className="md:hidden border-t border-white/[0.06] bg-[#0A0A0A] overflow-hidden">
+            <div className="max-w-6xl mx-auto px-5 py-4 flex flex-col gap-0">
+              {[...links, ["apply", "Apply Now"]].map(([id, label]) => (
+                <button key={id} onClick={() => { scrollTo(id); setOpen(false); }}
+                  className="text-left py-3.5 text-[15px] text-white/60 hover:text-white border-b border-white/[0.05] last:border-0 transition-colors">
                   {label}
                 </button>
               ))}
-              <button onClick={() => to("apply")}
-                className="mt-3 py-3.5 rounded-full bg-[#FF4500] text-white font-bold text-base">
-                Get Free Audit →
-              </button>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </nav>
+    </header>
   );
 }
+
+/* ─── hero ─────────────────────────────────────── */
 
 function Hero() {
-  const to = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-  const [shown, setShown] = useState(false);
-  useEffect(() => { setTimeout(() => setShown(true), 100); }, []);
-
   return (
-    <section id="hero" className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-5 pt-28 pb-20">
-      {/* BG layers */}
-      <div className="absolute inset-0" style={{
-        backgroundImage: "linear-gradient(rgba(255,69,0,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,69,0,0.035) 1px, transparent 1px)",
-        backgroundSize: "60px 60px"
-      }} />
-      <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,69,0,0.18) 0%, transparent 70%)" }} />
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
-
-      <div className="relative z-10 max-w-5xl mx-auto text-center w-full">
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={shown ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#FF4500]/30 bg-[#FF4500]/10 text-[#FF4500] text-xs font-bold mb-7 tracking-[0.15em] uppercase"
-          data-testid="hero-badge">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#FF4500] animate-pulse" />
-          The Standard Has Been Set
-        </motion.div>
-
-        <motion.h1 initial={{ opacity: 0, y: 24 }} animate={shown ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.65, delay: 0.1 }}
-          className="text-5xl sm:text-6xl md:text-7xl lg:text-[88px] font-black text-white leading-[0.93] tracking-[-0.02em] mb-5"
-          data-testid="hero-headline">
-          Setting the<br />
-          <span style={{
-            background: "linear-gradient(135deg, #FF4500 0%, #FF7A00 50%, #FF4500 100%)",
-            backgroundSize: "200% auto",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-          }}>
-            Standard
-          </span>{" "}
-          for<br />
-          Online Coaches.
-        </motion.h1>
-
-        <motion.p initial={{ opacity: 0, y: 20 }} animate={shown ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.65, delay: 0.22 }}
-          className="text-lg sm:text-xl md:text-2xl text-white/55 max-w-2xl mx-auto mb-9 leading-relaxed font-light"
-          data-testid="hero-subheadline">
-          We build the complete system — premium brand, elite website, automated lead engine — so great coaches can focus on what they do best.
-          <span className="text-white/80 font-medium"> Coaching.</span>
-        </motion.p>
-
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={shown ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.65, delay: 0.32 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-14">
-          <button data-testid="hero-cta-primary" onClick={() => to("apply")}
-            className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-7 py-4 rounded-full bg-[#FF4500] hover:bg-[#FF5500] text-white font-bold text-base transition-all duration-200 hover:scale-105 active:scale-95"
-            style={{ boxShadow: "0 0 40px rgba(255,69,0,0.45), 0 4px 20px rgba(255,69,0,0.2)" }}>
-            Get Your Free Audit
-            <ArrowRight size={18} />
-          </button>
-          <button data-testid="hero-cta-secondary" onClick={() => to("system")}
-            className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-7 py-4 rounded-full border border-white/15 text-white hover:border-white/30 font-semibold text-base transition-all hover:bg-white/5">
-            <div className="w-5 h-5 rounded-full bg-[#FF4500]/20 border border-[#FF4500]/40 flex items-center justify-center">
-              <Play size={8} className="text-[#FF4500] ml-0.5" />
+    <section id="hero" className="min-h-screen flex flex-col justify-center px-5 md:px-8 pt-20 pb-16 md:pt-0">
+      <div className="max-w-6xl mx-auto w-full">
+        <div className="max-w-3xl">
+          <FadeIn>
+            <div className="inline-flex items-center gap-2 mb-8">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#FF4500]" />
+              <span className="text-[11px] font-semibold text-white/40 tracking-[0.14em] uppercase">
+                The Agency for Online Fitness Coaches
+              </span>
             </div>
-            See How It Works
-          </button>
-        </motion.div>
+          </FadeIn>
 
-        {/* Stats */}
-        <motion.div initial={{ opacity: 0, y: 24 }} animate={shown ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.7, delay: 0.46 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-2xl mx-auto">
-          {[
-            { val: 150, suffix: "+", label: "Coaches Scaled" },
-            { val: 12, suffix: "M+", prefix: "$", label: "Revenue Created" },
-            { val: 97, suffix: "%", label: "Client Retention" },
-            { val: 90, suffix: " days", label: "Full System Live" },
-          ].map((s, i) => (
-            <div key={i} data-testid={`hero-stat-${i}`}
-              className="rounded-2xl p-4 text-center"
-              style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
-              <div className="text-xl sm:text-2xl font-black text-white">
-                <Counter end={s.val} suffix={s.suffix} prefix={s.prefix} />
-              </div>
-              <div className="text-white/40 text-xs mt-0.5 font-medium">{s.label}</div>
+          <FadeIn delay={0.08}>
+            <h1 data-testid="hero-headline"
+              className="text-[clamp(2.8rem,7vw,5.5rem)] font-black leading-[1.0] tracking-[-0.02em] text-white mb-7">
+              Setting the<br />
+              Standard<br />
+              <span className="text-orange">for Online Coaches.</span>
+            </h1>
+          </FadeIn>
+
+          <FadeIn delay={0.16}>
+            <p data-testid="hero-subheadline"
+              className="text-[17px] md:text-[19px] text-white/45 leading-relaxed max-w-xl mb-10 font-light">
+              We build the complete system — premium brand, elite website, automated lead engine — so the best coaches can do what they do best. Coach.
+            </p>
+          </FadeIn>
+
+          <FadeIn delay={0.22}>
+            <div className="flex flex-col sm:flex-row gap-3 mb-16">
+              <button data-testid="hero-cta-primary" onClick={() => scrollTo("apply")}
+                className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#FF4500] hover:bg-[#FF5500] text-white text-[14px] font-semibold transition-colors">
+                Get a Free Audit <ArrowRight size={16} />
+              </button>
+              <button data-testid="hero-cta-secondary" onClick={() => scrollTo("system")}
+                className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl border border-white/10 text-white/60 hover:text-white hover:border-white/20 text-[14px] font-medium transition-colors">
+                See How It Works
+              </button>
             </div>
-          ))}
-        </motion.div>
-      </div>
+          </FadeIn>
 
-      <motion.button initial={{ opacity: 0 }} animate={shown ? { opacity: 1 } : {}} transition={{ delay: 1.2 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5"
-        onClick={() => to("ticker")}>
-        <span className="text-white/20 text-[10px] tracking-widest uppercase">Scroll</span>
-        <ChevronDown size={14} className="text-[#FF4500] animate-bounce" />
-      </motion.button>
-    </section>
-  );
-}
-
-function Ticker() {
-  const items = [
-    "Lead Generation", "Premium Branding", "Elite Website", "Sales Automation",
-    "Content Systems", "DM Sequences", "Email Nurture", "Profile Optimisation",
-    "Client Onboarding", "Analytics", "Authority Building", "AutoNation",
-  ];
-  return (
-    <section id="ticker" className="py-4 border-y border-white/[0.06] bg-black overflow-hidden">
-      <div className="flex overflow-hidden">
-        <div className="flex animate-ticker whitespace-nowrap">
-          {[...items, ...items, ...items, ...items].map((item, i) => (
-            <span key={i} className="flex items-center gap-3 px-5 text-white/35 font-medium text-xs uppercase tracking-widest flex-shrink-0">
-              <span className="w-1 h-1 rounded-full bg-[#FF4500] flex-shrink-0" />
-              {item}
-            </span>
-          ))}
+          <FadeIn delay={0.3}>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+              {[
+                { n: 150, s: "+", label: "Coaches Scaled" },
+                { n: 12, p: "$", s: "M+", label: "Revenue Generated" },
+                { n: 97, s: "%", label: "Client Retention" },
+                { n: 90, s: " Days", label: "Full System Live" },
+              ].map((s, i) => (
+                <div key={i} data-testid={`hero-stat-${i}`}>
+                  <div className="text-[1.75rem] font-black text-white tracking-tight leading-none mb-1">
+                    <Counter end={s.n} suffix={s.s} prefix={s.p} />
+                  </div>
+                  <div className="text-[12px] text-white/35 font-medium">{s.label}</div>
+                </div>
+              ))}
+            </div>
+          </FadeIn>
         </div>
       </div>
     </section>
   );
 }
+
+/* ─── divider ─────────────────────────────────────── */
+
+function Divider() {
+  return <div className="border-t border-white/[0.06] mx-5 md:mx-8" />;
+}
+
+/* ─── problem ─────────────────────────────────────── */
 
 function Problem() {
-  const comparisons = [
-    { icon: <Target size={18} />, before: "Posting content and hoping someone reaches out", after: "A targeted machine generating qualified leads every day" },
-    { icon: <Award size={18} />, before: "Looking like every other fitness coach online", after: "A premium brand that stands out and commands higher prices" },
-    { icon: <MessageSquare size={18} />, before: "Manually following up with every lead yourself", after: "Automated sequences that nurture and close for you" },
-    { icon: <Globe size={18} />, before: "A basic website that's losing you clients", after: "A conversion engine that books calls on autopilot" },
-    { icon: <TrendingUp size={18} />, before: "Stuck at $5–10k/month and not sure why", after: "A clear, repeatable path to $30k+ every single month" },
-    { icon: <Clock size={18} />, before: "Working in the business 10+ hours a day", after: "Working on the business from a position of real leverage" },
+  const items = [
+    { icon: <Target size={16} />, before: "Posting and hoping someone reaches out", after: "Consistent, qualified leads every single day" },
+    { icon: <Award size={16} />, before: "Looking like every other coach online", after: "A premium brand that commands premium prices" },
+    { icon: <BrainCircuit size={16} />, before: "Manually chasing every lead yourself", after: "Automated sequences that nurture and close for you" },
+    { icon: <Globe size={16} />, before: "A basic website that leaks clients", after: "A conversion engine that books calls overnight" },
+    { icon: <TrendingUp size={16} />, before: "Stuck at $5–10k/month with no clear path", after: "A repeatable system hitting $30k+ every month" },
+    { icon: <Clock size={16} />, before: "Working 10+ hours a day in your business", after: "Working on your business with real leverage" },
   ];
 
   return (
-    <section className="py-24 md:py-32 relative">
-      <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 70% 50% at 50% 50%, rgba(255,69,0,0.07) 0%, transparent 70%)" }} />
-      <div className="max-w-7xl mx-auto px-5 relative z-10">
-        <AnimateIn className="text-center mb-14 md:mb-20">
-          <span className="text-[#FF4500] text-xs font-bold tracking-[0.15em] uppercase">The Honest Truth</span>
-          <h2 className="text-3xl sm:text-4xl md:text-6xl font-black text-white mt-3 leading-tight">
-            Stop Grinding.<br />
-            <span style={{ background: "linear-gradient(135deg,#FF4500,#FF7A00,#FF4500)", backgroundSize: "200% auto", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              Start Building.
-            </span>
+    <section className="py-24 md:py-32 px-5 md:px-8">
+      <div className="max-w-6xl mx-auto">
+        <FadeIn className="mb-14">
+          <p className="text-[11px] font-semibold text-white/30 tracking-[0.14em] uppercase mb-4">The Problem</p>
+          <h2 className="text-[2.25rem] md:text-[3.5rem] font-black text-white leading-[1.05] tracking-tight">
+            Great coaches.<br />Broken systems.
           </h2>
-          <p className="text-white/45 text-lg mt-5 max-w-xl mx-auto leading-relaxed">
-            Most talented coaches are stuck not because of their coaching — but because they have no system. Here's what we change.
-          </p>
-        </AnimateIn>
+        </FadeIn>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {comparisons.map((c, i) => (
-            <AnimateIn key={i} delay={i * 0.07}>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-white/[0.06] border border-white/[0.06] rounded-2xl overflow-hidden">
+          {items.map((item, i) => (
+            <FadeIn key={i} delay={i * 0.05}>
               <div data-testid={`problem-card-${i}`}
-                className="rounded-2xl p-5 h-full flex flex-col gap-4 group hover:border-[#FF4500]/20 transition-all duration-300"
-                style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center text-[#FF4500] flex-shrink-0"
-                  style={{ background: "rgba(255,69,0,0.1)", border: "1px solid rgba(255,69,0,0.18)" }}>
-                  {c.icon}
-                </div>
-                <div className="flex items-start gap-2.5">
-                  <X size={12} className="text-red-400/50 mt-1 flex-shrink-0" />
-                  <span className="text-white/35 text-sm line-through leading-snug">{c.before}</span>
-                </div>
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 size={12} className="text-[#FF4500] mt-1 flex-shrink-0" />
-                  <span className="text-white/85 text-sm font-semibold leading-snug">{c.after}</span>
+                className="bg-[#0A0A0A] p-6 md:p-7 h-full">
+                <div className="text-[#FF4500] mb-4 opacity-80">{item.icon}</div>
+                <div className="space-y-3">
+                  <p className="text-[13px] text-white/25 line-through leading-snug">{item.before}</p>
+                  <p className="text-[14px] text-white/80 font-medium leading-snug">{item.after}</p>
                 </div>
               </div>
-            </AnimateIn>
+            </FadeIn>
           ))}
         </div>
       </div>
     </section>
   );
 }
+
+/* ─── system ─────────────────────────────────────── */
 
 function System() {
   const [active, setActive] = useState(0);
+
   const pillars = [
     {
-      num: "01", title: "Brand Identity", shortTitle: "Brand",
-      desc: "Your brand is the very first impression every future client gets. We build a complete identity — visuals, voice, and positioning — that makes you the obvious, premium choice in your niche.",
-      features: ["Logo & Visual Identity System", "Brand Voice & Messaging", "Niche Positioning Strategy", "Content Pillars", "Authority Architecture"],
-      icon: <Sparkles size={22} />,
+      num: "01", label: "Brand",
+      title: "Premium Brand Identity",
+      body: "Your brand is the first impression every future client gets. We build a complete identity — visuals, voice, and positioning — that makes you the obvious, premium choice.",
+      features: ["Logo & Visual Identity", "Brand Voice & Messaging", "Niche Positioning", "Content Pillars", "Authority Architecture"],
+      icon: <Sparkles size={18} />,
     },
     {
-      num: "02", title: "Elite Website", shortTitle: "Website",
-      desc: "Not just a pretty site — a sales machine. We design and build a premium website that impresses, qualifies, and converts visitors into booked calls, around the clock.",
-      features: ["Custom Premium Design", "Conversion-Optimised Copy", "Automated Booking Integration", "Video Sales Letter Setup", "Speed & Mobile Optimised"],
-      icon: <Globe size={22} />,
+      num: "02", label: "Website",
+      title: "High-Converting Website",
+      body: "Not just a pretty site. A sales machine. We design and build a premium website that impresses, qualifies, and converts visitors into booked calls around the clock.",
+      features: ["Custom Design", "Conversion Copywriting", "Booking Integration", "Video Sales Letter", "Speed Optimised"],
+      icon: <Globe size={18} />,
     },
     {
-      num: "03", title: "Lead Generation", shortTitle: "Leads",
-      desc: "We build a multi-channel lead generation engine — organic, outbound, and paid — so your pipeline is always full of warm, qualified prospects ready to work with you.",
-      features: ["Instagram Profile Overhaul", "Content-to-DM Funnel", "Strategic Outreach Scripts", "Paid Ad Strategy", "Lead Magnet Creation"],
-      icon: <Target size={22} />,
+      num: "03", label: "Leads",
+      title: "Lead Generation Engine",
+      body: "We build a multi-channel lead machine — organic, outbound, and paid working together — so your pipeline is always full of warm, qualified prospects.",
+      features: ["Instagram Overhaul", "Content-to-DM Funnel", "Outreach Scripts", "Paid Ad Strategy", "Lead Magnet"],
+      icon: <Target size={18} />,
     },
     {
-      num: "04", title: "AutoNation System", shortTitle: "Automation",
-      desc: "Using AutoNation, we connect every tool in your stack into one intelligent, seamless system. Leads come in, get nurtured, book a call, and onboard — all without you lifting a finger.",
-      features: ["Full CRM Integration", "Email Automation Sequences", "DM Auto-Responses", "Lead Scoring & Tagging", "Onboarding Automation"],
-      icon: <BrainCircuit size={22} />,
+      num: "04", label: "Automation",
+      title: "AutoNation System",
+      body: "Every tool in your stack connected and automated. Leads come in, get nurtured, book a call, and onboard — all without you lifting a finger.",
+      features: ["CRM Integration", "Email Sequences", "DM Automation", "Lead Scoring", "Onboarding Flow"],
+      icon: <BrainCircuit size={18} />,
     },
     {
-      num: "05", title: "Analytics", shortTitle: "Analytics",
-      desc: "Data tells the real story. We set up a complete analytics layer so you always know where your leads come from, where they drop off, and exactly where to invest your energy.",
-      features: ["Unified Dashboard", "Revenue Attribution", "Conversion Tracking", "Weekly Reports", "Ongoing Optimisation"],
-      icon: <BarChart3 size={22} />,
+      num: "05", label: "Analytics",
+      title: "Growth Analytics",
+      body: "Full visibility into your pipeline. Know where your leads come from, where they drop off, and exactly where to focus your energy to grow faster.",
+      features: ["Unified Dashboard", "Revenue Attribution", "Conversion Tracking", "Weekly Reports", "A/B Testing"],
+      icon: <BarChart3 size={18} />,
     },
   ];
 
   return (
-    <section id="system" className="py-24 md:py-32 relative">
-      <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent, rgba(255,69,0,0.04), transparent)" }} />
-      <div className="max-w-7xl mx-auto px-5 relative z-10">
-        <AnimateIn className="text-center mb-12 md:mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#FF4500]/30 bg-[#FF4500]/10 text-[#FF4500] text-xs font-bold mb-5 tracking-[0.12em] uppercase">
-            <Terminal size={12} /> The APEX System
-          </div>
-          <h2 className="text-3xl sm:text-4xl md:text-6xl font-black text-white leading-tight">
-            Five Pillars.<br />
-            <span style={{ background: "linear-gradient(135deg,#FF4500,#FF7A00,#FF4500)", backgroundSize: "200% auto", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              One System.
-            </span>
+    <section id="system" className="py-24 md:py-32 px-5 md:px-8">
+      <div className="max-w-6xl mx-auto">
+        <FadeIn className="mb-14">
+          <p className="text-[11px] font-semibold text-white/30 tracking-[0.14em] uppercase mb-4">The System</p>
+          <h2 className="text-[2.25rem] md:text-[3.5rem] font-black text-white leading-[1.05] tracking-tight">
+            Five pillars.<br />One system.
           </h2>
-          <p className="text-white/45 text-lg mt-4 max-w-xl mx-auto">
-            We don't do band-aid fixes. We build the complete infrastructure your coaching business needs to scale without burning out.
-          </p>
-        </AnimateIn>
+        </FadeIn>
 
-        {/* Tab buttons — scrollable on mobile */}
-        <div className="flex overflow-x-auto gap-2 pb-2 mb-5 scrollbar-hide snap-x">
+        {/* Tab row */}
+        <div className="flex overflow-x-auto scrollbar-hide gap-1 mb-6 border-b border-white/[0.07] pb-0">
           {pillars.map((p, i) => (
             <button key={i} data-testid={`system-tab-${i}`} onClick={() => setActive(i)}
-              className={`flex-shrink-0 snap-start px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all duration-300 ${
+              className={`flex-shrink-0 px-4 py-3 text-[13px] font-semibold border-b-2 transition-all duration-200 -mb-px ${
                 active === i
-                  ? "border-[#FF4500]/40 bg-[#FF4500]/12 text-white"
-                  : "border-white/8 bg-white/3 text-white/45 hover:border-white/15 hover:text-white/70"
+                  ? "border-[#FF4500] text-white"
+                  : "border-transparent text-white/35 hover:text-white/60"
               }`}>
-              <span className="font-mono text-[10px] mr-1.5 opacity-50">{p.num}</span>
-              {p.shortTitle}
+              <span className="text-[11px] font-mono opacity-40 mr-1.5">{p.num}</span>
+              {p.label}
             </button>
           ))}
         </div>
 
         <AnimatePresence mode="wait">
-          <motion.div key={active} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.35 }}
-            className="rounded-2xl md:rounded-3xl p-6 md:p-10" data-testid="system-content"
-            style={{ background: "rgba(255,69,0,0.06)", border: "1px solid rgba(255,69,0,0.18)" }}>
-            <div className="grid md:grid-cols-2 gap-8 items-start">
-              <div>
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-[#FF4500] mb-5"
-                  style={{ background: "rgba(255,69,0,0.15)", border: "1px solid rgba(255,69,0,0.25)" }}>
-                  {pillars[active].icon}
-                </div>
-                <h3 className="text-2xl sm:text-3xl font-black text-white mb-3">{pillars[active].title}</h3>
-                <p className="text-white/55 text-base leading-relaxed">{pillars[active].desc}</p>
+          <motion.div key={active}
+            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.25 }}
+            className="grid md:grid-cols-2 gap-10 md:gap-16 pt-2" data-testid="system-content">
+            <div>
+              <div className="w-9 h-9 rounded-lg bg-[#FF4500]/10 border border-[#FF4500]/20 flex items-center justify-center text-[#FF4500] mb-5">
+                {pillars[active].icon}
               </div>
-              <div className="space-y-2.5">
-                {pillars[active].features.map((f, i) => (
-                  <motion.div key={i} initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.07 }}
-                    className="flex items-center gap-3 p-3.5 rounded-xl"
-                    style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
-                    <CheckCircle2 size={15} className="text-[#FF4500] flex-shrink-0" />
-                    <span className="text-white/80 text-sm font-medium">{f}</span>
-                  </motion.div>
-                ))}
-              </div>
+              <h3 className="text-[1.5rem] font-black text-white mb-3 tracking-tight">{pillars[active].title}</h3>
+              <p className="text-[15px] text-white/45 leading-relaxed">{pillars[active].body}</p>
             </div>
+            <ul className="space-y-2">
+              {pillars[active].features.map((f, i) => (
+                <motion.li key={i} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.06 }}
+                  className="flex items-center gap-3 py-3 border-b border-white/[0.05] last:border-0">
+                  <CheckCircle2 size={14} className="text-[#FF4500] flex-shrink-0" />
+                  <span className="text-[14px] text-white/70">{f}</span>
+                </motion.li>
+              ))}
+            </ul>
           </motion.div>
         </AnimatePresence>
       </div>
@@ -384,368 +324,313 @@ function System() {
   );
 }
 
+/* ─── services ─────────────────────────────────────── */
+
 function Services() {
   const list = [
-    { icon: <Sparkles size={24} />, title: "Premium Brand Identity", desc: "Full brand system — logo, colours, typography, positioning, and a story that makes clients choose you over anyone else in your niche." },
-    { icon: <Globe size={24} />, title: "Elite Website Build", desc: "Custom-designed, conversion-focused website with integrated booking, video sales letter, and social proof that sells while you sleep." },
-    { icon: <Target size={24} />, title: "Lead Gen Machine", desc: "Multi-channel approach combining Instagram, content funnels, strategic outreach, and paid ads to keep your pipeline full." },
-    { icon: <BrainCircuit size={24} />, title: "AutoNation Integration", desc: "Every tool connected. DMs, emails, follow-ups, and onboarding automated into one seamless system that runs without you." },
-    { icon: <Instagram size={24} />, title: "Social Profile Overhaul", desc: "We transform your Instagram into a lead-generating asset that attracts the right clients with every piece of content you post." },
-    { icon: <BarChart3 size={24} />, title: "Growth Analytics", desc: "Full visibility into your pipeline. Know what's working, what isn't, and exactly where your next clients are coming from." },
+    { icon: <Sparkles size={18} />, title: "Brand Identity", desc: "Complete visual system, messaging framework, and positioning strategy." },
+    { icon: <Globe size={18} />, title: "Website Build", desc: "Custom-designed, conversion-optimised site with integrated booking." },
+    { icon: <Target size={18} />, title: "Lead Generation", desc: "Multi-channel pipeline combining organic, outbound, and paid." },
+    { icon: <BrainCircuit size={18} />, title: "AutoNation", desc: "Every tool connected. DMs, emails, follow-ups all automated." },
+    { icon: <Instagram size={18} />, title: "Social Profiles", desc: "Instagram transformed into a consistent lead-generating asset." },
+    { icon: <BarChart3 size={18} />, title: "Analytics", desc: "Full pipeline visibility so you always know where to double down." },
   ];
 
   return (
-    <section id="services" className="py-24 md:py-32">
-      <div className="max-w-7xl mx-auto px-5">
-        <AnimateIn className="text-center mb-14">
-          <span className="text-[#FF4500] text-xs font-bold tracking-[0.15em] uppercase">What We Build</span>
-          <h2 className="text-3xl sm:text-4xl md:text-6xl font-black text-white mt-3">
-            Everything You Need.<br />
-            <span style={{ background: "linear-gradient(135deg,#FF4500,#FF7A00,#FF4500)", backgroundSize: "200% auto", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              Nothing You Don't.
-            </span>
+    <section id="services" className="py-24 md:py-32 px-5 md:px-8">
+      <div className="max-w-6xl mx-auto">
+        <FadeIn className="mb-14">
+          <p className="text-[11px] font-semibold text-white/30 tracking-[0.14em] uppercase mb-4">Services</p>
+          <h2 className="text-[2.25rem] md:text-[3.5rem] font-black text-white leading-[1.05] tracking-tight">
+            Everything you need.<br />Nothing you don't.
           </h2>
-        </AnimateIn>
+        </FadeIn>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-white/[0.06] border border-white/[0.06] rounded-2xl overflow-hidden">
           {list.map((s, i) => (
-            <AnimateIn key={i} delay={i * 0.07}>
+            <FadeIn key={i} delay={i * 0.05}>
               <div data-testid={`service-card-${i}`}
-                className="rounded-2xl p-6 group hover:-translate-y-1 transition-all duration-300 h-full flex flex-col"
-                style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center text-[#FF4500] mb-4 transition-all duration-300 group-hover:scale-110"
-                  style={{ background: "rgba(255,69,0,0.1)", border: "1px solid rgba(255,69,0,0.18)" }}>
-                  {s.icon}
-                </div>
-                <h3 className="text-lg font-black text-white mb-2.5">{s.title}</h3>
-                <p className="text-white/45 text-sm leading-relaxed flex-1">{s.desc}</p>
+                className="group bg-[#0A0A0A] hover:bg-[#0F0F0F] p-6 md:p-7 h-full transition-colors duration-200">
+                <div className="text-[#FF4500] opacity-70 group-hover:opacity-100 mb-4 transition-opacity">{s.icon}</div>
+                <h3 className="text-[15px] font-bold text-white mb-2">{s.title}</h3>
+                <p className="text-[13px] text-white/35 leading-relaxed">{s.desc}</p>
               </div>
-            </AnimateIn>
+            </FadeIn>
           ))}
         </div>
       </div>
     </section>
   );
 }
+
+/* ─── process ─────────────────────────────────────── */
 
 function Process() {
   const steps = [
-    { num: "01", title: "Free System Audit", desc: "We dig into your current setup, find the gaps, and map out exactly what it'll take to hit your goals. No fluff, no pressure.", duration: "Day 1–3", icon: <BrainCircuit size={18} /> },
-    { num: "02", title: "Strategy Blueprint", desc: "We create your complete growth plan — brand positioning, lead gen channels, automation map, and a 90-day revenue roadmap tailored to you.", duration: "Day 4–10", icon: <Layers size={18} /> },
-    { num: "03", title: "Brand & Website", desc: "We execute the full brand identity and build your premium website. You'll look and feel like a $100k/year coach from day one.", duration: "Week 2–4", icon: <Globe size={18} /> },
-    { num: "04", title: "System Activation", desc: "We launch your lead gen engine and activate all automations via AutoNation. Your system starts generating and nurturing leads immediately.", duration: "Month 2", icon: <Zap size={18} /> },
-    { num: "05", title: "Scale & Optimise", desc: "With real data flowing, we double down on what's working and cut what isn't — growing your revenue predictably month after month.", duration: "Month 3+", icon: <TrendingUp size={18} /> },
+    { num: "01", title: "Free Audit", desc: "We analyse your current setup and map exactly what it'll take to hit your goals.", icon: <BrainCircuit size={16} /> },
+    { num: "02", title: "Strategy Blueprint", desc: "Custom growth plan — brand positioning, channels, automation, 90-day revenue roadmap.", icon: <Layers size={16} /> },
+    { num: "03", title: "Brand & Website", desc: "Full identity and premium website built. You look like a $100k/year coach from day one.", icon: <Globe size={16} /> },
+    { num: "04", title: "System Activation", desc: "Lead gen engine launches. AutoNation goes live. Leads start flowing automatically.", icon: <Zap size={16} /> },
+    { num: "05", title: "Scale & Optimise", desc: "Real data, real decisions. We compound what works and cut what doesn't.", icon: <TrendingUp size={16} /> },
   ];
 
   return (
-    <section className="py-24 md:py-32">
-      <div className="max-w-3xl mx-auto px-5">
-        <AnimateIn className="text-center mb-14">
-          <span className="text-[#FF4500] text-xs font-bold tracking-[0.15em] uppercase">The Journey</span>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mt-3">
-            From Scattered to<br />
-            <span style={{ background: "linear-gradient(135deg,#FF4500,#FF7A00,#FF4500)", backgroundSize: "200% auto", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              Scaled in 90 Days
-            </span>
+    <section className="py-24 md:py-32 px-5 md:px-8">
+      <div className="max-w-6xl mx-auto">
+        <FadeIn className="mb-14">
+          <p className="text-[11px] font-semibold text-white/30 tracking-[0.14em] uppercase mb-4">The Process</p>
+          <h2 className="text-[2.25rem] md:text-[3.5rem] font-black text-white leading-[1.05] tracking-tight">
+            Zero to system<br />in 90 days.
           </h2>
-          <p className="text-white/45 text-base mt-4 max-w-md mx-auto">A clear, proven path. No guesswork, no surprises — just results.</p>
-        </AnimateIn>
+        </FadeIn>
 
-        <div className="relative">
-          <div className="absolute left-5 md:left-6 top-0 bottom-0 w-px" style={{ background: "linear-gradient(to bottom, #FF4500, rgba(255,69,0,0.1))" }} />
-          <div className="space-y-8">
-            {steps.map((s, i) => (
-              <AnimateIn key={i} delay={i * 0.1}>
-                <div className="flex gap-5 md:gap-7" data-testid={`process-step-${i}`}>
-                  <div className="relative flex-shrink-0 flex flex-col items-center">
-                    <div className="w-10 h-10 rounded-full bg-[#FF4500] flex items-center justify-center text-white z-10 relative flex-shrink-0"
-                      style={{ boxShadow: "0 0 20px rgba(255,69,0,0.45), 0 0 40px rgba(255,69,0,0.15)" }}>
-                      {s.icon}
-                    </div>
-                  </div>
-                  <div className="flex-1 pb-2">
-                    <div className="text-[#FF4500] text-[10px] font-bold tracking-widest uppercase mb-1">{s.duration}</div>
-                    <h3 className="text-lg font-black text-white mb-1.5">{s.title}</h3>
-                    <p className="text-white/45 text-sm leading-relaxed">{s.desc}</p>
-                  </div>
+        <div className="space-y-0 border border-white/[0.06] rounded-2xl overflow-hidden divide-y divide-white/[0.06]">
+          {steps.map((s, i) => (
+            <FadeIn key={i} delay={i * 0.06}>
+              <div data-testid={`process-step-${i}`}
+                className="flex items-start gap-5 md:gap-8 p-5 md:p-7 bg-[#0A0A0A] hover:bg-[#0F0F0F] transition-colors duration-200">
+                <div className="flex-shrink-0 pt-0.5">
+                  <span className="text-[11px] font-mono text-white/20 font-semibold">{s.num}</span>
                 </div>
-              </AnimateIn>
-            ))}
-          </div>
+                <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-[#FF4500]/8 border border-[#FF4500]/15 flex items-center justify-center text-[#FF4500] mt-0.5">
+                  {s.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-[15px] font-bold text-white mb-1">{s.title}</h3>
+                  <p className="text-[13px] text-white/40 leading-relaxed">{s.desc}</p>
+                </div>
+              </div>
+            </FadeIn>
+          ))}
         </div>
       </div>
     </section>
   );
 }
+
+/* ─── results ─────────────────────────────────────── */
 
 function Results() {
   const cards = [
-    {
-      name: "James Carter", niche: "Fat Loss Coach", avatar: "JC",
-      before: "$4,200/mo", after: "$31,500/mo", time: "4 months", pct: "650%",
-      quote: "APEX built me a real business. My brand looks elite, my system works 24/7, and I've finally broken past $30k consistently."
-    },
-    {
-      name: "Sarah Mitchell", niche: "Online PT & Nutrition", avatar: "SM",
-      before: "$7,800/mo", after: "$52,000/mo", time: "6 months", pct: "567%",
-      quote: "I used to post content hoping it would convert. Now I have a machine. My website books 3–5 calls a day without me doing anything."
-    },
-    {
-      name: "Marcus Reid", niche: "Strength & Performance", avatar: "MR",
-      before: "$2,900/mo", after: "$18,400/mo", time: "3 months", pct: "534%",
-      quote: "The brand transformation alone was worth 10x the investment. People say they've been watching me for months before booking — the automation closes them."
-    },
-    {
-      name: "Priya Sharma", niche: "Female Transformation", avatar: "PS",
-      before: "$8,500/mo", after: "$67,000/mo", time: "5 months", pct: "688%",
-      quote: "I went from total burnout to a business I'm proud of. APEX's system handles the heavy lifting — I just show up and coach."
-    },
+    { name: "James C.", role: "Fat Loss Coach", av: "JC", before: "$4.2k", after: "$31.5k", time: "4 months", quote: "APEX built me a real business. My system runs 24/7 and I've broken through $30k consistently." },
+    { name: "Sarah M.", role: "PT & Nutrition", av: "SM", before: "$7.8k", after: "$52k", time: "6 months", quote: "I used to post and pray. Now I have a machine booking 3–5 calls per day without me touching anything." },
+    { name: "Marcus R.", role: "Strength Coach", av: "MR", before: "$2.9k", after: "$18.4k", time: "3 months", quote: "The brand overhaul alone was worth 10x the investment. People say they've been watching me for months." },
+    { name: "Priya S.", role: "Female Transformation", av: "PS", before: "$8.5k", after: "$67k", time: "5 months", quote: "From burnout to a business I'm proud of. APEX handles the heavy lifting — I just coach." },
   ];
 
   return (
-    <section id="results" className="py-24 md:py-32 relative">
-      <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255,69,0,0.1) 0%, transparent 65%)" }} />
-      <div className="max-w-7xl mx-auto px-5 relative z-10">
-        <AnimateIn className="text-center mb-14">
-          <span className="text-[#FF4500] text-xs font-bold tracking-[0.15em] uppercase">Real Coaches, Real Results</span>
-          <h2 className="text-3xl sm:text-4xl md:text-6xl font-black text-white mt-3">
-            The Proof Is in<br />
-            <span style={{ background: "linear-gradient(135deg,#FF4500,#FF7A00,#FF4500)", backgroundSize: "200% auto", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              the Numbers
-            </span>
+    <section id="results" className="py-24 md:py-32 px-5 md:px-8">
+      <div className="max-w-6xl mx-auto">
+        <FadeIn className="mb-14">
+          <p className="text-[11px] font-semibold text-white/30 tracking-[0.14em] uppercase mb-4">Results</p>
+          <h2 className="text-[2.25rem] md:text-[3.5rem] font-black text-white leading-[1.05] tracking-tight">
+            Real coaches.<br />Real numbers.
           </h2>
-        </AnimateIn>
+        </FadeIn>
 
         <div className="grid sm:grid-cols-2 gap-4 mb-10">
           {cards.map((r, i) => (
-            <AnimateIn key={i} delay={i * 0.09}>
+            <FadeIn key={i} delay={i * 0.08}>
               <div data-testid={`result-card-${i}`}
-                className="rounded-2xl p-6 h-full"
-                style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                <div className="flex items-start justify-between mb-5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#FF4500] to-[#FF7700] flex items-center justify-center text-white font-black text-sm flex-shrink-0">
-                      {r.avatar}
-                    </div>
-                    <div>
-                      <div className="text-white font-bold text-sm">{r.name}</div>
-                      <div className="text-white/35 text-xs">{r.niche}</div>
-                    </div>
+                className="border border-white/[0.07] rounded-2xl p-6 bg-[#0A0A0A] h-full">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-9 h-9 rounded-full bg-[#FF4500] flex items-center justify-center text-white text-[11px] font-black flex-shrink-0">
+                    {r.av}
                   </div>
-                  <div className="text-right flex-shrink-0">
-                    <div className="text-[#FF4500] font-black text-xl">{r.pct}</div>
-                    <div className="text-white/30 text-[10px]">revenue up</div>
+                  <div>
+                    <p className="text-[14px] font-semibold text-white leading-tight">{r.name}</p>
+                    <p className="text-[12px] text-white/35">{r.role}</p>
                   </div>
                 </div>
 
-                <p className="text-white/60 text-sm leading-relaxed mb-5 italic border-l-2 border-[#FF4500]/30 pl-3">
-                  "{r.quote}"
-                </p>
+                <p className="text-[14px] text-white/50 leading-relaxed mb-5 italic">"{r.quote}"</p>
 
                 <div className="flex items-center gap-3">
-                  <div className="flex-1 rounded-xl p-2.5 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                    <div className="text-white/35 text-[10px] mb-0.5">Before</div>
-                    <div className="text-white font-bold text-sm">{r.before}</div>
+                  <div className="flex-1 rounded-xl p-3 border border-white/[0.06] bg-white/[0.02] text-center">
+                    <p className="text-[10px] text-white/25 mb-0.5 uppercase tracking-wide">Before</p>
+                    <p className="text-[14px] font-bold text-white">{r.before}<span className="text-[11px] text-white/30">/mo</span></p>
                   </div>
-                  <ArrowRight size={14} className="text-[#FF4500] flex-shrink-0" />
-                  <div className="flex-1 rounded-xl p-2.5 text-center" style={{ background: "rgba(255,69,0,0.1)", border: "1px solid rgba(255,69,0,0.2)" }}>
-                    <div className="text-white/35 text-[10px] mb-0.5">After</div>
-                    <div className="text-[#FF4500] font-black text-sm">{r.after}</div>
+                  <ArrowRight size={13} className="text-white/20 flex-shrink-0" />
+                  <div className="flex-1 rounded-xl p-3 border border-[#FF4500]/20 bg-[#FF4500]/5 text-center">
+                    <p className="text-[10px] text-white/25 mb-0.5 uppercase tracking-wide">After</p>
+                    <p className="text-[14px] font-bold text-[#FF4500]">{r.after}<span className="text-[11px] text-[#FF4500]/50">/mo</span></p>
                   </div>
-                  <div className="flex-shrink-0 text-white/25 text-[10px]">{r.time}</div>
+                  <p className="text-[11px] text-white/20 flex-shrink-0 pl-1">{r.time}</p>
                 </div>
               </div>
-            </AnimateIn>
+            </FadeIn>
           ))}
         </div>
 
-        {/* Bottom stats row */}
-        <AnimateIn>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <FadeIn>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-white/[0.06] border border-white/[0.06] rounded-2xl overflow-hidden">
             {[
               { n: 150, s: "+", label: "Coaches Scaled" },
               { n: 12, p: "$", s: "M+", label: "Revenue Generated" },
-              { n: 90, s: "%", label: "Hit $20k/month" },
+              { n: 90, s: "%", label: "Hit $20k in 6 Months" },
+              { n: 4, s: ".9/5", label: "Average Rating" },
             ].map((s, i) => (
-              <div key={i} data-testid={`results-stat-${i}`}
-                className="rounded-2xl p-5 text-center"
-                style={{ background: "rgba(255,69,0,0.07)", border: "1px solid rgba(255,69,0,0.15)" }}>
-                <div className="text-2xl sm:text-3xl font-black text-white mb-1">
+              <div key={i} data-testid={`results-stat-${i}`} className="bg-[#0A0A0A] p-6 md:p-7 text-center">
+                <p className="text-[1.75rem] md:text-[2.25rem] font-black text-white tracking-tight leading-none mb-1">
                   <Counter end={s.n} suffix={s.s} prefix={s.p} />
-                </div>
-                <div className="text-white/40 text-xs font-medium">{s.label}</div>
+                </p>
+                <p className="text-[12px] text-white/30">{s.label}</p>
               </div>
             ))}
-            <div className="rounded-2xl p-5 text-center"
-              style={{ background: "rgba(255,69,0,0.07)", border: "1px solid rgba(255,69,0,0.15)" }}>
-              <div className="text-2xl sm:text-3xl font-black text-white mb-1">4.9<span className="text-base text-white/40">/5</span></div>
-              <div className="text-white/40 text-xs font-medium">Client Rating</div>
-            </div>
           </div>
-        </AnimateIn>
+        </FadeIn>
       </div>
     </section>
   );
 }
 
+/* ─── pricing ─────────────────────────────────────── */
+
 function Pricing() {
-  const to = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   const plans = [
     {
       name: "Launchpad",
-      price: "2,497", period: "one-time",
-      desc: "For coaches under $5k/month who need the right foundations to grow.",
-      features: ["Brand Identity Package", "Instagram Profile Overhaul", "Lead Gen Strategy Session", "30-Day Content Framework", "DM Script Library", "Onboarding Workflow"],
-      excluded: ["Custom Website Build", "AutoNation Automation"],
-      highlight: false, badge: null, cta: "Get Started",
+      price: "2,497", note: "one-time",
+      desc: "For coaches under $5k/month who need solid foundations.",
+      features: ["Brand Identity", "Instagram Overhaul", "Lead Gen Strategy", "30-Day Content Framework", "DM Script Library"],
+      missing: ["Website Build", "AutoNation Setup"],
+      highlight: false, badge: "",
     },
     {
       name: "Growth System",
-      price: "4,997", period: "one-time",
-      desc: "The complete system for coaches ready to break $20k+ per month.",
-      features: ["Everything in Launchpad", "Premium Website Build", "Sales Funnel & Booking", "AutoNation Integration", "Email & DM Automation", "3-Month Strategy Support", "Analytics Dashboard", "Weekly Check-ins"],
-      excluded: [],
-      highlight: true, badge: "Most Popular", cta: "Apply Now",
+      price: "4,997", note: "one-time",
+      desc: "The complete system for coaches ready to break $20k/month.",
+      features: ["Everything in Launchpad", "Premium Website Build", "AutoNation Integration", "Email & DM Automation", "Analytics Dashboard", "3-Month Strategy Support"],
+      missing: [],
+      highlight: true, badge: "Most Popular",
     },
     {
       name: "Empire",
-      price: "Custom", period: "investment",
-      desc: "For coaches at $20k+ ready to scale to $100k/month and build a team.",
-      features: ["Everything in Growth", "Bespoke Brand Campaign", "Full Ad Management", "Dedicated Strategist", "PR & Authority Building", "Team Systems & Hiring", "Monthly Strategy Calls", "Priority Support"],
-      excluded: [],
-      highlight: false, badge: "6-Figure Coaches", cta: "Book a Call",
+      price: "Custom", note: "bespoke",
+      desc: "For coaches at $20k+ scaling to $100k/month.",
+      features: ["Everything in Growth", "Full Ad Management", "Dedicated Strategist", "PR & Authority", "Team Building"],
+      missing: [],
+      highlight: false, badge: "For 6-Figure Coaches",
     },
   ];
 
   return (
-    <section id="pricing" className="py-24 md:py-32">
-      <div className="max-w-7xl mx-auto px-5">
-        <AnimateIn className="text-center mb-14">
-          <span className="text-[#FF4500] text-xs font-bold tracking-[0.15em] uppercase">Investment</span>
-          <h2 className="text-3xl sm:text-4xl md:text-6xl font-black text-white mt-3">
-            Clear. Transparent.<br />
-            <span style={{ background: "linear-gradient(135deg,#FF4500,#FF7A00,#FF4500)", backgroundSize: "200% auto", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              Worth Every Penny.
-            </span>
+    <section id="pricing" className="py-24 md:py-32 px-5 md:px-8">
+      <div className="max-w-6xl mx-auto">
+        <FadeIn className="mb-14">
+          <p className="text-[11px] font-semibold text-white/30 tracking-[0.14em] uppercase mb-4">Pricing</p>
+          <h2 className="text-[2.25rem] md:text-[3.5rem] font-black text-white leading-[1.05] tracking-tight">
+            Simple. Transparent.<br />No retainers.
           </h2>
-          <p className="text-white/45 text-lg mt-4 max-w-lg mx-auto">
-            Pay once. Own your system forever. No monthly retainers, no surprises.
-          </p>
-        </AnimateIn>
+        </FadeIn>
 
-        <div className="grid md:grid-cols-3 gap-4">
-          {plans.map((plan, i) => (
-            <AnimateIn key={i} delay={i * 0.1}>
+        <div className="grid md:grid-cols-3 gap-4 mb-5">
+          {plans.map((p, i) => (
+            <FadeIn key={i} delay={i * 0.08}>
               <div data-testid={`pricing-card-${i}`}
-                className={`rounded-2xl p-6 flex flex-col h-full transition-all duration-300 ${
-                  plan.highlight
-                    ? "border border-[#FF4500]/40"
-                    : "border border-white/[0.07]"
-                }`}
-                style={plan.highlight
-                  ? { background: "linear-gradient(160deg, rgba(255,69,0,0.14) 0%, rgba(255,69,0,0.05) 100%)", boxShadow: "0 0 40px rgba(255,69,0,0.12)" }
-                  : { background: "rgba(255,255,255,0.025)" }}>
-
-                {plan.badge && (
-                  <span className={`inline-block self-start px-3 py-1 rounded-full text-xs font-bold mb-4 ${plan.highlight ? "bg-[#FF4500] text-white" : "bg-white/8 text-white/50 border border-white/10"}`}>
-                    {plan.badge}
-                  </span>
+                className={`rounded-2xl p-6 flex flex-col h-full ${
+                  p.highlight
+                    ? "border border-[#FF4500]/30 bg-[#FF4500]/[0.04]"
+                    : "border border-white/[0.07] bg-[#0A0A0A]"
+                }`}>
+                {p.badge && (
+                  <span className={`inline-block self-start text-[11px] font-bold px-2.5 py-1 rounded-full mb-4 ${
+                    p.highlight ? "bg-[#FF4500] text-white" : "bg-white/[0.06] text-white/40 border border-white/[0.08]"
+                  }`}>{p.badge}</span>
                 )}
-
                 <div className="mb-6">
-                  <div className="text-white font-black text-xl mb-2">{plan.name}</div>
+                  <p className="text-[14px] font-bold text-white mb-2">{p.name}</p>
                   <div className="flex items-baseline gap-1 mb-2">
-                    {plan.price !== "Custom" && <span className="text-white/35 text-lg">$</span>}
-                    <span className={`font-black text-4xl ${plan.highlight ? "text-[#FF4500]" : "text-white"}`}>{plan.price}</span>
-                    <span className="text-white/35 text-sm">/ {plan.period}</span>
+                    {p.price !== "Custom" && <span className="text-white/30 text-base">$</span>}
+                    <span className={`font-black text-[2.5rem] leading-none tracking-tight ${p.highlight ? "text-[#FF4500]" : "text-white"}`}>
+                      {p.price}
+                    </span>
+                    <span className="text-white/25 text-[13px] ml-1">/ {p.note}</span>
                   </div>
-                  <p className="text-white/45 text-sm">{plan.desc}</p>
+                  <p className="text-[13px] text-white/40">{p.desc}</p>
                 </div>
-
-                <div className="flex-1 space-y-2.5 mb-7">
-                  {plan.features.map((f, j) => (
-                    <div key={j} className="flex items-start gap-2.5">
-                      <CheckCircle2 size={13} className={`mt-0.5 flex-shrink-0 ${plan.highlight ? "text-[#FF4500]" : "text-[#FF4500]/60"}`} />
-                      <span className="text-white/70 text-sm">{f}</span>
-                    </div>
+                <ul className="flex-1 space-y-2.5 mb-7">
+                  {p.features.map((f, j) => (
+                    <li key={j} className="flex items-center gap-2.5">
+                      <CheckCircle2 size={13} className={p.highlight ? "text-[#FF4500]" : "text-white/30"} />
+                      <span className="text-[13px] text-white/65">{f}</span>
+                    </li>
                   ))}
-                  {plan.excluded.map((f, j) => (
-                    <div key={j} className="flex items-start gap-2.5 opacity-30">
-                      <X size={13} className="mt-0.5 flex-shrink-0 text-white/30" />
-                      <span className="text-white/35 text-sm line-through">{f}</span>
-                    </div>
+                  {p.missing.map((f, j) => (
+                    <li key={j} className="flex items-center gap-2.5 opacity-25">
+                      <X size={13} className="text-white/20" />
+                      <span className="text-[13px] text-white/30 line-through">{f}</span>
+                    </li>
                   ))}
-                </div>
-
-                <button data-testid={`pricing-cta-${i}`} onClick={() => to("apply")}
-                  className={`w-full py-3.5 rounded-full font-bold text-sm transition-all duration-200 ${
-                    plan.highlight
-                      ? "bg-[#FF4500] hover:bg-[#FF5500] text-white hover:scale-105 active:scale-95"
-                      : "border border-white/12 text-white hover:border-white/25 hover:bg-white/5"
-                  }`}
-                  style={plan.highlight ? { boxShadow: "0 0 24px rgba(255,69,0,0.3)" } : {}}>
-                  {plan.cta}
+                </ul>
+                <button data-testid={`pricing-cta-${i}`} onClick={() => scrollTo("apply")}
+                  className={`w-full py-3 rounded-xl text-[13px] font-semibold transition-colors ${
+                    p.highlight
+                      ? "bg-[#FF4500] hover:bg-[#FF5500] text-white"
+                      : "border border-white/10 text-white/60 hover:border-white/20 hover:text-white"
+                  }`}>
+                  {p.name === "Empire" ? "Book a Call" : "Get Started"}
                 </button>
               </div>
-            </AnimateIn>
+            </FadeIn>
           ))}
         </div>
 
-        <AnimateIn>
-          <div className="mt-6 p-4 rounded-xl border border-white/[0.06] bg-white/[0.02] flex items-center justify-center gap-2.5">
-            <Shield size={14} className="text-[#FF4500] flex-shrink-0" />
-            <span className="text-white/40 text-sm">30-day results guarantee — if we don't deliver, you don't pay.</span>
+        <FadeIn>
+          <div className="flex items-center justify-center gap-2 text-[13px] text-white/25 py-3">
+            <Shield size={13} className="text-[#FF4500]/60" />
+            30-day results guarantee on all packages.
           </div>
-        </AnimateIn>
+        </FadeIn>
       </div>
     </section>
   );
 }
+
+/* ─── faq ─────────────────────────────────────── */
 
 function FAQ() {
   const [open, setOpen] = useState<number | null>(null);
   const faqs = [
-    { q: "How quickly will I see results?", a: "Most clients start seeing inbound leads within 2–3 weeks of activation. The full compound effect — consistent $20k+ months — typically arrives by month 3 to 5. We set realistic expectations from day one." },
-    { q: "Do I need a big following to start?", a: "Not at all. We've built systems for coaches starting from zero. The system works on quality and targeting, not follower count. Some of our best results have come from coaches with under 1,000 followers." },
-    { q: "What exactly is AutoNation?", a: "AutoNation is the automation platform we use to connect every tool in your stack — CRM, email, Instagram DMs, booking system, and client onboarding — into one seamless, intelligent flow. Once it's set up, it works 24/7 without you." },
-    { q: "How is APEX different from a social media manager?", a: "A social media manager posts content. We build a complete business system — brand, website, lead generation, automation, and analytics. It's the difference between having one marketing employee and having a fully automated marketing machine." },
-    { q: "What if I'm already at $20k+ a month?", a: "The Empire package is built exactly for you. We focus on scaling intelligently — better ad strategy, team systems, PR and authority building, and the infrastructure to take you to $100k+ without sacrificing your freedom." },
-    { q: "Is there ongoing support?", a: "Yes. All packages include setup support and onboarding. Growth System includes 3 months of strategy support. Empire includes a dedicated ongoing strategist and priority access to our team." },
+    { q: "How quickly will I see results?", a: "Most clients see their first inbound leads within 2–3 weeks of activation. Full results — consistent $20k+ months — typically arrive by month 3 to 5." },
+    { q: "Do I need a big following?", a: "No. We've built systems for coaches starting from zero. The system works on quality targeting, not follower count. Some of our best results came from coaches with under 1,000 followers." },
+    { q: "What is AutoNation?", a: "AutoNation is the automation platform we use to connect every tool in your stack — CRM, email, DMs, booking, and onboarding — into one seamless flow that runs 24/7." },
+    { q: "How is this different from a social media manager?", a: "A social media manager posts content. We build a complete business system — brand, website, lead gen, automation, and analytics. It's the difference between one employee and a full machine." },
+    { q: "Is there ongoing support?", a: "Yes. All packages include setup support. Growth System includes 3 months of strategy support. Empire includes a dedicated strategist and priority access." },
   ];
 
   return (
-    <section className="py-24 md:py-32">
-      <div className="max-w-2xl mx-auto px-5">
-        <AnimateIn className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-black text-white">
-            Got Questions?<br />
-            <span style={{ background: "linear-gradient(135deg,#FF4500,#FF7A00)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              We've Got Answers.
-            </span>
+    <section className="py-24 md:py-32 px-5 md:px-8">
+      <div className="max-w-6xl mx-auto">
+        <FadeIn className="mb-14">
+          <p className="text-[11px] font-semibold text-white/30 tracking-[0.14em] uppercase mb-4">FAQ</p>
+          <h2 className="text-[2.25rem] md:text-[3.5rem] font-black text-white leading-[1.05] tracking-tight">
+            Common questions.
           </h2>
-        </AnimateIn>
+        </FadeIn>
 
-        <div className="space-y-2.5">
+        <div className="border border-white/[0.06] rounded-2xl overflow-hidden divide-y divide-white/[0.06]">
           {faqs.map((f, i) => (
-            <AnimateIn key={i} delay={i * 0.04}>
-              <div data-testid={`faq-item-${i}`}
-                className="rounded-xl overflow-hidden transition-all duration-200"
-                style={{ background: "rgba(255,255,255,0.025)", border: open === i ? "1px solid rgba(255,69,0,0.2)" : "1px solid rgba(255,255,255,0.06)" }}>
-                <button className="w-full text-left px-5 py-4 flex items-center justify-between gap-4" onClick={() => setOpen(open === i ? null : i)} data-testid={`faq-toggle-${i}`}>
-                  <span className="font-semibold text-white text-sm sm:text-base leading-snug">{f.q}</span>
-                  <motion.div animate={{ rotate: open === i ? 180 : 0 }} transition={{ duration: 0.2 }} className="flex-shrink-0">
-                    <ChevronDown size={16} className={open === i ? "text-[#FF4500]" : "text-white/25"} />
+            <FadeIn key={i}>
+              <div data-testid={`faq-item-${i}`}>
+                <button data-testid={`faq-toggle-${i}`} onClick={() => setOpen(open === i ? null : i)}
+                  className="w-full flex items-center justify-between gap-4 px-6 py-5 bg-[#0A0A0A] hover:bg-[#0F0F0F] transition-colors text-left">
+                  <span className="text-[14px] md:text-[15px] font-semibold text-white/80">{f.q}</span>
+                  <motion.div animate={{ rotate: open === i ? 180 : 0 }} transition={{ duration: 0.18 }} className="flex-shrink-0">
+                    <ChevronDown size={15} className={open === i ? "text-[#FF4500]" : "text-white/20"} />
                   </motion.div>
                 </button>
                 <AnimatePresence>
                   {open === i && (
-                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.28 }}>
-                      <p className="px-5 pb-4 text-white/50 text-sm leading-relaxed">{f.a}</p>
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.22 }}
+                      className="overflow-hidden bg-[#0A0A0A]">
+                      <p className="px-6 pb-5 text-[13px] text-white/40 leading-relaxed">{f.a}</p>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
-            </AnimateIn>
+            </FadeIn>
           ))}
         </div>
       </div>
@@ -753,37 +638,7 @@ function FAQ() {
   );
 }
 
-function CTABanner() {
-  const to = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-  return (
-    <section className="px-5 py-8">
-      <div className="max-w-5xl mx-auto">
-        <AnimateIn>
-          <div className="relative rounded-2xl md:rounded-3xl overflow-hidden p-8 md:p-14 text-center"
-            style={{ background: "linear-gradient(135deg, rgba(255,69,0,0.18) 0%, rgba(255,69,0,0.06) 50%, rgba(255,69,0,0.15) 100%)", border: "1px solid rgba(255,69,0,0.25)" }}>
-            <div className="absolute inset-0" style={{ backgroundImage: "linear-gradient(rgba(255,69,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,69,0,0.03) 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
-            <div className="relative z-10">
-              <div className="text-[#FF4500] text-xs font-bold tracking-[0.15em] uppercase mb-4">Limited Spots — 5 New Clients Per Month</div>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
-                Your Competition<br />Isn't Waiting.
-              </h2>
-              <p className="text-white/50 text-base md:text-lg mb-8 max-w-lg mx-auto leading-relaxed">
-                Every day without a system is revenue you're leaving behind. Let's fix that — starting with a free audit.
-              </p>
-              <button data-testid="cta-banner-button" onClick={() => to("apply")}
-                className="inline-flex items-center gap-2.5 px-8 py-4 rounded-full bg-[#FF4500] hover:bg-[#FF5500] text-white font-black text-base transition-all duration-200 hover:scale-105 active:scale-95"
-                style={{ boxShadow: "0 0 40px rgba(255,69,0,0.4)" }}>
-                Get My Free Audit
-                <ArrowRight size={18} />
-              </button>
-              <div className="mt-4 text-white/25 text-sm">No commitment. No hard sell. Just clarity.</div>
-            </div>
-          </div>
-        </AnimateIn>
-      </div>
-    </section>
-  );
-}
+/* ─── apply ─────────────────────────────────────── */
 
 function Apply() {
   const { toast } = useToast();
@@ -791,230 +646,253 @@ function Apply() {
 
   const form = useForm<InsertLead>({
     resolver: zodResolver(insertLeadSchema.extend({
-      name: insertLeadSchema.shape.name.min(2, "Please enter your name"),
-      email: insertLeadSchema.shape.email.email("Please enter a valid email"),
-      currentRevenue: insertLeadSchema.shape.currentRevenue.min(1, "Please select your revenue"),
-      goal: insertLeadSchema.shape.goal.min(1, "Please select your goal"),
+      name: insertLeadSchema.shape.name.min(2, "Required"),
+      email: insertLeadSchema.shape.email.email("Enter a valid email"),
+      currentRevenue: insertLeadSchema.shape.currentRevenue.min(1, "Required"),
+      goal: insertLeadSchema.shape.goal.min(1, "Required"),
     })),
     defaultValues: { name: "", email: "", instagram: "", currentRevenue: "", goal: "", message: "" },
   });
 
-  const mutation = useMutation({
+  const mut = useMutation({
     mutationFn: (data: InsertLead) => apiRequest("POST", "/api/leads", data),
-    onSuccess: () => { setDone(true); toast({ title: "We've got your application!", description: "Expect a reply within 24 hours." }); },
+    onSuccess: () => { setDone(true); toast({ title: "Application received", description: "We'll be in touch within 24 hours." }); },
     onError: () => toast({ title: "Something went wrong", description: "Please try again.", variant: "destructive" }),
   });
 
-  const inputClass = "w-full px-4 py-3.5 rounded-xl text-white placeholder-white/25 text-sm focus:outline-none transition-all"
-    + " bg-white/[0.04] border border-white/[0.08] focus:border-[#FF4500]/40 focus:bg-[#FF4500]/[0.04]";
-
-  const labelClass = "block text-white/40 text-[10px] font-bold mb-1.5 uppercase tracking-widest";
+  const field = "w-full px-4 py-3 rounded-xl bg-[#111] border border-white/[0.08] text-[14px] text-white placeholder-white/20 focus:outline-none focus:border-[#FF4500]/40 transition-colors";
+  const label = "block text-[11px] font-semibold text-white/35 tracking-widest uppercase mb-2";
 
   return (
-    <section id="apply" className="py-24 md:py-32 relative overflow-hidden">
-      <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(255,69,0,0.1) 0%, transparent 70%)" }} />
-      <div className="max-w-6xl mx-auto px-5 relative z-10">
-        <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-start">
-          <AnimateIn>
-            <span className="text-[#FF4500] text-xs font-bold tracking-[0.15em] uppercase">Apply Today</span>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mt-3 leading-tight mb-5">
-              Ready to Build<br />
-              Something{" "}
-              <span style={{ background: "linear-gradient(135deg,#FF4500,#FF7A00)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-                Real?
-              </span>
+    <section id="apply" className="py-24 md:py-32 px-5 md:px-8">
+      <div className="max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-start">
+          {/* Left */}
+          <FadeIn>
+            <p className="text-[11px] font-semibold text-white/30 tracking-[0.14em] uppercase mb-4">Apply</p>
+            <h2 className="text-[2.25rem] md:text-[3.5rem] font-black text-white leading-[1.05] tracking-tight mb-6">
+              Ready to build<br />
+              <span className="text-orange">your system?</span>
             </h2>
-            <p className="text-white/50 text-base leading-relaxed mb-8">
-              Fill in the form and we'll review your setup. We'll come back with a free audit — showing exactly what's holding you back and what the path forward looks like. Completely free. No pressure.
+            <p className="text-[15px] text-white/40 leading-relaxed mb-10">
+              Fill in the form and we'll audit your current setup — completely free. We'll show you exactly what's holding you back and what the path forward looks like. No pressure.
             </p>
 
-            <div className="space-y-4 mb-8">
+            <ul className="space-y-4 mb-10">
               {[
-                { icon: <Clock size={15} />, t: "We reply within 24 hours, usually much faster" },
-                { icon: <Shield size={15} />, t: "No hard sell, ever — we only work with the right fit" },
-                { icon: <Star size={15} />, t: "Free system audit included with every application" },
-                { icon: <Award size={15} />, t: "30-day results guarantee on all packages" },
+                { icon: <Clock size={14} />, text: "Reply within 24 hours" },
+                { icon: <Shield size={14} />, text: "No hard sell — we only work with the right fit" },
+                { icon: <Star size={14} />, text: "Free system audit with every application" },
               ].map((item, i) => (
-                <div key={i} className="flex items-center gap-3 text-white/50 text-sm">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-[#FF4500] flex-shrink-0"
-                    style={{ background: "rgba(255,69,0,0.1)", border: "1px solid rgba(255,69,0,0.18)" }}>
-                    {item.icon}
-                  </div>
-                  {item.t}
-                </div>
+                <li key={i} className="flex items-center gap-3 text-[14px] text-white/40">
+                  <span className="text-[#FF4500] opacity-70">{item.icon}</span>
+                  {item.text}
+                </li>
               ))}
-            </div>
+            </ul>
 
-            {/* Social proof block */}
-            <div className="rounded-2xl p-5" style={{ background: "rgba(255,69,0,0.07)", border: "1px solid rgba(255,69,0,0.15)" }}>
+            <div className="border border-white/[0.07] rounded-2xl p-5 bg-[#0A0A0A]">
               <div className="flex -space-x-2 mb-3">
                 {["JC", "SM", "MR", "PS", "TK"].map((av, i) => (
-                  <div key={i} className="w-9 h-9 rounded-full bg-gradient-to-br from-[#FF4500] to-[#FF7700] border-2 border-background flex items-center justify-center text-white text-xs font-black">
+                  <div key={i} className="w-8 h-8 rounded-full bg-[#FF4500] border-2 border-[#0A0A0A] flex items-center justify-center text-white text-[10px] font-black">
                     {av}
                   </div>
                 ))}
-                <div className="w-9 h-9 rounded-full border-2 border-[#FF4500]/30 bg-[#FF4500]/10 flex items-center justify-center text-[#FF4500] text-xs font-bold">
+                <div className="w-8 h-8 rounded-full bg-white/[0.06] border-2 border-[#0A0A0A] flex items-center justify-center text-white/40 text-[10px] font-bold">
                   +145
                 </div>
               </div>
-              <div className="flex items-center gap-1 mb-1.5">
-                {[...Array(5)].map((_, i) => <Star key={i} size={12} className="text-[#FF4500] fill-[#FF4500]" />)}
-                <span className="text-white/40 text-xs ml-1">4.9 from 140+ coaches</span>
+              <div className="flex gap-0.5 mb-2">
+                {[...Array(5)].map((_, i) => <Star key={i} size={11} className="text-[#FF4500] fill-[#FF4500]" />)}
+                <span className="text-[11px] text-white/25 ml-2 self-center">4.9 from 140+ coaches</span>
               </div>
-              <p className="text-white/45 text-xs leading-relaxed">"The best investment I've ever made in my business." — Sarah M.</p>
+              <p className="text-[12px] text-white/30 italic">"The best investment I've made in my coaching business." — Sarah M.</p>
             </div>
-          </AnimateIn>
+          </FadeIn>
 
-          <AnimateIn delay={0.15}>
+          {/* Right */}
+          <FadeIn delay={0.12}>
             {done ? (
-              <motion.div initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }}
-                className="rounded-2xl p-8 text-center" data-testid="apply-success"
-                style={{ background: "rgba(255,69,0,0.07)", border: "1px solid rgba(255,69,0,0.2)" }}>
-                <div className="w-16 h-16 rounded-full bg-[#FF4500] flex items-center justify-center mx-auto mb-5"
-                  style={{ boxShadow: "0 0 30px rgba(255,69,0,0.5)" }}>
-                  <CheckCircle2 size={28} className="text-white" />
+              <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }}
+                className="border border-white/[0.07] rounded-2xl p-8 text-center bg-[#0A0A0A]" data-testid="apply-success">
+                <div className="w-14 h-14 rounded-2xl bg-[#FF4500] flex items-center justify-center mx-auto mb-5">
+                  <CheckCircle2 size={24} className="text-white" />
                 </div>
-                <h3 className="text-2xl font-black text-white mb-3">Application Received!</h3>
-                <p className="text-white/55 text-sm leading-relaxed">
-                  We'll review your setup and reach out within 24 hours with your free system audit. Exciting things ahead.
+                <h3 className="text-[1.25rem] font-black text-white mb-2">Application Received</h3>
+                <p className="text-[14px] text-white/40 leading-relaxed">
+                  We'll review your setup and be in touch within 24 hours with your free audit.
                 </p>
               </motion.div>
             ) : (
-              <form onSubmit={form.handleSubmit(d => mutation.mutate(d))}
-                className="rounded-2xl p-6 md:p-7 space-y-5" data-testid="apply-form"
-                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
-                <h3 className="text-lg font-black text-white">Get Your Free System Audit</h3>
+              <form onSubmit={form.handleSubmit(d => mut.mutate(d))}
+                className="border border-white/[0.07] rounded-2xl p-6 md:p-7 bg-[#0A0A0A] space-y-5" data-testid="apply-form">
+                <h3 className="text-[16px] font-bold text-white">Free System Audit</h3>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid sm:grid-cols-2 gap-4">
                   <div>
-                    <label className={labelClass}>Your Name *</label>
-                    <input {...form.register("name")} data-testid="input-name" placeholder="Full name" className={inputClass} />
-                    {form.formState.errors.name && <p className="text-red-400 text-xs mt-1">{form.formState.errors.name.message}</p>}
+                    <label className={label}>Name</label>
+                    <input {...form.register("name")} data-testid="input-name" placeholder="Your name" className={field} />
+                    {form.formState.errors.name && <p className="text-red-400/80 text-[11px] mt-1.5">{form.formState.errors.name.message}</p>}
                   </div>
                   <div>
-                    <label className={labelClass}>Email *</label>
-                    <input {...form.register("email")} data-testid="input-email" type="email" placeholder="you@email.com" className={inputClass} />
-                    {form.formState.errors.email && <p className="text-red-400 text-xs mt-1">{form.formState.errors.email.message}</p>}
+                    <label className={label}>Email</label>
+                    <input {...form.register("email")} data-testid="input-email" type="email" placeholder="you@email.com" className={field} />
+                    {form.formState.errors.email && <p className="text-red-400/80 text-[11px] mt-1.5">{form.formState.errors.email.message}</p>}
                   </div>
                 </div>
 
                 <div>
-                  <label className={labelClass}>Instagram Handle</label>
+                  <label className={label}>Instagram</label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25 text-sm pointer-events-none">@</span>
-                    <input {...form.register("instagram")} data-testid="input-instagram" placeholder="yourhandle" className={inputClass + " pl-8"} />
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 text-[14px] pointer-events-none">@</span>
+                    <input {...form.register("instagram")} data-testid="input-instagram" placeholder="yourhandle" className={field + " pl-8"} />
                   </div>
                 </div>
 
                 <div>
-                  <label className={labelClass}>Current Monthly Revenue *</label>
+                  <label className={label}>Monthly Revenue</label>
                   <select {...form.register("currentRevenue")} data-testid="select-revenue"
-                    className="w-full px-4 py-3.5 rounded-xl bg-[#0D0D0D] border border-white/[0.08] text-white text-sm focus:outline-none focus:border-[#FF4500]/40 transition-all appearance-none cursor-pointer">
-                    <option value="">Select your range...</option>
-                    <option value="0-2k">$0 – $2,000 / month</option>
-                    <option value="2k-5k">$2,000 – $5,000 / month</option>
-                    <option value="5k-10k">$5,000 – $10,000 / month</option>
-                    <option value="10k-20k">$10,000 – $20,000 / month</option>
-                    <option value="20k+">$20,000+ / month</option>
+                    className={field + " appearance-none cursor-pointer"}>
+                    <option value="">Select range...</option>
+                    <option value="0-2k">$0 – $2,000</option>
+                    <option value="2k-5k">$2,000 – $5,000</option>
+                    <option value="5k-10k">$5,000 – $10,000</option>
+                    <option value="10k-20k">$10,000 – $20,000</option>
+                    <option value="20k+">$20,000+</option>
                   </select>
-                  {form.formState.errors.currentRevenue && <p className="text-red-400 text-xs mt-1">{form.formState.errors.currentRevenue.message}</p>}
+                  {form.formState.errors.currentRevenue && <p className="text-red-400/80 text-[11px] mt-1.5">{form.formState.errors.currentRevenue.message}</p>}
                 </div>
 
                 <div>
-                  <label className={labelClass}>6-Month Revenue Goal *</label>
+                  <label className={label}>6-Month Goal</label>
                   <select {...form.register("goal")} data-testid="select-goal"
-                    className="w-full px-4 py-3.5 rounded-xl bg-[#0D0D0D] border border-white/[0.08] text-white text-sm focus:outline-none focus:border-[#FF4500]/40 transition-all appearance-none cursor-pointer">
-                    <option value="">Select your goal...</option>
+                    className={field + " appearance-none cursor-pointer"}>
+                    <option value="">Select goal...</option>
                     <option value="10k">$10,000 / month</option>
                     <option value="20k">$20,000 / month</option>
                     <option value="50k">$50,000 / month</option>
                     <option value="100k+">$100,000+ / month</option>
                   </select>
-                  {form.formState.errors.goal && <p className="text-red-400 text-xs mt-1">{form.formState.errors.goal.message}</p>}
+                  {form.formState.errors.goal && <p className="text-red-400/80 text-[11px] mt-1.5">{form.formState.errors.goal.message}</p>}
                 </div>
 
                 <div>
-                  <label className={labelClass}>Biggest Challenge Right Now</label>
+                  <label className={label}>Biggest Challenge <span className="text-white/15 normal-case tracking-normal font-normal">(optional)</span></label>
                   <textarea {...form.register("message")} data-testid="input-message"
-                    placeholder="What's the main thing holding you back?" rows={3}
-                    className={inputClass + " resize-none"} />
+                    placeholder="What's holding you back right now?" rows={3}
+                    className={field + " resize-none"} />
                 </div>
 
-                <button type="submit" data-testid="button-submit" disabled={mutation.isPending}
-                  className="w-full py-4 rounded-full bg-[#FF4500] hover:bg-[#FF5500] text-white font-bold text-base transition-all duration-200 hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2.5"
-                  style={{ boxShadow: "0 0 30px rgba(255,69,0,0.35)" }}>
-                  {mutation.isPending ? (
+                <button type="submit" data-testid="button-submit" disabled={mut.isPending}
+                  className="w-full py-3.5 rounded-xl bg-[#FF4500] hover:bg-[#FF5500] text-white text-[14px] font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                  {mut.isPending ? (
                     <>
                       <motion.div animate={{ rotate: 360 }} transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
-                        className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full" />
+                        className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full" />
                       Submitting...
                     </>
-                  ) : (
-                    <>Get My Free Audit <Rocket size={17} /></>
-                  )}
+                  ) : "Submit Application"}
                 </button>
 
-                <p className="text-white/20 text-xs text-center">No spam. No pressure. Just an honest conversation.</p>
+                <p className="text-[11px] text-white/20 text-center">No spam. No hard sell. Just strategy.</p>
               </form>
             )}
-          </AnimateIn>
+          </FadeIn>
         </div>
       </div>
     </section>
   );
 }
 
-function Footer() {
-  const to = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+/* ─── cta strip ─────────────────────────────────────── */
+
+function CTAStrip() {
   return (
-    <footer className="pt-14 pb-8 border-t border-white/[0.05]">
-      <div className="max-w-7xl mx-auto px-5">
+    <section className="px-5 md:px-8 py-6">
+      <div className="max-w-6xl mx-auto">
+        <FadeIn>
+          <div className="border border-white/[0.07] rounded-2xl px-7 py-8 md:py-10 md:px-12 bg-[#0A0A0A] flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div>
+              <p className="text-[11px] font-semibold text-white/25 tracking-[0.14em] uppercase mb-2">Limited to 5 clients per month</p>
+              <h2 className="text-[1.5rem] md:text-[2rem] font-black text-white tracking-tight leading-tight">
+                Your competition isn't waiting.
+              </h2>
+            </div>
+            <button data-testid="cta-banner-button" onClick={() => scrollTo("apply")}
+              className="flex-shrink-0 flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#FF4500] hover:bg-[#FF5500] text-white text-[14px] font-semibold transition-colors">
+              Get a Free Audit <ArrowRight size={16} />
+            </button>
+          </div>
+        </FadeIn>
+      </div>
+    </section>
+  );
+}
+
+/* ─── footer ─────────────────────────────────────── */
+
+function Footer() {
+  return (
+    <footer className="px-5 md:px-8 pt-14 pb-8 border-t border-white/[0.06]">
+      <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
           <div className="col-span-2">
-            <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-8 h-8 rounded-xl bg-[#FF4500] flex items-center justify-center font-mono text-white font-bold text-xs">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-7 h-7 rounded-lg bg-[#FF4500] flex items-center justify-center text-white font-mono font-bold text-[11px]">
                 &gt;_
               </div>
-              <span className="font-black text-white text-lg tracking-tight">APEX<span className="text-[#FF4500]">.</span></span>
+              <span className="font-bold text-white text-[15px]">APEX</span>
             </div>
-            <p className="text-white/35 text-sm leading-relaxed max-w-xs">
-              Setting the standard for online fitness coaches who want premium brands, automated systems, and predictable scale.
+            <p className="text-[13px] text-white/30 leading-relaxed max-w-[260px]">
+              Setting the standard for online fitness coaches.
             </p>
-            <div className="flex items-center gap-3 mt-5">
-              <a href="#" data-testid="footer-instagram" className="w-9 h-9 rounded-full border border-white/8 flex items-center justify-center text-white/35 hover:text-[#FF4500] hover:border-[#FF4500]/30 transition-colors">
-                <Instagram size={14} />
-              </a>
-              <a href="#" data-testid="footer-mail" className="w-9 h-9 rounded-full border border-white/8 flex items-center justify-center text-white/35 hover:text-[#FF4500] hover:border-[#FF4500]/30 transition-colors">
-                <Mail size={14} />
-              </a>
-            </div>
-          </div>
-
-          <div>
-            <div className="text-white/60 font-semibold text-sm mb-4">Navigation</div>
-            <div className="space-y-2">
-              {[["system","The System"],["services","Services"],["results","Results"],["pricing","Pricing"],["apply","Apply"]].map(([id,label]) => (
-                <button key={id} onClick={() => to(id)} className="block text-white/35 hover:text-white text-sm transition-colors py-0.5">{label}</button>
+            <div className="flex gap-3 mt-5">
+              {[
+                { icon: <Instagram size={14} />, label: "footer-instagram" },
+                { icon: <Mail size={14} />, label: "footer-mail" },
+              ].map(item => (
+                <a key={item.label} href="#" data-testid={item.label}
+                  className="w-8 h-8 rounded-lg border border-white/[0.08] flex items-center justify-center text-white/30 hover:text-white/60 hover:border-white/15 transition-colors">
+                  {item.icon}
+                </a>
               ))}
             </div>
           </div>
 
           <div>
-            <div className="text-white/60 font-semibold text-sm mb-4">Contact</div>
+            <p className="text-[11px] font-semibold text-white/25 tracking-[0.14em] uppercase mb-4">Navigation</p>
             <div className="space-y-2.5">
-              <div className="flex items-center gap-2 text-white/35 text-sm"><Mail size={12} className="text-[#FF4500]" />hello@apexcoaching.io</div>
-              <div className="flex items-center gap-2 text-white/35 text-sm"><Instagram size={12} className="text-[#FF4500]" />@apexcoachingagency</div>
-              <div className="flex items-center gap-2 text-white/35 text-sm"><Clock size={12} className="text-[#FF4500]" />Mon–Fri, 9am–6pm GMT</div>
+              {[["system","System"],["services","Services"],["results","Results"],["pricing","Pricing"],["apply","Apply"]].map(([id,label]) => (
+                <button key={id} onClick={() => scrollTo(id)}
+                  className="block text-[13px] text-white/30 hover:text-white/60 transition-colors">
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="text-[11px] font-semibold text-white/25 tracking-[0.14em] uppercase mb-4">Contact</p>
+            <div className="space-y-2.5">
+              {[
+                { icon: <Mail size={12} />, text: "hello@apexcoaching.io" },
+                { icon: <Instagram size={12} />, text: "@apexcoachingagency" },
+                { icon: <Clock size={12} />, text: "Mon–Fri, 9am–6pm GMT" },
+              ].map((c, i) => (
+                <div key={i} className="flex items-center gap-2 text-[13px] text-white/25">
+                  <span className="text-[#FF4500]/50">{c.icon}</span>
+                  {c.text}
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        <div className="h-px mb-6" style={{ background: "linear-gradient(to right, transparent, rgba(255,255,255,0.06), transparent)" }} />
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="text-white/20 text-xs">© {new Date().getFullYear()} APEX Coaching Agency. All rights reserved.</div>
-          <div className="flex items-center gap-5">
-            <a href="#" className="text-white/20 hover:text-white/40 text-xs transition-colors">Privacy</a>
-            <a href="#" className="text-white/20 hover:text-white/40 text-xs transition-colors">Terms</a>
+        <div className="border-t border-white/[0.05] pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-[12px] text-white/20">© {new Date().getFullYear()} APEX Coaching Agency.</p>
+          <div className="flex gap-5">
+            <a href="#" className="text-[12px] text-white/20 hover:text-white/40 transition-colors">Privacy</a>
+            <a href="#" className="text-[12px] text-white/20 hover:text-white/40 transition-colors">Terms</a>
           </div>
         </div>
       </div>
@@ -1022,20 +900,29 @@ function Footer() {
   );
 }
 
+/* ─── page ─────────────────────────────────────── */
+
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
-      <NavBar />
+    <div className="min-h-screen bg-[#080808] text-foreground overflow-x-hidden">
+      <Nav />
       <Hero />
-      <Ticker />
+      <Divider />
       <Problem />
+      <Divider />
       <System />
+      <Divider />
       <Services />
+      <Divider />
       <Process />
+      <Divider />
       <Results />
+      <Divider />
       <Pricing />
+      <Divider />
       <FAQ />
-      <CTABanner />
+      <Divider />
+      <CTAStrip />
       <Apply />
       <Footer />
     </div>
