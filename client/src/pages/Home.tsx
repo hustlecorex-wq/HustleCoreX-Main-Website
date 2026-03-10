@@ -827,8 +827,8 @@ function LeadsVisual() {
       ctx.clearRect(0, 0, W, H);
       frame++;
 
-      // Spawn every ~80 frames
-      if (frame % 80 === 0) spawn();
+      // Spawn every ~115 frames
+      if (frame % 115 === 0) spawn();
 
       drawCenter();
 
