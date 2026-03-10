@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 import logoImg from "@assets/logo_transparent.png";
-import heroCoachImg from "@assets/generated_images/hero_coach.png";
+import heroCoachImg from "@assets/main_profile_pic_20260225_150724_0000_1773138297391.png";
 import coach1Img from "@assets/stock_images/coach_james.jpg";
 import coach2Img from "@assets/stock_images/coach_sarah.jpg";
 import coach3Img from "@assets/stock_images/coach_marcus.jpg";
@@ -217,8 +217,8 @@ function Hero() {
 
       {/* ── Right: photo panel ── */}
       <div className="w-full h-[55vw] max-h-[520px] lg:h-auto lg:max-h-none lg:w-[42%] xl:w-[40%] relative flex-shrink-0">
-        <img src={heroCoachImg} alt="Professional fitness coach" data-testid="hero-image"
-          className="absolute inset-0 w-full h-full object-cover object-center" />
+        <img src={heroCoachImg} alt="HustleCoreX founder" data-testid="hero-image"
+          className="absolute inset-0 w-full h-full object-cover object-top" />
         {/* gradient blends: left edge into dark bg */}
         <div className="absolute inset-0 bg-gradient-to-r from-[#070707] via-[#070707]/20 to-transparent" />
         {/* bottom gradient for mobile */}
