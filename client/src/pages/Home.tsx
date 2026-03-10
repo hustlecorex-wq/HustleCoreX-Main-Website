@@ -153,21 +153,21 @@ function Hero() {
             backgroundSize: "34px 34px",
           }} />
 
-        {/* Orb 1 — large orange, top-right */}
+        {/* Orb 1 - large orange, top-right */}
         <div className="absolute -top-[15%] -right-[10%] w-[75vw] h-[75vw] max-w-[760px] max-h-[760px]"
           style={{
             background: "radial-gradient(circle, rgba(255,69,0,0.11) 0%, rgba(255,69,0,0.03) 45%, transparent 70%)",
             animation: "orb-float-1 20s ease-in-out infinite",
           }} />
 
-        {/* Orb 2 — warm amber, bottom-left */}
+        {/* Orb 2 - warm amber, bottom-left */}
         <div className="absolute -bottom-[20%] -left-[15%] w-[60vw] h-[60vw] max-w-[600px] max-h-[600px]"
           style={{
             background: "radial-gradient(circle, rgba(255,120,0,0.07) 0%, transparent 65%)",
             animation: "orb-float-2 28s ease-in-out infinite",
           }} />
 
-        {/* Orb 3 — subtle, center-left on mobile */}
+        {/* Orb 3 - subtle, center-left on mobile */}
         <div className="lg:hidden absolute top-[30%] left-[50%] -translate-x-1/2 w-[90vw] h-[90vw]"
           style={{
             background: "radial-gradient(circle, rgba(255,69,0,0.06) 0%, transparent 65%)",
@@ -180,7 +180,7 @@ function Hero() {
         <div className="absolute bottom-0 inset-x-0 h-[120px] bg-gradient-to-t from-[#080808] to-transparent" />
       </div>
 
-      {/* ══ Left — content ══ */}
+      {/* ══ Left - content ══ */}
       <div className="relative z-10 flex-1 flex flex-col justify-center px-6 md:px-10 lg:px-14 xl:px-20 pt-[80px] pb-12 lg:pb-0 lg:pt-0">
         <div className="max-w-[560px]">
 
@@ -203,7 +203,7 @@ function Hero() {
             </span>
           </motion.div>
 
-          {/* Main headline — line by line */}
+          {/* Main headline - line by line */}
           <h1 data-testid="hero-headline"
             className="display text-[clamp(2.9rem,10vw,7.2rem)] text-white mb-7 md:mb-8 leading-[0.93]">
             {headlineLines.map((line, i) => (
@@ -266,7 +266,7 @@ function Hero() {
         </div>
       </div>
 
-      {/* ══ Right — founder photo (desktop only) ══ */}
+      {/* ══ Right - founder photo (desktop only) ══ */}
       <div className="hidden lg:block w-[44%] xl:w-[41%] relative flex-shrink-0 z-10">
         <img src={founderImg} alt="HustleCoreX founder" data-testid="hero-image"
           className="absolute inset-0 w-full h-full object-cover object-top" />
@@ -372,7 +372,7 @@ function Problem() {
               You're working<br />hard in the<br />wrong places.
             </h2>
             <p className="text-[14px] md:text-[15px] text-white/35 leading-[1.8] max-w-[300px]">
-              Most coaches are one system away from doubling their income. The problem isn't your coaching — it's your infrastructure.
+              Most coaches are one system away from doubling their income. The problem isn't your coaching - it's your infrastructure.
             </p>
           </FadeIn>
 
@@ -404,13 +404,13 @@ function System() {
       body: "Your brand is the first impression every future client sees. We build a complete visual identity, voice, and market position that makes you the obvious premium choice in your niche.",
       points: ["Logo & Visual Identity", "Brand Voice & Messaging", "Niche Positioning Strategy", "Content Pillars", "Authority Architecture"] },
     { n: "02", tab: "Website", title: "High-Converting Website", icon: <Globe size={16} />,
-      body: "Not just a beautiful site — a sales machine. We design and build a premium website that qualifies visitors and converts them into booked calls, 24 hours a day.",
+      body: "Not just a beautiful site - a sales machine. We design and build a premium website that qualifies visitors and converts them into booked calls, 24 hours a day.",
       points: ["Custom Premium Design", "Conversion Copywriting", "Automated Booking System", "Video Sales Letter", "Speed & Mobile Optimised"] },
     { n: "03", tab: "Leads", title: "Lead Generation Engine", icon: <Target size={16} />,
-      body: "A multi-channel pipeline — organic, outbound, and paid — built to keep your calendar full of warm, qualified prospects ready to invest in your coaching.",
+      body: "A multi-channel pipeline - organic, outbound, and paid - built to keep your calendar full of warm, qualified prospects ready to invest in your coaching.",
       points: ["Instagram Overhaul", "Content-to-DM Funnel", "Strategic Outreach System", "Paid Ad Strategy", "Lead Magnet Creation"] },
     { n: "04", tab: "AutoNation", title: "AutoNation System", icon: <BrainCircuit size={16} />,
-      body: "Every tool in your stack intelligently connected. Leads come in, get nurtured, book a call, and onboard — entirely without you lifting a finger.",
+      body: "Every tool in your stack intelligently connected. Leads come in, get nurtured, book a call, and onboard - entirely without you lifting a finger.",
       points: ["Full CRM Integration", "Email Automation", "DM Auto-Responses", "Lead Scoring & Routing", "Onboarding Flow"] },
     { n: "05", tab: "Analytics", title: "Growth Analytics", icon: <BarChart3 size={16} />,
       body: "Complete visibility into your pipeline. See exactly where your leads come from, where they drop off, and where to focus your energy for maximum growth.",
@@ -428,7 +428,7 @@ function System() {
               Five pillars.<br />One system.
             </h2>
             <p className="text-[14px] md:text-[15px] text-white/35 leading-[1.8] max-w-[300px]">
-              Built to work as one end-to-end machine — not five tools duct-taped together.
+              Built to work as one end-to-end machine - not five tools duct-taped together.
             </p>
           </FadeIn>
 
@@ -491,7 +491,7 @@ function Results() {
       quote: "The brand transformation changed how people perceive me overnight. The automation closes prospects before I even get on the call." },
     { name: "Priya S.", role: "Female Transformation · Dubai", img: coach4Img,
       before: "$8.5k", after: "$67k", time: "5 months",
-      quote: "From total burnout to a business I'm genuinely proud of. HustleCoreX handles all the heavy lifting — I just do the coaching." },
+      quote: "From total burnout to a business I'm genuinely proud of. HustleCoreX handles all the heavy lifting - I just do the coaching." },
   ];
 
   return (
@@ -696,15 +696,15 @@ function FAQ() {
     { q: "How quickly will I see results?",
       a: "Most clients see inbound leads within 2–3 weeks of launch. Consistent $20k+ months typically arrive by month 3 to 5 as the system compounds and your pipeline matures." },
     { q: "Do I need a big following to start?",
-      a: "Not at all. We've scaled coaches from zero followers. The system works on precision targeting — some of our best results came from coaches with under 1,000 followers." },
+      a: "Not at all. We've scaled coaches from zero followers. The system works on precision targeting - some of our best results came from coaches with under 1,000 followers." },
     { q: "What is AutoNation?",
-      a: "AutoNation is the automation system that connects every tool in your stack — CRM, email, DMs, booking, and onboarding — into one seamless, intelligent flow that runs 24/7 without you." },
+      a: "AutoNation is the automation system that connects every tool in your stack - CRM, email, DMs, booking, and onboarding - into one seamless, intelligent flow that runs 24/7 without you." },
     { q: "How are you different from a social media manager?",
-      a: "A social media manager posts content. We build a complete business system — brand, website, lead gen, automation, and analytics. It's the difference between one employee and a full revenue machine." },
+      a: "A social media manager posts content. We build a complete business system - brand, website, lead gen, automation, and analytics. It's the difference between one employee and a full revenue machine." },
     { q: "Is there ongoing support after launch?",
       a: "Yes. All packages include setup and onboarding. Growth System includes 3 months of strategy support. Empire includes a dedicated strategist with priority access and monthly performance reviews." },
     { q: "What's your guarantee?",
-      a: "We offer a 30-day results guarantee. If we don't deliver what we promised, we'll keep working at no additional cost until we do — or refund you in full. No questions asked." },
+      a: "We offer a 30-day results guarantee. If we don't deliver what we promised, we'll keep working at no additional cost until we do - or refund you in full. No questions asked." },
   ];
 
   return (
@@ -765,7 +765,7 @@ function CTAStrip() {
             {/* subtle glow */}
             <div className="absolute right-0 top-0 w-[500px] h-[300px] bg-[#FF4500]/[0.04] rounded-full blur-[100px] pointer-events-none translate-x-1/3 -translate-y-1/4" />
             <div className="relative">
-              <p className="label-accent mb-4">3 Spots Left — Q2 2026</p>
+              <p className="label-accent mb-4">3 Spots Left - Q2 2026</p>
               <h2 className="display text-[clamp(1.8rem,4vw,3rem)] text-white leading-[1.0]">
                 Your competition<br />isn't waiting.
               </h2>
@@ -816,13 +816,13 @@ function Apply() {
               Ready to build<br />your system?
             </h2>
             <p className="text-[14px] md:text-[15px] text-white/35 leading-[1.8] mb-10 max-w-[360px]">
-              Fill in the form. We'll audit your current setup for free and show you exactly what it takes to hit your target — no pressure, no hard sell.
+              Fill in the form. We'll audit your current setup for free and show you exactly what it takes to hit your target - no pressure, no hard sell.
             </p>
 
             <ul className="space-y-5 mb-12">
               {[
                 { icon: <Clock size={13} />, text: "Reply within 24 hours" },
-                { icon: <Shield size={13} />, text: "No hard sell — we only take on the right fit" },
+                { icon: <Shield size={13} />, text: "No hard sell - we only take on the right fit" },
                 { icon: <Star size={13} />, text: "Free audit included with every application" },
               ].map((item, i) => (
                 <li key={i} className="flex items-center gap-3.5">
@@ -840,7 +840,7 @@ function Apply() {
                 className="w-12 h-12 rounded-full object-cover object-top border border-white/[0.08] flex-shrink-0" />
               <div>
                 <p className="text-[13px] text-white/50 italic leading-relaxed mb-1.5">
-                  "Every coach who applies gets a real audit — not a sales pitch."
+                  "Every coach who applies gets a real audit - not a sales pitch."
                 </p>
                 <p className="text-[11px] text-white/25 font-semibold">HustleCoreX Founder</p>
               </div>
