@@ -737,7 +737,7 @@ function LeadsVisual() {
     const particles: Particle[] = [];
     const ripples: Ripple[] = [];
     const notifs: Notif[] = [];
-    const notifLabels = ["New Enquiry", "Call Booked", "DM Received", "Discovery Call", "Lead In"];
+    const notifLabels = ["Call Booked"];
     let frame = 0;
     let raf: number;
 
@@ -827,8 +827,8 @@ function LeadsVisual() {
       ctx.clearRect(0, 0, W, H);
       frame++;
 
-      // Spawn every ~52 frames
-      if (frame % 52 === 0) spawn();
+      // Spawn every ~80 frames
+      if (frame % 80 === 0) spawn();
 
       drawCenter();
 
@@ -964,19 +964,15 @@ function LeadsVisual() {
   return (
     <div className="rounded-2xl border border-white/[0.07] bg-[#0A0A0A] overflow-hidden">
       <canvas ref={canvasRef} className="w-full h-[260px] sm:h-[300px]" />
-      <div className="px-5 py-4 border-t border-white/[0.05] flex items-center justify-between gap-4">
-        <div>
-          <p className="text-[30px] sm:text-[34px] font-black text-white leading-none tracking-tight">10+</p>
-          <p className="text-[10px] text-white/28 mt-1.5 uppercase tracking-[0.15em]">Qualified leads per week</p>
+      <div className="px-5 py-4 border-t border-white/[0.05]">
+        <div className="flex items-end justify-between gap-3 mb-1">
+          <div className="flex items-baseline gap-2">
+            <p className="text-[36px] sm:text-[40px] font-black text-white leading-none tracking-tight">10+</p>
+            <p className="text-[13px] sm:text-[14px] font-bold text-white/50 leading-tight mb-1">calls booked<br />per week</p>
+          </div>
+          <p className="text-[10px] text-[#FF4500]/60 font-semibold uppercase tracking-[0.14em] text-right mb-1.5">All qualified.<br />All inbound.</p>
         </div>
-        <div className="flex gap-4 sm:gap-6">
-          {[["DMs", "127"], ["Calls", "19"], ["Close Rate", "86%"]].map(([l, v]) => (
-            <div key={l} className="text-center">
-              <p className="text-[15px] sm:text-[17px] font-black text-white/75 leading-none">{v}</p>
-              <p className="text-[9px] text-white/22 mt-1 uppercase tracking-[0.1em]">{l}</p>
-            </div>
-          ))}
-        </div>
+        <p className="text-[10px] text-white/20 uppercase tracking-[0.14em]">Average coach using the system</p>
       </div>
     </div>
   );
