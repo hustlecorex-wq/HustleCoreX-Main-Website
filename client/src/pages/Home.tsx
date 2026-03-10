@@ -496,24 +496,21 @@ function Hero() {
           </button>
         </motion.div>
 
-        {/* Stats row */}
+        {/* Social proof row */}
         <motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }}
           transition={{ duration: 0.7, delay: 0.78 }}
-          className="flex items-center justify-center">
-          {[
-            { n: "50+", label: "Coaches" },
-            { n: "$2M+", label: "Revenue" },
-            { n: "12", label: "Countries" },
-          ].map((s, i) => (
-            <div key={i} className="flex items-center">
-              {i > 0 && <div className="w-px h-6 bg-white/[0.07] mx-5 sm:mx-7 flex-shrink-0" />}
-              <div className="text-center">
-                <p className="text-[18px] sm:text-[22px] font-black text-white leading-none tracking-tight">{s.n}</p>
-                <p className="text-[9px] sm:text-[10px] text-white/22 mt-1.5 uppercase tracking-[0.12em] font-medium">{s.label}</p>
+          className="flex items-center justify-center gap-4">
+          <div className="flex items-center">
+            {[coach1Img, coach2Img, coach3Img, coach4Img].map((src, i) => (
+              <div key={i} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-[#080808] overflow-hidden flex-shrink-0" style={{ marginLeft: i === 0 ? 0 : "-10px", zIndex: i }}>
+                <img src={src} alt="" className="w-full h-full object-cover" />
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+          <p className="text-[12px] sm:text-[13px] text-white/40 font-medium leading-snug">
+            Trusted by <span className="text-white/70 font-semibold">50+ coaches</span> worldwide
+          </p>
         </motion.div>
 
         {/* Scroll hint — hidden on short screens */}
