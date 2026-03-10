@@ -25,6 +25,8 @@ import kyleProfileImg from "@assets/641246630_18408593131131876_4631414787526160
 import reel1Img from "@assets/Snímek_obrazovky_2026-03-10_175400_1773161935655.png";
 import reel2Img from "@assets/Snímek_obrazovky_2026-03-10_175420_1773161935656.png";
 import reel3Img from "@assets/Snímek_obrazovky_2026-03-10_175429_1773161935657.png";
+import proofChatImg from "@assets/Snímek_obrazovky_2026-03-10_181214_1773162828189.png";
+import proofCalendarImg from "@assets/Snímek_obrazovky_2026-03-10_181222_1773162828190.png";
 
 /* ─── animation constants ─────────────────────────────────────── */
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -738,6 +740,17 @@ function LeadsVisual() {
           </div>
         ))}
       </div>
+
+      {/* Proof screenshots */}
+      <div className="px-5 pb-5 space-y-3">
+        <p className="text-[10px] text-white/25 uppercase tracking-[0.18em] mb-3">Real Results</p>
+        <div className="rounded-xl overflow-hidden border border-white/[0.07] shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+          <img src={proofChatImg} alt="Client message - booked 3 more calls" className="w-full block" />
+        </div>
+        <div className="rounded-xl overflow-hidden border border-white/[0.07] shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+          <img src={proofCalendarImg} alt="Discovery calls calendar - fully booked" className="w-full block" />
+        </div>
+      </div>
     </div>
   );
 }
@@ -842,7 +855,7 @@ function System() {
 
         <PillarRow n="03" label="Leads" flip={false}
           title="Real leads from Instagram, every day."
-          body="We build your Instagram presence and lead flow from scratch - or take over what's already there. Either way the goal is the same: qualified people who want to hire you, coming to you."
+          body="We build your Instagram presence and lead flow from scratch - or take over what's already there. Either way the goal is the same: qualified people who want to enquire for your coaching, coming to you."
           points={["Instagram Overhaul","Content-to-DM Funnel","Strategic Outreach System","Paid Ad Strategy","Lead Magnet Creation"]}
           visual={<LeadsVisual />} />
 
