@@ -27,17 +27,15 @@ Premium marketing website for HustleCoreX, an agency for online fitness coaches.
 
 ## Page Sections
 1. **Nav** — fixed, transparent → frosted on scroll, mobile fullscreen overlay
-2. **Hero** — split layout: massive headline left, founder photo right
-3. **StatsStrip** — 4 large animated numbers (desktop only)
-4. **Ticker** — scrolling social proof bar
-5. **Problem** — editorial 2-col: headline left, before/after grid right
-6. **System** — 5-pillar tabbed interface
-7. **Results** — 4 testimonial cards (real coach photos) + aggregate stats block
-8. **Pricing** — 3 plans: Launchpad $2,497 / Growth System $4,997 / Empire custom
-9. **FAQ** — accordion in bordered container
-10. **CTAStrip** — urgency banner with glow effect
-11. **Apply** — lead capture form (Controller selects for automation compatibility)
-12. **Footer** — 4-col grid
+2. **Hero** — cinematic full-viewport: 3-tier typographic headline (outline/6-FIGURE shimmer/white), floating result cards (desktop), stats row, CTAs
+3. **Ticker** — scrolling social proof bar
+4. **Problem** — editorial 2-col: headline left, before/after grid right
+5. **System** — scroll-driven vertical journey (4 PillarRow components with unique visuals)
+6. **Results** — 4 testimonial cards (real coach photos) + aggregate stats block
+7. **FAQ** — accordion in bordered container
+8. **CTAStrip** — urgency banner with glow effect
+9. **Apply** — lead capture form (Controller selects for automation compatibility)
+10. **Footer** — 4-col grid
 
 ## API
 - `POST /api/leads` — Submit application (name, email, instagram, currentRevenue, goal, message)

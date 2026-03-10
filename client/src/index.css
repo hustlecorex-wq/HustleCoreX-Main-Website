@@ -57,6 +57,16 @@
   }
 }
 
+/* ── Ghost / outline text ── */
+.text-outline {
+  -webkit-text-stroke: 1.5px rgba(255,255,255,0.18);
+  color: transparent;
+}
+.text-outline-orange {
+  -webkit-text-stroke: 1.5px rgba(255,69,0,0.4);
+  color: transparent;
+}
+
 /* ── Typography ── */
 .display {
   font-weight: 900;
