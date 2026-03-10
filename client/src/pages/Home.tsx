@@ -15,6 +15,8 @@ import {
 import logoImg from "@assets/logo_transparent.png";
 import heroImg from "@assets/generated_images/hero_coach.png";
 import founderImg from "@assets/main_profile_pic_1773158514731.png";
+import website1Img from "@assets/Snímek_obrazovky_2026-03-10_170325_1773158874311.png";
+import website2Img from "@assets/Snímek_obrazovky_2026-03-10_170555_1773158874312.png";
 import coach1Img from "@assets/580868512_17843744343613829_22300884961125480_n_1773149974233.jpg";
 import coach2Img from "@assets/626956249_18573276355036228_693123345985490863_n_1773149974233.jpg";
 import coach3Img from "@assets/637758797_17889993744428899_7709878898914652022_n_1773149974234.jpg";
@@ -571,79 +573,225 @@ function Problem() {
   );
 }
 
-/* ─── system ─────────────────────────────────────────────────── */
-function System() {
-  const [active, setActive] = useState(0);
-  const pillars = [
-    { n: "01", tab: "Brand", title: "Premium Brand Identity", icon: <Sparkles size={16} />,
-      body: "First impressions either win clients or lose them. We build you a brand that makes the decision easy - the logo, the positioning, the voice that tells people exactly who you are before you say a word.",
-      points: ["Logo & Visual Identity", "Brand Voice & Messaging", "Niche Positioning Strategy", "Content Pillars", "Authority Architecture"] },
-    { n: "02", tab: "Website", title: "High-Converting Website", icon: <Globe size={16} />,
-      body: "Your website should be doing the selling at 2am on a Tuesday. Ours do. We build sites with copy that actually converts, so browsers become bookings without you doing anything.",
-      points: ["Custom Premium Design", "Conversion Copywriting", "Automated Booking System", "Video Sales Letter", "Speed & Mobile Optimised"] },
-    { n: "03", tab: "Leads", title: "Lead Generation Engine", icon: <Target size={16} />,
-      body: "We build your Instagram presence and paid ads from scratch - or take over what's already there. Either way, the goal is the same: real people who want to hire you, coming to you.",
-      points: ["Instagram Overhaul", "Content-to-DM Funnel", "Strategic Outreach System", "Paid Ad Strategy", "Lead Magnet Creation"] },
-    { n: "04", tab: "AutoNation", title: "AutoNation System", icon: <BrainCircuit size={16} />,
-      body: "Once a lead comes in, everything else happens on its own. They get the follow-up. They book. They onboard. You don't touch any of it - the whole thing runs while you're coaching.",
-      points: ["Full CRM Integration", "Email Automation", "DM Auto-Responses", "Lead Scoring & Routing", "Onboarding Flow"] },
-  ];
-
+/* ─── system pillar visuals ──────────────────────────────────── */
+function BrandVisual() {
   return (
-    <section id="system" className="border-t border-white/[0.05] px-6 md:px-10 py-24 md:py-36">
-      <div className="max-w-6xl mx-auto">
-        <div className="grid lg:grid-cols-[380px_1fr] gap-12 lg:gap-20 items-start">
+    <div className="relative rounded-2xl border border-white/[0.07] bg-[#0A0A0A] overflow-hidden p-7">
+      <span className="absolute -right-4 -bottom-4 text-[10rem] font-black text-white/[0.025] leading-none tracking-tighter select-none pointer-events-none">HCX</span>
+      <div className="flex items-center gap-3 mb-7">
+        <div className="w-9 h-9 rounded-xl bg-[#FF4500] flex items-center justify-center flex-shrink-0">
+          <span className="text-[10px] font-black text-white tracking-tight">HCX</span>
+        </div>
+        <div>
+          <p className="text-[13px] font-bold text-white/80 leading-tight">YourName</p>
+          <p className="text-[10px] text-[#FF4500] uppercase tracking-[0.18em]">Elite Coaching</p>
+        </div>
+      </div>
+      <div className="mb-6">
+        <p className="text-[10px] text-white/20 uppercase tracking-[0.18em] mb-3">Brand Palette</p>
+        <div className="flex gap-2">
+          {["#FF4500","#FF7A33","#1A1A1A","#0D0D0D","rgba(255,255,255,0.9)"].map((c, i) => (
+            <div key={i} className="w-10 h-10 rounded-xl border border-white/[0.07]" style={{ background: c }} />
+          ))}
+        </div>
+      </div>
+      <div className="space-y-2.5">
+        <p className="text-[10px] text-white/20 uppercase tracking-[0.18em]">Typography</p>
+        <p className="text-[28px] font-black text-white/80 leading-tight tracking-tight">Aa Bb Cc</p>
+        <p className="text-[11px] text-white/30 font-mono uppercase tracking-[0.22em]">PREMIUM · BOLD · AUTHORITY</p>
+      </div>
+      <div className="mt-7 pt-5 border-t border-white/[0.05] flex gap-2 flex-wrap">
+        {["Logo Pack", "Brand Guide", "Visual Kit", "Templates"].map(t => (
+          <span key={t} className="px-2.5 py-1 rounded-lg border border-white/[0.07] text-[10px] text-white/30 font-medium">{t}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
 
-          <FadeIn>
-            <p className="label-accent mb-6">The System</p>
-            <h2 className="display text-[clamp(2.8rem,5.5vw,4.5rem)] text-white mb-6">
-              Four pillars.<br />One system.
-            </h2>
-            <p className="text-[14px] md:text-[15px] text-white/35 leading-[1.8] max-w-[300px]">
-              Everything talks to everything else. That's the point.
-            </p>
-          </FadeIn>
-
-          <div>
-            {/* tabs */}
-            <div className="flex overflow-x-auto scrollbar-hide border-b border-white/[0.05] -mx-6 px-6 md:mx-0 md:px-0 mb-10">
-              {pillars.map((p, i) => (
-                <button key={i} data-testid={`system-tab-${i}`} onClick={() => setActive(i)}
-                  className={`flex-shrink-0 flex items-center gap-2 px-4 py-3 text-[13px] font-semibold border-b-2 -mb-px transition-all whitespace-nowrap ${
-                    active === i ? "border-white text-white" : "border-transparent text-white/25 hover:text-white/45"
-                  }`}>
-                  <span className="font-mono text-[9px] text-white/18">{p.n}</span> {p.tab}
-                </button>
-              ))}
-            </div>
-
-            <AnimatePresence mode="wait">
-              <motion.div key={active} data-testid="system-content"
-                initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                transition={{ duration: 0.18 }}
-                className="grid sm:grid-cols-2 gap-10">
-                <div>
-                  <div className="w-9 h-9 rounded-xl border border-white/[0.07] flex items-center justify-center text-white/40 mb-5">
-                    {pillars[active].icon}
-                  </div>
-                  <h3 className="heading text-[1.35rem] text-white mb-3">{pillars[active].title}</h3>
-                  <p className="text-[14px] text-white/35 leading-[1.8]">{pillars[active].body}</p>
-                </div>
-                <ul className="divide-y divide-white/[0.04]">
-                  {pillars[active].points.map((f, i) => (
-                    <motion.li key={f}
-                      initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.07 }}
-                      className="flex items-center gap-3 py-3.5">
-                      <CheckCircle2 size={12} className="text-white/25 flex-shrink-0" />
-                      <span className="text-[13px] text-white/55">{f}</span>
-                    </motion.li>
-                  ))}
-                </ul>
-              </motion.div>
-            </AnimatePresence>
+function WebsiteVisual() {
+  return (
+    <div className="relative">
+      <div className="relative z-10 rounded-xl overflow-hidden border border-white/[0.1] shadow-[0_24px_80px_rgba(0,0,0,0.6)]">
+        <div className="flex items-center gap-1.5 px-4 py-2.5 bg-[#181818] border-b border-white/[0.06]">
+          <div className="w-3 h-3 rounded-full bg-[#FF5F57]" />
+          <div className="w-3 h-3 rounded-full bg-[#FEBC2E]" />
+          <div className="w-3 h-3 rounded-full bg-[#28C840]" />
+          <div className="flex-1 mx-3 h-5 rounded-md bg-white/[0.06] flex items-center px-2.5">
+            <span className="text-[9px] text-white/25 font-mono">kyleshaylerelite.com</span>
           </div>
         </div>
+        <img src={website1Img} alt="Kyle Shayler coaching website" className="w-full block" />
+      </div>
+      <div className="relative z-20 mt-[-40px] ml-6 sm:ml-12 rounded-xl overflow-hidden border border-white/[0.1] shadow-[0_24px_80px_rgba(0,0,0,0.7)]">
+        <div className="flex items-center gap-1.5 px-4 py-2.5 bg-[#181818] border-b border-white/[0.06]">
+          <div className="w-3 h-3 rounded-full bg-[#FF5F57]" />
+          <div className="w-3 h-3 rounded-full bg-[#FEBC2E]" />
+          <div className="w-3 h-3 rounded-full bg-[#28C840]" />
+          <div className="flex-1 mx-3 h-5 rounded-md bg-white/[0.06] flex items-center px-2.5">
+            <span className="text-[9px] text-white/25 font-mono">patrickbrody.coach</span>
+          </div>
+        </div>
+        <img src={website2Img} alt="Patrick Brody coaching website" className="w-full block" />
+      </div>
+      <div className="absolute -bottom-3 left-4 right-4 h-8 bg-gradient-to-t from-[#080808] to-transparent pointer-events-none" />
+    </div>
+  );
+}
+
+function LeadsVisual() {
+  const metrics = [
+    { label: "Profile Visits", value: "8,240", change: "+34%", up: true },
+    { label: "DMs Received", value: "127", change: "+91%", up: true },
+    { label: "Calls Booked", value: "19", change: "+58%", up: true },
+  ];
+  return (
+    <div className="rounded-2xl border border-white/[0.07] bg-[#0A0A0A] overflow-hidden">
+      <div className="flex items-center gap-3 p-5 border-b border-white/[0.05]">
+        <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#FF4500] via-[#FF6B00] to-[#FF9A00] p-0.5 flex-shrink-0">
+          <div className="w-full h-full rounded-full bg-[#111] flex items-center justify-center">
+            <span className="text-[9px] font-black text-white">IG</span>
+          </div>
+        </div>
+        <div>
+          <p className="text-[12px] font-bold text-white/80">@yourcoachingpage</p>
+          <p className="text-[10px] text-white/30">12,480 followers</p>
+        </div>
+        <div className="ml-auto px-3 py-1 rounded-full bg-[#FF4500] text-[10px] font-bold text-white">Follow</div>
+      </div>
+      <div className="grid grid-cols-3 gap-px bg-white/[0.04] border-b border-white/[0.05]">
+        {["Posts","Followers","Following"].map((l, i) => (
+          <div key={i} className="bg-[#0A0A0A] py-3 text-center">
+            <p className="text-[13px] font-bold text-white">{["148","12.4K","380"][i]}</p>
+            <p className="text-[9px] text-white/25">{l}</p>
+          </div>
+        ))}
+      </div>
+      <div className="p-5 space-y-3">
+        <p className="text-[10px] text-white/25 uppercase tracking-[0.18em] mb-3">This Week</p>
+        {metrics.map((m, i) => (
+          <div key={i} className="flex items-center justify-between py-2.5 border-b border-white/[0.04] last:border-0">
+            <span className="text-[12px] text-white/45">{m.label}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-[13px] font-bold text-white">{m.value}</span>
+              <span className="text-[10px] font-semibold text-emerald-400">{m.change}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AutoNationVisual() {
+  const steps = [
+    { label: "Lead Comes In", sub: "Instagram DM or website form", color: "border-[#FF4500]/40 bg-[#FF4500]/[0.08]", dot: "bg-[#FF4500]" },
+    { label: "CRM Entry", sub: "Auto-tagged and segmented", color: "border-white/[0.08] bg-white/[0.02]", dot: "bg-white/30" },
+    { label: "Follow-Up Sequence", sub: "Email + DM sent within 60s", color: "border-white/[0.08] bg-white/[0.02]", dot: "bg-white/30" },
+    { label: "Call Booked", sub: "Calendar link sent automatically", color: "border-white/[0.08] bg-white/[0.02]", dot: "bg-white/30" },
+    { label: "Onboarded", sub: "Welcome flow triggers instantly", color: "border-emerald-500/30 bg-emerald-500/[0.06]", dot: "bg-emerald-400" },
+  ];
+  return (
+    <div className="rounded-2xl border border-white/[0.07] bg-[#0A0A0A] p-6">
+      <p className="text-[10px] text-white/20 uppercase tracking-[0.18em] mb-5">AutoNation Flow</p>
+      <div className="relative">
+        <div className="absolute left-[15px] top-4 bottom-4 w-px bg-gradient-to-b from-[#FF4500]/40 via-white/[0.08] to-emerald-500/30" />
+        <div className="space-y-2">
+          {steps.map((s, i) => (
+            <div key={i} className={`relative flex items-start gap-4 p-4 rounded-xl border ${s.color} transition-all`}>
+              <div className={`w-[10px] h-[10px] rounded-full ${s.dot} flex-shrink-0 mt-0.5 ring-[3px] ring-[#0A0A0A]`} />
+              <div>
+                <p className="text-[13px] font-semibold text-white/75 leading-tight">{s.label}</p>
+                <p className="text-[11px] text-white/30 mt-0.5">{s.sub}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <p className="text-[11px] text-white/20 text-center mt-5 font-mono">Runs 24 / 7 · Zero manual input</p>
+    </div>
+  );
+}
+
+/* ─── system section ─────────────────────────────────────────── */
+function PillarRow({ n, label, title, body, points, visual, flip }:
+  { n: string; label: string; title: string; body: string; points: string[]; visual: React.ReactNode; flip: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const ease = [0.22, 1, 0.36, 1] as const;
+  return (
+    <div ref={ref} className="py-16 md:py-24 border-b border-white/[0.05] last:border-0">
+      <div className={`grid lg:grid-cols-2 gap-10 lg:gap-16 items-center ${flip ? "lg:grid-flow-dense" : ""}`}>
+        <motion.div
+          className={flip ? "lg:col-start-2" : ""}
+          initial={{ opacity: 0, x: flip ? 36 : -36 }}
+          animate={inView ? { opacity: 1, x: 0 } : {}}
+          transition={{ duration: 0.75, ease }}>
+          <div className="flex items-center gap-3 mb-6">
+            <span className="font-mono text-[11px] font-bold text-[#FF4500]/70 tracking-[0.2em]">{n}</span>
+            <div className="flex-1 h-px bg-white/[0.06]" />
+            <span className="text-[10px] font-semibold text-white/20 uppercase tracking-[0.18em]">{label}</span>
+          </div>
+          <h3 className="display text-[clamp(1.8rem,3.8vw,2.9rem)] text-white mb-5 leading-[1.0]">{title}</h3>
+          <p className="text-[14px] md:text-[15px] text-white/38 leading-[1.82] mb-8">{body}</p>
+          <ul className="space-y-3">
+            {points.map((pt) => (
+              <li key={pt} className="flex items-center gap-3">
+                <CheckCircle2 size={13} className="text-[#FF4500]/55 flex-shrink-0" />
+                <span className="text-[13px] text-white/52">{pt}</span>
+              </li>
+            ))}
+          </ul>
+        </motion.div>
+        <motion.div
+          className={flip ? "lg:col-start-1 lg:row-start-1" : ""}
+          initial={{ opacity: 0, x: flip ? -36 : 36 }}
+          animate={inView ? { opacity: 1, x: 0 } : {}}
+          transition={{ duration: 0.75, delay: 0.1, ease }}>
+          {visual}
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
+function System() {
+  return (
+    <section id="system" className="border-t border-white/[0.05] px-6 md:px-10 pt-24 md:pt-36 pb-0">
+      <div className="max-w-6xl mx-auto">
+        <FadeIn>
+          <p className="label-accent mb-6">The System</p>
+          <h2 className="display text-[clamp(2.8rem,5.5vw,4.5rem)] text-white mb-5">
+            Four pillars.<br />One system.
+          </h2>
+          <p className="text-[14px] md:text-[15px] text-white/35 leading-[1.8] max-w-[340px]">
+            Each piece is built to feed the next. Scroll through to see how it works.
+          </p>
+        </FadeIn>
+
+        <PillarRow n="01" label="Brand" flip={false}
+          title="A brand that commands respect."
+          body="First impressions either win clients or lose them. We build you a brand that makes the decision easy - the logo, the positioning, the voice that tells people exactly who you are before you say a word."
+          points={["Logo & Visual Identity","Brand Voice & Messaging","Niche Positioning Strategy","Content Pillars","Authority Architecture"]}
+          visual={<BrandVisual />} />
+
+        <PillarRow n="02" label="Website" flip={true}
+          title="A website that closes while you sleep."
+          body="Your website should be doing the selling at 2am on a Tuesday. Ours do. We build sites with copy that actually converts, so browsers become bookings without you lifting a finger."
+          points={["Custom Premium Design","Conversion Copywriting","Automated Booking System","Video Sales Letter","Speed & Mobile Optimised"]}
+          visual={<WebsiteVisual />} />
+
+        <PillarRow n="03" label="Leads" flip={false}
+          title="Real leads from Instagram, every day."
+          body="We build your Instagram presence and lead flow from scratch - or take over what's already there. Either way the goal is the same: qualified people who want to hire you, coming to you."
+          points={["Instagram Overhaul","Content-to-DM Funnel","Strategic Outreach System","Paid Ad Strategy","Lead Magnet Creation"]}
+          visual={<LeadsVisual />} />
+
+        <PillarRow n="04" label="AutoNation" flip={true}
+          title="Your business runs itself."
+          body="Once a lead comes in, everything else happens on its own. They get the follow-up. They book. They onboard. You don't touch any of it - the whole thing runs while you're coaching."
+          points={["Full CRM Integration","Email Automation","DM Auto-Responses","Lead Scoring & Routing","Onboarding Flow"]}
+          visual={<AutoNationVisual />} />
       </div>
     </section>
   );
