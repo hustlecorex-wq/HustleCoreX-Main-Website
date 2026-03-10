@@ -282,7 +282,7 @@ function Hero() {
               <span className="relative block w-full h-full rounded-full bg-[#FF4500]" />
             </span>
             <span className="text-[11px] sm:text-[12px] font-medium text-white/40 tracking-[0.01em] whitespace-nowrap">
-              The future of online coaching is here.
+              The agency building 6-figure fitness coaches.
             </span>
           </motion.div>
 
@@ -313,7 +313,7 @@ function Hero() {
             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.6, ease }}
             className="text-[13px] sm:text-[14px] md:text-[15px] text-white/32 leading-[1.78] max-w-[370px] mb-7 sm:mb-8">
-            Premium brand. Elite website. Automated lead engine. One system built exclusively for online fitness coaches.
+            We build your brand, your website, and your lead flow - so you can stop piecing things together and start actually growing.
           </motion.p>
 
           {/* CTAs */}
@@ -407,12 +407,12 @@ function Ticker() {
 /* ─── problem ────────────────────────────────────────────────── */
 function Problem() {
   const items = [
-    { before: "Posting content, praying for leads", after: "Qualified prospects arriving every day" },
-    { before: "Looking like every other coach online", after: "A premium brand that justifies premium prices" },
-    { before: "Chasing every lead manually", after: "Automated follow-up running 24/7" },
-    { before: "A website that loses you clients", after: "A conversion machine that books calls while you sleep" },
-    { before: "Stuck at $5–10k with no clear path up", after: "A repeatable system clearing $30k+ every month" },
-    { before: "Working in your business all day", after: "Working on your business from a position of leverage" },
+    { before: "Posting content, praying for leads", after: "Qualified prospects showing up every single day" },
+    { before: "Looking like every other coach online", after: "A brand people actually pay premium prices for" },
+    { before: "Chasing every lead manually", after: "Follow-up running on its own, around the clock" },
+    { before: "A website that loses you clients", after: "A website that books calls while you sleep" },
+    { before: "Stuck at $5–10k with no clear path up", after: "Hitting $30k+ months and knowing exactly how" },
+    { before: "Working in your business all day", after: "Working on your business, not buried inside it" },
   ];
 
   return (
@@ -426,7 +426,7 @@ function Problem() {
               You're working<br />hard in the<br />wrong places.
             </h2>
             <p className="text-[14px] md:text-[15px] text-white/35 leading-[1.8] max-w-[300px]">
-              Most coaches are one system away from doubling their income. The problem isn't your coaching - it's your infrastructure.
+              Most coaches who come to us say the same thing: the coaching is great, everything else is a mess. That's the gap. That's what we fix.
             </p>
           </FadeIn>
 
@@ -458,16 +458,16 @@ function System() {
   const [active, setActive] = useState(0);
   const pillars = [
     { n: "01", tab: "Brand", title: "Premium Brand Identity", icon: <Sparkles size={16} />,
-      body: "Your brand is the first impression every future client sees. We build a complete visual identity, voice, and market position that makes you the obvious premium choice in your niche.",
+      body: "First impressions either win clients or lose them. We build you a brand that makes the decision easy - the logo, the positioning, the voice that tells people exactly who you are before you say a word.",
       points: ["Logo & Visual Identity", "Brand Voice & Messaging", "Niche Positioning Strategy", "Content Pillars", "Authority Architecture"] },
     { n: "02", tab: "Website", title: "High-Converting Website", icon: <Globe size={16} />,
-      body: "Not just a beautiful site - a sales machine. We design and build a premium website that qualifies visitors and converts them into booked calls, 24 hours a day.",
+      body: "Your website should be doing the selling at 2am on a Tuesday. Ours do. We build sites with copy that actually converts, so browsers become bookings without you doing anything.",
       points: ["Custom Premium Design", "Conversion Copywriting", "Automated Booking System", "Video Sales Letter", "Speed & Mobile Optimised"] },
     { n: "03", tab: "Leads", title: "Lead Generation Engine", icon: <Target size={16} />,
-      body: "Instagram-first lead generation built around your profile and paid ads. We turn your content and campaigns into a daily stream of warm, qualified prospects ready to invest in your coaching.",
+      body: "We build your Instagram presence and paid ads from scratch - or take over what's already there. Either way, the goal is the same: real people who want to hire you, coming to you.",
       points: ["Instagram Overhaul", "Content-to-DM Funnel", "Strategic Outreach System", "Paid Ad Strategy", "Lead Magnet Creation"] },
     { n: "04", tab: "AutoNation", title: "AutoNation System", icon: <BrainCircuit size={16} />,
-      body: "Every tool in your stack intelligently connected. Leads come in, get nurtured, book a call, and onboard - entirely without you lifting a finger.",
+      body: "Once a lead comes in, everything else happens on its own. They get the follow-up. They book. They onboard. You don't touch any of it - the whole thing runs while you're coaching.",
       points: ["Full CRM Integration", "Email Automation", "DM Auto-Responses", "Lead Scoring & Routing", "Onboarding Flow"] },
   ];
 
@@ -482,7 +482,7 @@ function System() {
               Four pillars.<br />One system.
             </h2>
             <p className="text-[14px] md:text-[15px] text-white/35 leading-[1.8] max-w-[300px]">
-              Built to work as one end-to-end machine.
+              Everything talks to everything else. That's the point.
             </p>
           </FadeIn>
 
@@ -536,16 +536,16 @@ function Results() {
   const cards = [
     { name: "James C.", role: "Fat Loss Coach · London", img: coach1Img,
       before: "$4.2k", after: "$31.5k", time: "4 months",
-      quote: "HustleCoreX built me a real business. My system runs 24/7 and I've broken past $30k consistently every month since." },
+      quote: "I had great coaching but zero business. HCX fixed that. Three months straight over $30k and I haven't had to chase a single lead." },
     { name: "Sarah M.", role: "PT & Nutrition · Manchester", img: coach2Img,
       before: "$7.8k", after: "$52k", time: "6 months",
-      quote: "I used to post and pray. Now I have a machine booking 3–5 calls daily without me touching a thing. The ROI is insane." },
+      quote: "I used to post every day and get nothing back. Now I wake up to booked calls. I haven't chased a lead in months." },
     { name: "Marcus R.", role: "Strength Coach · New York", img: coach3Img,
       before: "$2.9k", after: "$18.4k", time: "3 months",
-      quote: "The brand transformation changed how people perceive me overnight. The automation closes prospects before I even get on the call." },
+      quote: "Honestly the brand work alone changed everything. People started taking me seriously before we'd even spoken. The rest just followed." },
     { name: "Priya S.", role: "Female Transformation · Dubai", img: coach4Img,
       before: "$8.5k", after: "$67k", time: "5 months",
-      quote: "From total burnout to a business I'm genuinely proud of. HustleCoreX handles all the heavy lifting - I just do the coaching." },
+      quote: "I was running on empty and nearly quit. Six months later I have my best months ever and I actually enjoy the work again." },
   ];
 
   return (
@@ -561,7 +561,7 @@ function Results() {
           </FadeIn>
           <FadeIn delay={0.1}>
             <p className="text-[13px] text-white/28 max-w-[260px] leading-relaxed">
-              Every result below came from a coach who was exactly where you are now.
+              These aren't outliers. These are coaches who were right where you are.
             </p>
           </FadeIn>
         </div>
@@ -614,7 +614,7 @@ function Pricing() {
     {
       name: "Launchpad", price: "2,497", note: "one-time",
       tag: "",
-      desc: "The foundation every serious coach needs to get started.",
+      desc: "Brand, Instagram, and a lead gen strategy. The right starting point before you build up.",
       features: ["Brand Identity System", "Instagram Overhaul", "Lead Gen Strategy", "30-Day Content Framework", "DM Script Library"],
       missing: ["Website Build", "AutoNation Setup"],
       highlight: false,
@@ -622,7 +622,7 @@ function Pricing() {
     {
       name: "Growth System", price: "4,997", note: "one-time",
       tag: "Most Popular",
-      desc: "The complete system for coaches ready to break $20k/month.",
+      desc: "Everything you need to hit $20k+ a month and keep it there.",
       features: ["Everything in Launchpad", "Premium Website Build", "AutoNation Integration", "Email & DM Automation", "Analytics Dashboard", "3-Month Strategy Support"],
       missing: [],
       highlight: true,
@@ -630,7 +630,7 @@ function Pricing() {
     {
       name: "Empire", price: "Custom", note: "bespoke",
       tag: "6-Figure Track",
-      desc: "For coaches scaling past $20k/month toward $100k and beyond.",
+      desc: "You're already doing well. This is how you take it somewhere serious.",
       features: ["Everything in Growth", "Full Ad Management", "Dedicated Strategist", "PR & Authority Building", "Team & Hiring Systems"],
       missing: [],
       highlight: false,
@@ -732,17 +732,17 @@ function FAQ() {
   const [open, setOpen] = useState<number | null>(null);
   const items = [
     { q: "How quickly will I see results?",
-      a: "Most clients see inbound leads within 2–3 weeks of launch. Consistent $20k+ months typically arrive by month 3 to 5 as the system compounds and your pipeline matures." },
+      a: "Most clients start seeing leads come in within 2-3 weeks of going live. Consistent $20k months usually click into place around month 3 to 5, once everything has had time to build and compound." },
     { q: "Do I need a big following to start?",
-      a: "Not at all. We've scaled coaches from zero followers. The system works on precision targeting - some of our best results came from coaches with under 1,000 followers." },
+      a: "Nope. We've taken coaches from zero - no following, no email list, nothing. The system doesn't rely on you already being known. Part of what we build is the audience itself." },
     { q: "What is AutoNation?",
-      a: "AutoNation is the automation system that connects every tool in your stack - CRM, email, DMs, booking, and onboarding - into one seamless, intelligent flow that runs 24/7 without you." },
+      a: "AutoNation is our automation layer. It wires up your CRM, email, DMs, booking, and onboarding so the whole thing runs without you doing it manually. Lead comes in, gets followed up, books a call, onboards - all without you." },
     { q: "How are you different from a social media manager?",
-      a: "A social media manager posts content. We build a complete business system - brand, website, lead gen, automation, and analytics. It's the difference between one employee and a full revenue machine." },
+      a: "A social media manager posts content and hopes something sticks. We build the whole business behind it - the brand, the site, the lead flow, the automation. It's not a single piece. It's the whole thing." },
     { q: "Is there ongoing support after launch?",
-      a: "Yes. All packages include setup and onboarding. Growth System includes 3 months of strategy support. Empire includes a dedicated strategist with priority access and monthly performance reviews." },
+      a: "Yes. Everything includes a proper setup and handover so you understand what you've got. Growth System includes 3 months of ongoing strategy. Empire clients get a dedicated strategist who's always on hand." },
     { q: "What's your guarantee?",
-      a: "We offer a 30-day results guarantee. If we don't deliver what we promised, we'll keep working at no additional cost until we do - or refund you in full. No questions asked." },
+      a: "Simple: if we don't hit what we said we would, we keep going at no extra cost until we do. If we still can't get there, you get your money back in full. That's it." },
   ];
 
   return (
@@ -811,7 +811,7 @@ function CTAStrip() {
             <div className="relative">
               <p className="label-accent mb-4">3 Spots Left - Q2 2026</p>
               <h2 className="display text-[clamp(1.8rem,4vw,3rem)] text-white leading-[1.0]">
-                Your competition<br />isn't waiting.
+                While you're reading<br />this, someone else<br />is building their system.
               </h2>
             </div>
             <button data-testid="cta-banner-button" onClick={() => go("apply")}
@@ -857,17 +857,17 @@ function Apply() {
           <FadeIn from="left">
             <p className="label-accent mb-6">Apply Now</p>
             <h2 className="display text-[clamp(2.8rem,5.5vw,4.5rem)] text-white mb-7">
-              Ready to build<br />your system?
+              Let's see if<br />we're a fit.
             </h2>
             <p className="text-[14px] md:text-[15px] text-white/35 leading-[1.8] mb-10 max-w-[360px]">
-              Fill in the form. We'll audit your current setup for free and show you exactly what it takes to hit your target - no pressure, no hard sell.
+              Fill in the form below. We'll take a proper look at where you're at and tell you honestly what needs to change. No pitch, no pressure - just a real conversation.
             </p>
 
             <ul className="space-y-5 mb-12">
               {[
-                { icon: <Clock size={13} />, text: "Reply within 24 hours" },
-                { icon: <Shield size={13} />, text: "No hard sell - we only take on the right fit" },
-                { icon: <Star size={13} />, text: "Free audit included with every application" },
+                { icon: <Clock size={13} />, text: "We reply within 24 hours, always" },
+                { icon: <Shield size={13} />, text: "We only work with coaches we can genuinely help" },
+                { icon: <Star size={13} />, text: "Every application gets a free audit" },
               ].map((item, i) => (
                 <li key={i} className="flex items-center gap-3.5">
                   <div className="w-8 h-8 rounded-lg border border-white/[0.06] flex items-center justify-center text-white/25 flex-shrink-0">
@@ -884,7 +884,7 @@ function Apply() {
                 className="w-12 h-12 rounded-full object-cover object-center border border-white/[0.08] flex-shrink-0" />
               <div>
                 <p className="text-[13px] text-white/50 italic leading-relaxed mb-1.5">
-                  "Every coach who applies gets a real audit - not a sales pitch."
+                  "Every coach who applies gets an honest audit - not a pitch."
                 </p>
                 <p className="text-[11px] text-white/25 font-semibold">HustleCoreX Founder</p>
               </div>
@@ -1000,7 +1000,7 @@ function Footer() {
           <div className="col-span-2">
             <Logo />
             <p className="text-[13px] text-white/22 leading-[1.8] mt-4 max-w-[200px]">
-              Setting the standard for online fitness coaches worldwide.
+              We build the businesses behind the coaches.
             </p>
             <div className="flex gap-2 mt-6">
               {[
