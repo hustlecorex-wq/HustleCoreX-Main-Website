@@ -132,89 +132,163 @@ function Nav() {
 
 /* ─── hero ───────────────────────────────────────────────────── */
 function Hero() {
-  return (
-    <section id="hero" className="min-h-[100svh] flex flex-col lg:flex-row items-stretch overflow-hidden pt-[62px]">
+  const badgeWords = "The future of online coaching is here.".split(" ");
 
-      {/* left */}
-      <div className="flex-1 flex flex-col justify-center px-6 md:px-10 lg:px-14 xl:px-20 py-16 lg:py-0 relative z-10">
+  const headlineLines = [
+    { text: "The System", delay: 0.55 },
+    { text: "Behind", delay: 0.70 },
+    { text: "6-Figure", delay: 0.85, shimmer: true },
+    { text: "Coaches.", delay: 1.0 },
+  ];
+
+  return (
+    <section id="hero" className="relative min-h-[100svh] flex flex-col lg:flex-row items-stretch overflow-hidden">
+
+      {/* ══ Animated background layer ══ */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        {/* dot-grid */}
+        <div className="absolute inset-0"
+          style={{
+            backgroundImage: "radial-gradient(rgba(255,255,255,0.022) 1px, transparent 1px)",
+            backgroundSize: "34px 34px",
+          }} />
+
+        {/* Orb 1 — large orange, top-right */}
+        <div className="absolute -top-[15%] -right-[10%] w-[75vw] h-[75vw] max-w-[760px] max-h-[760px]"
+          style={{
+            background: "radial-gradient(circle, rgba(255,69,0,0.11) 0%, rgba(255,69,0,0.03) 45%, transparent 70%)",
+            animation: "orb-float-1 20s ease-in-out infinite",
+          }} />
+
+        {/* Orb 2 — warm amber, bottom-left */}
+        <div className="absolute -bottom-[20%] -left-[15%] w-[60vw] h-[60vw] max-w-[600px] max-h-[600px]"
+          style={{
+            background: "radial-gradient(circle, rgba(255,120,0,0.07) 0%, transparent 65%)",
+            animation: "orb-float-2 28s ease-in-out infinite",
+          }} />
+
+        {/* Orb 3 — subtle, center-left on mobile */}
+        <div className="lg:hidden absolute top-[30%] left-[50%] -translate-x-1/2 w-[90vw] h-[90vw]"
+          style={{
+            background: "radial-gradient(circle, rgba(255,69,0,0.06) 0%, transparent 65%)",
+            animation: "orb-float-3 22s ease-in-out infinite",
+          }} />
+
+        {/* top edge vignette */}
+        <div className="absolute top-0 inset-x-0 h-[80px] bg-gradient-to-b from-[#080808] to-transparent" />
+        {/* bottom edge vignette */}
+        <div className="absolute bottom-0 inset-x-0 h-[120px] bg-gradient-to-t from-[#080808] to-transparent" />
+      </div>
+
+      {/* ══ Left — content ══ */}
+      <div className="relative z-10 flex-1 flex flex-col justify-center px-6 md:px-10 lg:px-14 xl:px-20 pt-[80px] pb-12 lg:pb-0 lg:pt-0">
         <div className="max-w-[560px]">
 
-          <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-            className="label-accent mb-7 md:mb-8">
-            Setting the Standard for Online Coaches
-          </motion.p>
+          {/* Status badge */}
+          <motion.div data-testid="hero-badge"
+            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            className="inline-flex items-center gap-2.5 px-4 py-2 mb-8 md:mb-10 rounded-full border border-white/[0.08] bg-white/[0.02] backdrop-blur-sm">
+            <span className="w-[7px] h-[7px] rounded-full bg-[#FF4500] flex-shrink-0"
+              style={{ animation: "pulse-dot 2s ease-in-out infinite" }} />
+            <span className="text-[11px] md:text-[12px] font-medium text-white/38 tracking-[0.01em]">
+              {badgeWords.map((word, i) => (
+                <motion.span key={i}
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 + i * 0.055, duration: 0.3 }}
+                  className="inline-block mr-[0.25em]">
+                  {word}
+                </motion.span>
+              ))}
+            </span>
+          </motion.div>
 
-          <motion.h1 data-testid="hero-headline"
-            initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.65, delay: 0.07 }}
-            className="display text-[clamp(3.6rem,8.5vw,7.5rem)] text-white mb-7">
-            The System<br />Behind<br />
-            <span className="text-orange">6-Figure</span><br />
-            Coaches.
-          </motion.h1>
+          {/* Main headline — line by line */}
+          <h1 data-testid="hero-headline"
+            className="display text-[clamp(2.9rem,10vw,7.2rem)] text-white mb-7 md:mb-8 leading-[0.93]">
+            {headlineLines.map((line, i) => (
+              <motion.span key={i} className="block"
+                initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.65, delay: line.delay, ease: [0.22, 1, 0.36, 1] }}>
+                {line.shimmer
+                  ? <span className="shimmer-text">{line.text}</span>
+                  : line.text}
+              </motion.span>
+            ))}
+          </h1>
 
+          {/* Sub */}
           <motion.p data-testid="hero-subheadline"
-            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.15 }}
-            className="text-[15px] md:text-[16px] text-white/38 leading-[1.75] max-w-[400px] mb-9">
+            initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.12, ease: [0.22, 1, 0.36, 1] }}
+            className="text-[14px] md:text-[16px] text-white/35 leading-[1.78] max-w-[390px] mb-9 md:mb-10">
             Premium brand. Elite website. Automated lead engine. One system built exclusively for online fitness coaches.
           </motion.p>
 
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.22 }}
-            className="flex flex-col sm:flex-row gap-3 mb-12">
+          {/* CTAs */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 1.24 }}
+            className="flex flex-col sm:flex-row gap-3 mb-10 md:mb-12">
             <button data-testid="hero-cta-primary" onClick={() => go("apply")}
-              className="flex items-center justify-center gap-2 h-12 px-7 rounded-xl bg-[#FF4500] hover:bg-[#FF5500] text-white text-[14px] font-bold transition-colors active:scale-[0.97] shadow-[0_0_40px_rgba(255,69,0,0.18)]">
-              Get Your Free Audit <ArrowRight size={15} />
+              className="relative flex items-center justify-center gap-2 h-12 px-7 rounded-xl bg-[#FF4500] hover:bg-[#FF5500] active:scale-[0.97] text-white text-[14px] font-bold transition-colors overflow-hidden group">
+              {/* shimmer sweep on hover */}
+              <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+              Get Your Free Audit <ArrowRight size={14} />
             </button>
             <button data-testid="hero-cta-secondary" onClick={() => go("results")}
-              className="flex items-center justify-center gap-2 h-12 px-7 rounded-xl border border-white/[0.08] text-white/45 hover:text-white/72 hover:border-white/14 text-[14px] font-medium transition-all active:scale-[0.97]">
+              className="flex items-center justify-center gap-2 h-12 px-7 rounded-xl border border-white/[0.08] text-white/40 hover:text-white/65 hover:border-white/[0.13] text-[14px] font-medium transition-all active:scale-[0.97]">
               See Results
             </button>
           </motion.div>
 
-          {/* social proof */}
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex items-center gap-4 pt-8 border-t border-white/[0.05]">
+          {/* Social proof */}
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 1.38 }}
+            className="flex items-center gap-5 pt-8 border-t border-white/[0.05]">
             <div className="flex -space-x-2 flex-shrink-0">
               {[coach1Img, coach2Img, coach3Img, coach4Img].map((src, i) => (
                 <img key={i} src={src} alt="coach"
                   className="w-8 h-8 rounded-full object-cover object-top border-2 border-[#080808]" />
               ))}
             </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-1 mb-0.5">
-                {[...Array(5)].map((_, i) => <Star key={i} size={10} className="text-[#FF4500]/80 fill-[#FF4500]/80" />)}
-                <span className="text-[11px] text-white/22 ml-1.5">4.9</span>
+            <div>
+              <div className="flex items-center gap-0.5 mb-0.5">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} size={10} className="fill-[#FF4500]/75 text-[#FF4500]/75" />
+                ))}
+                <span className="text-[11px] text-white/20 ml-1.5 font-medium">4.9</span>
               </div>
-              <p className="text-[12px] text-white/25">Trusted by 150+ coaches worldwide</p>
+              <p className="text-[12px] text-white/24">Trusted by 150+ coaches worldwide</p>
             </div>
           </motion.div>
         </div>
       </div>
 
-      {/* right — founder photo */}
-      <div className="w-full h-[60vw] max-h-[500px] lg:h-auto lg:max-h-none lg:w-[44%] xl:w-[42%] relative flex-shrink-0">
+      {/* ══ Right — founder photo (desktop only) ══ */}
+      <div className="hidden lg:block w-[44%] xl:w-[41%] relative flex-shrink-0 z-10">
         <img src={founderImg} alt="HustleCoreX founder" data-testid="hero-image"
           className="absolute inset-0 w-full h-full object-cover object-top" />
-        {/* blend left edge into dark bg */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#080808] via-[#080808]/15 to-transparent" />
-        {/* top/bottom vignette */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#080808]/50 via-transparent to-[#080808]/30" />
-        {/* mobile bottom fade */}
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#080808] to-transparent lg:hidden" />
+        {/* left edge blend */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#080808] via-[#080808]/12 to-transparent" />
+        {/* top/bottom depth */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#080808]/55 via-transparent to-[#080808]/28" />
       </div>
 
-      {/* mobile stats row */}
-      <div className="lg:hidden grid grid-cols-4 border-t border-white/[0.05]">
+      {/* ══ Mobile stats strip ══ */}
+      <div className="lg:hidden relative z-10 grid grid-cols-4 border-t border-white/[0.05]">
         {[
           { n: 150, s: "+", l: "Coaches" },
           { n: 12, p: "$", s: "M+", l: "Revenue" },
           { n: 97, s: "%", l: "Retention" },
           { n: 90, s: "d", l: "To Live" },
         ].map((s, i) => (
-          <div key={i} className={`py-4 text-center ${i < 3 ? "border-r border-white/[0.05]" : ""}`}>
-            <p className="text-[1.1rem] font-black text-white leading-none tracking-tight mb-0.5">
+          <div key={i} className={`py-5 text-center ${i < 3 ? "border-r border-white/[0.05]" : ""}`}>
+            <p className="text-[1.15rem] font-black text-white leading-none tracking-tight mb-1">
               <Count end={s.n} suffix={s.s} prefix={s.p} />
             </p>
-            <p className="text-[9px] label">{s.l}</p>
+            <p className="label" style={{ fontSize: "9px" }}>{s.l}</p>
           </div>
         ))}
       </div>
