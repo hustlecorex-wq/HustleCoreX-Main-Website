@@ -302,7 +302,7 @@ function NetworkAnimation() {
           ctx.beginPath();
           ctx.moveTo(nodes[i].x, nodes[i].y);
           ctx.lineTo(nodes[j].x, nodes[j].y);
-          ctx.strokeStyle = isHot ? `rgba(255,90,20,${t * 0.22})` : `rgba(255,255,255,${t * 0.1})`;
+          ctx.strokeStyle = isHot ? `rgba(255,90,20,${t * 0.28})` : `rgba(255,255,255,${t * 0.13})`;
           ctx.lineWidth = isHot ? 0.75 : 0.45;
           ctx.stroke();
         }
@@ -332,7 +332,7 @@ function NetworkAnimation() {
           ctx.fillStyle = `rgba(255,100,30,${0.85 + pulse * 0.12})`; ctx.fill();
         } else {
           ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
-          ctx.fillStyle = "rgba(255,255,255,0.3)"; ctx.fill();
+          ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.fill();
         }
       }
 
@@ -343,7 +343,7 @@ function NetworkAnimation() {
     return () => { cancelAnimationFrame(animId); ro.disconnect(); };
   }, []);
 
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" style={{ opacity: 0.75 }} />;
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" style={{ opacity: 0.88 }} />;
 }
 
 /* ─── hero ───────────────────────────────────────────────────── */
@@ -351,29 +351,39 @@ function Hero() {
   const ease = [0.22, 1, 0.36, 1] as const;
 
   return (
-    <section id="hero" className="relative min-h-[100svh] flex flex-col justify-center overflow-hidden pt-[62px]">
+    <section id="hero" className="relative min-h-[100svh] flex flex-col justify-center items-center overflow-hidden pt-[62px]">
 
-      {/* ══ Ambient orbs ══ */}
+      {/* ══ Ambient orbs — symmetrical ══ */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        {/* top-center dominant glow */}
         <motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-          transition={{ duration: 2.5, delay: 0 }}
-          className="absolute -top-[10%] right-[15%] w-[70vw] h-[70vw] max-w-[700px] max-h-[700px]"
+          transition={{ duration: 3, delay: 0 }}
+          className="absolute -top-[20%] left-1/2 -translate-x-1/2 w-[90vw] h-[90vw] max-w-[900px] max-h-[900px]"
           style={{
-            background: "radial-gradient(circle, rgba(255,69,0,0.1) 0%, rgba(255,69,0,0.03) 40%, transparent 68%)",
-            animation: "orb-float-1 22s ease-in-out infinite",
+            background: "radial-gradient(circle, rgba(255,69,0,0.11) 0%, rgba(255,69,0,0.04) 38%, transparent 65%)",
+            animation: "orb-float-1 26s ease-in-out infinite",
           }} />
+        {/* bottom-left secondary */}
         <motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-          transition={{ duration: 3, delay: 0.4 }}
-          className="absolute bottom-[5%] left-[5%] w-[55vw] h-[55vw] max-w-[580px] max-h-[580px]"
+          transition={{ duration: 3.5, delay: 0.5 }}
+          className="absolute bottom-[-10%] left-[-8%] w-[60vw] h-[60vw] max-w-[600px] max-h-[600px]"
           style={{
-            background: "radial-gradient(circle, rgba(255,100,0,0.06) 0%, transparent 65%)",
-            animation: "orb-float-2 30s ease-in-out infinite",
+            background: "radial-gradient(circle, rgba(255,100,0,0.07) 0%, transparent 62%)",
+            animation: "orb-float-2 32s ease-in-out infinite",
           }} />
-        <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-[#080808] to-transparent" />
-        <div className="absolute bottom-0 inset-x-0 h-40 bg-gradient-to-t from-[#080808] to-transparent" />
-        <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-[#080808]/60 to-transparent" />
+        {/* bottom-right accent */}
+        <motion.div
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          transition={{ duration: 3, delay: 0.8 }}
+          className="absolute bottom-[-5%] right-[-5%] w-[45vw] h-[45vw] max-w-[480px] max-h-[480px]"
+          style={{
+            background: "radial-gradient(circle, rgba(255,60,0,0.05) 0%, transparent 60%)",
+            animation: "orb-float-3 28s ease-in-out infinite",
+          }} />
+        <div className="absolute top-0 inset-x-0 h-28 bg-gradient-to-b from-[#080808] to-transparent" />
+        <div className="absolute bottom-0 inset-x-0 h-44 bg-gradient-to-t from-[#080808] to-transparent" />
       </div>
 
       {/* ══ Network canvas ══ */}
@@ -381,97 +391,105 @@ function Hero() {
         <NetworkAnimation />
       </div>
 
-      {/* ══ Content ══ */}
-      <div className="relative z-10 w-full px-5 sm:px-8 md:px-10 lg:px-14 xl:px-20 py-14 lg:py-20">
-        <div className="w-full max-w-[580px]">
+      {/* ══ Content — fully centered ══ */}
+      <div className="relative z-10 w-full max-w-[860px] mx-auto px-5 sm:px-8 py-16 lg:py-24 flex flex-col items-center text-center">
 
-          {/* Badge */}
-          <motion.div data-testid="hero-badge"
-            initial={{ opacity: 0, x: -14, filter: "blur(6px)" }}
-            animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-            transition={{ duration: 0.5, delay: 0.05, ease }}
-            className="inline-flex items-center gap-2.5 px-3.5 py-1.5 mb-6 sm:mb-8 rounded-full border border-white/[0.09] bg-white/[0.025] backdrop-blur-md">
-            <span className="relative flex-shrink-0 w-[7px] h-[7px]">
-              <span className="absolute inset-0 rounded-full bg-[#FF4500] opacity-70"
-                style={{ animation: "pulse-dot 2s ease-in-out infinite" }} />
-              <span className="relative block w-full h-full rounded-full bg-[#FF4500]" />
+        {/* Badge */}
+        <motion.div data-testid="hero-badge"
+          initial={{ opacity: 0, y: -12, filter: "blur(6px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{ duration: 0.55, delay: 0.05, ease }}
+          className="inline-flex items-center gap-2.5 px-4 py-2 mb-8 sm:mb-10 rounded-full border border-white/[0.1] bg-white/[0.03] backdrop-blur-md">
+          <span className="relative flex-shrink-0 w-[7px] h-[7px]">
+            <span className="absolute inset-0 rounded-full bg-[#FF4500] opacity-70"
+              style={{ animation: "pulse-dot 2s ease-in-out infinite" }} />
+            <span className="relative block w-full h-full rounded-full bg-[#FF4500]" />
+          </span>
+          <span className="text-[11px] sm:text-[12px] font-semibold text-white/45 tracking-[0.06em] uppercase whitespace-nowrap">
+            Premium Agency for Online Fitness Coaches
+          </span>
+        </motion.div>
+
+        {/* Headline */}
+        <h1 data-testid="hero-headline"
+          className="display text-center text-[clamp(3.2rem,11.5vw,8.5rem)] text-white mb-6 sm:mb-7 leading-[0.9] overflow-hidden">
+          {[
+            { text: "The System", d: 0.14 },
+            { text: "Behind", d: 0.24 },
+            { text: "6-Figure", d: 0.34, shimmer: true },
+            { text: "Coaches.", d: 0.44 },
+          ].map((line, i) => (
+            <span key={i} className="block overflow-hidden text-center">
+              <motion.span className="block text-center"
+                initial={{ y: "108%", opacity: 0 }}
+                animate={{ y: "0%", opacity: 1 }}
+                transition={{ duration: 0.7, delay: line.d, ease }}>
+                {line.shimmer
+                  ? <span className="shimmer-text">{line.text}</span>
+                  : line.text}
+              </motion.span>
             </span>
-            <span className="text-[11px] sm:text-[12px] font-medium text-white/40 tracking-[0.01em] whitespace-nowrap">
-              The agency building 6-figure fitness coaches.
-            </span>
-          </motion.div>
+          ))}
+        </h1>
 
-          {/* Headline — line by line reveal */}
-          <h1 data-testid="hero-headline"
-            className="display text-[clamp(2.75rem,10.5vw,7.2rem)] text-white mb-5 sm:mb-6 leading-[0.93] overflow-hidden">
-            {[
-              { text: "The System", d: 0.18 },
-              { text: "Behind", d: 0.28 },
-              { text: "6-Figure", d: 0.38, shimmer: true },
-              { text: "Coaches.", d: 0.48 },
-            ].map((line, i) => (
-              <span key={i} className="block overflow-hidden">
-                <motion.span className="block"
-                  initial={{ y: "105%", opacity: 0 }}
-                  animate={{ y: "0%", opacity: 1 }}
-                  transition={{ duration: 0.65, delay: line.d, ease }}>
-                  {line.shimmer
-                    ? <span className="shimmer-text">{line.text}</span>
-                    : line.text}
-                </motion.span>
-              </span>
-            ))}
-          </h1>
+        {/* Subheadline */}
+        <motion.p data-testid="hero-subheadline"
+          initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.58, ease }}
+          className="text-center text-[14px] sm:text-[16px] md:text-[17px] text-white/38 leading-[1.75] max-w-[520px] mb-8 sm:mb-10">
+          Brand. Website. Lead generation. Automation. We build the complete business system so you can focus on coaching.
+        </motion.p>
 
-          {/* Subheadline */}
-          <motion.p data-testid="hero-subheadline"
-            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, delay: 0.6, ease }}
-            className="text-[13px] sm:text-[14px] md:text-[15px] text-white/32 leading-[1.78] max-w-[370px] mb-7 sm:mb-8">
-            We build your brand, your website, and your lead flow - so you can stop piecing things together and start actually growing.
-          </motion.p>
+        {/* CTAs */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.68 }}
+          className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10 sm:mb-12 w-full max-w-[440px]">
+          <button data-testid="hero-cta-primary" onClick={() => go("apply")}
+            className="btn-glow relative w-full sm:w-auto flex items-center justify-center gap-2.5 h-13 sm:h-[52px] px-8 rounded-2xl bg-[#FF4500] hover:bg-[#FF5500] active:scale-[0.97] text-white text-[14px] sm:text-[15px] font-bold transition-colors overflow-hidden group shadow-[0_0_40px_rgba(255,69,0,0.25)]">
+            <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/[0.1] to-transparent" />
+            Get Your Free Audit <ArrowRight size={15} />
+          </button>
+          <button data-testid="hero-cta-secondary" onClick={() => go("results")}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 h-13 sm:h-[52px] px-7 rounded-2xl border border-white/[0.1] text-white/45 hover:text-white/70 hover:border-white/[0.18] text-[14px] sm:text-[15px] font-medium transition-all active:scale-[0.97] backdrop-blur-sm">
+            See Client Results
+          </button>
+        </motion.div>
 
-          {/* CTAs */}
-          <motion.div
-            initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.7 }}
-            className="flex flex-col sm:flex-row gap-2.5 mb-8 sm:mb-10">
-            <button data-testid="hero-cta-primary" onClick={() => go("apply")}
-              className="btn-glow relative flex items-center justify-center gap-2 h-11 sm:h-12 px-6 rounded-xl bg-[#FF4500] hover:bg-[#FF5500] active:scale-[0.97] text-white text-[13px] sm:text-[14px] font-bold transition-colors overflow-hidden group">
-              <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-600 bg-gradient-to-r from-transparent via-white/[0.09] to-transparent" />
-              Get Your Free Audit <ArrowRight size={14} />
-            </button>
-            <button data-testid="hero-cta-secondary" onClick={() => go("results")}
-              className="flex items-center justify-center gap-2 h-11 sm:h-12 px-6 rounded-xl border border-white/[0.08] text-white/38 hover:text-white/62 hover:border-white/[0.13] text-[13px] sm:text-[14px] font-medium transition-all active:scale-[0.97]">
-              See Results
-            </button>
-          </motion.div>
-
-          {/* Social proof */}
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            transition={{ duration: 0.55, delay: 0.82 }}
-            className="flex items-center gap-4 pt-6 border-t border-white/[0.05]">
-            <div className="flex -space-x-2.5 flex-shrink-0">
+        {/* Social proof */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, delay: 0.8 }}
+          className="flex flex-col items-center gap-3">
+          <div className="flex items-center gap-3">
+            <div className="flex -space-x-2.5">
               {[coach1Img, coach2Img, coach3Img, coach4Img].map((src, i) => (
                 <img key={i} src={src} alt="coach"
-                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover object-top border-2 border-[#080808]" />
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover object-top border-2 border-[#080808]" />
               ))}
             </div>
-            <div>
-              <div className="flex items-center gap-0.5 mb-0.5">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={9} className="fill-[#FF4500]/72 text-[#FF4500]/72" />
-                ))}
-                <span className="text-[10px] text-white/20 ml-1 font-semibold">5.0</span>
-              </div>
-              <p className="text-[11px] sm:text-[12px] text-white/22">Trusted by 50+ coaches worldwide</p>
+            <div className="flex items-center gap-0.5">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} size={11} className="fill-[#FF4500]/80 text-[#FF4500]/80" />
+              ))}
+              <span className="text-[11px] text-white/25 ml-1.5 font-semibold">5.0</span>
             </div>
-          </motion.div>
+          </div>
+          <p className="text-[12px] sm:text-[13px] text-white/25 tracking-[0.02em]">
+            Trusted by <span className="text-white/45 font-semibold">50+ coaches</span> across 12 countries
+          </p>
+        </motion.div>
 
-        </div>
+        {/* Scroll hint */}
+        <motion.div
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 1.4 }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+          <span className="text-[10px] text-white/18 uppercase tracking-[0.2em] font-semibold">Scroll</span>
+          <div className="w-px h-10 bg-gradient-to-b from-white/20 to-transparent" />
+        </motion.div>
+
       </div>
-
     </section>
   );
 }
