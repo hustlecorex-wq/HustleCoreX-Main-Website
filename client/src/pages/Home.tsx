@@ -357,12 +357,6 @@ function NetworkAnimation() {
 function Hero() {
   const ease = [0.22, 1, 0.36, 1] as const;
 
-  const floatingCards = [
-    { name: "James C.", val: "$31.5k", period: "4 months", pos: "left-[4%] top-[32%]" },
-    { name: "Priya S.", val: "$67k", period: "5 months", pos: "right-[4%] top-[36%]" },
-    { name: "Marcus R.", val: "$18.4k", period: "3 months", pos: "left-[5%] bottom-[32%]" },
-    { name: "Sarah M.", val: "$52k", period: "6 months", pos: "right-[5%] bottom-[30%]" },
-  ];
 
   return (
     <section id="hero" className="relative min-h-[100svh] flex flex-col justify-center items-center overflow-hidden pt-[62px]">
@@ -413,26 +407,6 @@ function Hero() {
       {/* ══ Network canvas ══ */}
       <div className="absolute inset-0 z-[1] pointer-events-none">
         <NetworkAnimation />
-      </div>
-
-      {/* ══ Floating result cards — desktop only ══ */}
-      <div className="absolute inset-0 z-[2] pointer-events-none hidden xl:block">
-        {floatingCards.map((card, i) => (
-          <motion.div key={i}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2, delay: 1.6 + i * 0.18, ease }}
-            className={`absolute ${card.pos}`}
-            style={{ animation: `orb-float-${(i % 3) + 1} ${20 + i * 5}s ease-in-out infinite` }}>
-            <div className="backdrop-blur-md bg-white/[0.025] border border-white/[0.07] rounded-2xl px-4 py-3 shadow-[0_4px_24px_rgba(0,0,0,0.5)]">
-              <p className="text-[10px] font-semibold text-white/35 mb-1 uppercase tracking-[0.1em]">{card.name}</p>
-              <p className="text-[18px] font-black text-white leading-none">
-                {card.val}<span className="text-[11px] text-white/25 font-normal ml-0.5">/mo</span>
-              </p>
-              <p className="text-[10px] text-white/20 mt-1">{card.period}</p>
-            </div>
-          </motion.div>
-        ))}
       </div>
 
       {/* ══ Main content ══ */}
