@@ -530,7 +530,7 @@ function Hero() {
 /* ─── ticker ─────────────────────────────────────────────────── */
 function Ticker() {
   const items = [
-    "James C. → $31.5k/month in 4 months",
+    "Bela Toth → 2 new clients signed in week 1",
     "Sarah M. → $52k/month in 6 months",
     "Marcus R. tripled revenue in 90 days",
     "Priya S. → $67k/month in 5 months",
@@ -1321,17 +1321,13 @@ function System() {
 /* ─── results (testimonials) ─────────────────────────────────── */
 function Results() {
   const cards = [
-    { name: "James C.", role: "Fat Loss Coach · London", img: coach1Img,
-      before: "$4.2k", after: "$31.5k", time: "4 months",
-      quote: "I had great coaching but zero business. HCX fixed that. Three months straight over $30k and I haven't had to chase a single lead." },
+    { name: "Bela Toth", role: "Online Fitness Coach · @belatoth", img: coach1Img,
+      quote: "Signed two new clients the week after we went live. Didn't change anything on my end - the system just handled it. Didn't expect it to move that fast." },
     { name: "Sarah M.", role: "PT & Nutrition · Manchester", img: coach2Img,
-      before: "$7.8k", after: "$52k", time: "6 months",
       quote: "I used to post every day and get nothing back. Now I wake up to booked calls. I haven't chased a lead in months." },
     { name: "Marcus R.", role: "Strength Coach · New York", img: coach3Img,
-      before: "$2.9k", after: "$18.4k", time: "3 months",
       quote: "Honestly the brand work alone changed everything. People started taking me seriously before we'd even spoken. The rest just followed." },
     { name: "Priya S.", role: "Female Transformation · Dubai", img: coach4Img,
-      before: "$8.5k", after: "$67k", time: "5 months",
       quote: "I was running on empty and nearly quit. Six months later I have my best months ever and I actually enjoy the work again." },
   ];
 
@@ -1372,18 +1368,12 @@ function Results() {
                 </div>
 
                 {/* bottom bar */}
-                <div className="border-t border-white/[0.05] px-6 md:px-8 py-4 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <img src={r.img} alt={r.name}
-                      className="w-9 h-9 rounded-full object-cover object-top border border-white/[0.08] flex-shrink-0" />
-                    <div>
-                      <p className="text-[13px] font-bold text-white leading-tight">{r.name}</p>
-                      <p className="text-[11px] text-white/25">{r.role}</p>
-                    </div>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <p className="text-[18px] font-black text-white tracking-tight leading-none">{r.after}<span className="text-[11px] text-white/22">/mo</span></p>
-                    <p className="text-[11px] text-white/22 mt-0.5">from {r.before} · {r.time}</p>
+                <div className="border-t border-white/[0.05] px-6 md:px-8 py-4 flex items-center gap-3">
+                  <img src={r.img} alt={r.name}
+                    className="w-9 h-9 rounded-full object-cover object-top border border-white/[0.08] flex-shrink-0" />
+                  <div>
+                    <p className="text-[13px] font-bold text-white leading-tight">{r.name}</p>
+                    <p className="text-[11px] text-white/25">{r.role}</p>
                   </div>
                 </div>
               </div>
