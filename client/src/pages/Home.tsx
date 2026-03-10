@@ -36,19 +36,6 @@ function FadeIn({ children, className = "", delay = 0 }: {
   );
 }
 
-function Count({ end, suffix = "", prefix = "" }: { end: number; suffix?: string; prefix?: string }) {
-  const [n, setN] = useState(0);
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true });
-  useEffect(() => {
-    if (!inView) return;
-    let c = 0;
-    const step = end / (1100 / 16);
-    const t = setInterval(() => { c = Math.min(c + step, end); setN(Math.floor(c)); if (c >= end) clearInterval(t); }, 16);
-    return () => clearInterval(t);
-  }, [inView, end]);
-  return <span ref={ref}>{prefix}{n.toLocaleString()}{suffix}</span>;
-}
 
 const go = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 
@@ -501,26 +488,6 @@ function Results() {
             </FadeIn>
           ))}
         </div>
-
-        {/* aggregate stats */}
-        <FadeIn>
-          <div className="grid grid-cols-2 md:grid-cols-4 border border-white/[0.05] rounded-2xl overflow-hidden divide-x divide-y md:divide-y-0 divide-white/[0.05]">
-            {[
-              { n: 150, s: "+", l: "Coaches Scaled" },
-              { n: 12, p: "$", s: "M+", l: "Revenue Generated" },
-              { n: 90, s: "%", l: "Reach $20k in 6 Months" },
-              { n: 97, s: "%", l: "Client Retention Rate" },
-            ].map((s, i) => (
-              <div key={i} data-testid={`results-stat-${i}`}
-                className="py-8 md:py-10 text-center bg-[#0D0D0D]">
-                <p className="display text-[2rem] md:text-[2.5rem] text-white mb-1.5">
-                  <Count end={s.n} suffix={s.s} prefix={s.p} />
-                </p>
-                <p className="label">{s.l}</p>
-              </div>
-            ))}
-          </div>
-        </FadeIn>
       </div>
     </section>
   );
