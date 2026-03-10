@@ -14,10 +14,10 @@ import {
 
 import logoImg from "@assets/logo_transparent.png";
 import founderImg from "@assets/main_profile_pic_20260225_150724_0000_1773138297391.png";
-import coach1Img from "@assets/stock_images/coach_james.jpg";
-import coach2Img from "@assets/stock_images/coach_sarah.jpg";
-import coach3Img from "@assets/stock_images/coach_marcus.jpg";
-import coach4Img from "@assets/stock_images/coach_priya.jpg";
+import coach1Img from "@assets/580868512_17843744343613829_22300884961125480_n_1773149974233.jpg";
+import coach2Img from "@assets/626956249_18573276355036228_693123345985490863_n_1773149974233.jpg";
+import coach3Img from "@assets/637758797_17889993744428899_7709878898914652022_n_1773149974234.jpg";
+import coach4Img from "@assets/641246630_18408593131131876_4631414787526160229_n_1773149974234.jpg";
 
 /* ─── utils ─────────────────────────────────────────────────── */
 
@@ -258,9 +258,9 @@ function Hero() {
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} size={10} className="fill-[#FF4500]/75 text-[#FF4500]/75" />
                 ))}
-                <span className="text-[11px] text-white/20 ml-1.5 font-medium">4.9</span>
+                <span className="text-[11px] text-white/20 ml-1.5 font-medium">5.0</span>
               </div>
-              <p className="text-[12px] text-white/24">Trusted by 150+ coaches worldwide</p>
+              <p className="text-[12px] text-white/24">Trusted by 50+ coaches worldwide</p>
             </div>
           </motion.div>
         </div>
