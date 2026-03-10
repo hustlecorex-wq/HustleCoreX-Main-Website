@@ -6,39 +6,46 @@ Premium marketing website for HustleCoreX, an agency for online fitness coaches.
 - **Frontend**: React + TypeScript + Vite + Tailwind CSS + Framer Motion
 - **Backend**: Express.js + in-memory storage
 - **Fonts**: Space Grotesk, JetBrains Mono
-- **UI**: Custom minimal design system
+- **UI**: Fully custom minimal design system
 
 ## Brand
 - **Name**: HustleCoreX
-- **Logo mark**: HCX (orange square badge)
-- **Primary colour**: `#FF4500` (orange, used sparingly as accent)
-- **Background**: `#070707` / surfaces `#0C0C0C`
-- **Philosophy**: Editorial, minimal, premium — Stripe/Linear-inspired dark aesthetic
+- **Logo**: `@assets/logo_transparent.png` (orange crown/sword mark, background removed)
+- **Founder photo**: `@assets/main_profile_pic_20260225_150724_0000_1773138297391.png`
+- **Colour discipline**: `#FF4500` orange used ONLY on primary CTAs and eyebrow labels
+- **Background**: `#080808` with subtle SVG noise texture / surfaces `#0D0D0D`
+- **Borders**: `rgba(255,255,255,0.05)` — extremely subtle throughout
+- **Philosophy**: World-class editorial, radical simplicity — Stripe/Linear/Vercel aesthetic
 
-## Design Principles
-- Mobile-first: 390px → tablet → desktop
-- Bordered grid system for all card layouts
-- `clamp()` fluid type for headings
-- Dividers between every section (instead of background changes)
-- Orange accent on icons, CTAs, and active states only
+## Typography
+- `.display` — 900 weight, -0.04em tracking, 0.92 line-height
+- `.heading` — 800 weight, -0.03em tracking, 1.0 line-height
+- `.label` — 11px, 0.18em tracking, uppercase, white/28
+- `.label-accent` — same but orange/55
+- Hero display: `clamp(3.6rem, 8.5vw, 7.5rem)`
+- Section h2: `clamp(2.8rem, 5.5vw, 4.5rem)`
 
-## Sections
-1. Nav — fixed, transparent→opaque on scroll, mobile hamburger
-2. Hero — full viewport, stats row
-3. Problem — 6-card bordered grid (before/after)
-4. System — 5-pillar tab interface
-5. Services — 6-card bordered grid
-6. Process — numbered bordered list
-7. Results — 4 testimonials + stats row
-8. Pricing — 3 plans (Launchpad $2,497 / Growth System $4,997 / Empire custom)
-9. FAQ — accordion in bordered container
-10. CTA Strip — horizontal banner
-11. Apply — lead capture form (2-col desktop, 1-col mobile)
-12. Footer — 4-col grid
+## Page Sections
+1. **Nav** — fixed, transparent → frosted on scroll, mobile fullscreen overlay
+2. **Hero** — split layout: massive headline left, founder photo right
+3. **StatsStrip** — 4 large animated numbers (desktop only)
+4. **Ticker** — scrolling social proof bar
+5. **Problem** — editorial 2-col: headline left, before/after grid right
+6. **System** — 5-pillar tabbed interface
+7. **Results** — 4 testimonial cards (real coach photos) + aggregate stats block
+8. **Pricing** — 3 plans: Launchpad $2,497 / Growth System $4,997 / Empire custom
+9. **FAQ** — accordion in bordered container
+10. **CTAStrip** — urgency banner with glow effect
+11. **Apply** — lead capture form (Controller selects for automation compatibility)
+12. **Footer** — 4-col grid
 
 ## API
-- `POST /api/leads` — Submit application (name, email, instagram, revenue, goal, message)
-- `GET /api/leads` — List leads
+- `POST /api/leads` — Submit application (name, email, instagram, currentRevenue, goal, message)
+- `GET /api/leads` — List all leads (in-memory)
+
+## Form Notes
+- Select fields use `Controller` from react-hook-form (not `register`) for proper controlled behaviour
+- All interactive elements have `data-testid` attributes for e2e testing
 
 ## Running
 ```
