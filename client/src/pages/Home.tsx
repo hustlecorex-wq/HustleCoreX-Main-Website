@@ -354,7 +354,7 @@ function System() {
       body: "Not just a beautiful site - a sales machine. We design and build a premium website that qualifies visitors and converts them into booked calls, 24 hours a day.",
       points: ["Custom Premium Design", "Conversion Copywriting", "Automated Booking System", "Video Sales Letter", "Speed & Mobile Optimised"] },
     { n: "03", tab: "Leads", title: "Lead Generation Engine", icon: <Target size={16} />,
-      body: "A multi-channel pipeline - organic, outbound, and paid - built to keep your calendar full of warm, qualified prospects ready to invest in your coaching.",
+      body: "Instagram-first lead generation built around your profile and paid ads. We turn your content and campaigns into a daily stream of warm, qualified prospects ready to invest in your coaching.",
       points: ["Instagram Overhaul", "Content-to-DM Funnel", "Strategic Outreach System", "Paid Ad Strategy", "Lead Magnet Creation"] },
     { n: "04", tab: "AutoNation", title: "AutoNation System", icon: <BrainCircuit size={16} />,
       body: "Every tool in your stack intelligently connected. Leads come in, get nurtured, book a call, and onboard - entirely without you lifting a finger.",
@@ -369,10 +369,10 @@ function System() {
           <FadeIn>
             <p className="label-accent mb-6">The System</p>
             <h2 className="display text-[clamp(2.8rem,5.5vw,4.5rem)] text-white mb-6">
-              Five pillars.<br />One system.
+              Four pillars.<br />One system.
             </h2>
             <p className="text-[14px] md:text-[15px] text-white/35 leading-[1.8] max-w-[300px]">
-              Built to work as one end-to-end machine - not five tools duct-taped together.
+              Built to work as one end-to-end machine.
             </p>
           </FadeIn>
 
