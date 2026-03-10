@@ -860,8 +860,8 @@ function System() {
           visual={<LeadsVisual />} />
 
         <PillarRow n="04" label="AutoNation" flip={true}
-          title="Your business runs itself."
-          body="Once a lead comes in, everything else happens on its own. They get the follow-up. They book. They onboard. You don't touch any of it - the whole thing runs while you're coaching."
+          title="The admin runs itself. You don't."
+          body="Follow-ups, booking confirmations, onboarding sequences - all of it fires automatically the moment a lead comes in. The stuff that was eating your time just stops eating your time. Your calls, your content, your coaching - that stays with you. That's the part that should."
           points={["Full CRM Integration","Email Automation","DM Auto-Responses","Lead Scoring & Routing","Onboarding Flow"]}
           visual={<AutoNationVisual />} />
       </div>
