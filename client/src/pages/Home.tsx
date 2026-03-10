@@ -1323,12 +1323,6 @@ function Results() {
   const cards = [
     { name: "Bela Toth", role: "Online Fitness Coach · @belatoth", img: coach1Img,
       quote: "Working with HustleCoreX has been great. Signed two new clients the week after we put the system in place. Honestly didn't expect it to do that well that quickly." },
-    { name: "Sarah M.", role: "PT & Nutrition · Manchester", img: coach2Img,
-      quote: "I used to post every day and get nothing back. Now I wake up to booked calls. I haven't chased a lead in months." },
-    { name: "Marcus R.", role: "Strength Coach · New York", img: coach3Img,
-      quote: "Honestly the brand work alone changed everything. People started taking me seriously before we'd even spoken. The rest just followed." },
-    { name: "Priya S.", role: "Female Transformation · Dubai", img: coach4Img,
-      quote: "I was running on empty and nearly quit. Six months later I have my best months ever and I actually enjoy the work again." },
   ];
 
   return (
@@ -1349,7 +1343,7 @@ function Results() {
           </FadeIn>
         </div>
 
-        <motion.div className="grid sm:grid-cols-2 gap-4 mb-16"
+        <motion.div className="max-w-md mb-16"
           initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }}
           variants={staggerContainer(0.1, 0.05)}>
           {cards.map((r, i) => (
