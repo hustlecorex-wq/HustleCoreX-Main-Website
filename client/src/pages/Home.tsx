@@ -979,31 +979,260 @@ function LeadsVisual() {
 }
 
 function AutoNationVisual() {
-  const steps = [
-    { label: "Lead Comes In", sub: "Instagram DM or website form", color: "border-[#FF4500]/40 bg-[#FF4500]/[0.08]", dot: "bg-[#FF4500]" },
-    { label: "CRM Entry", sub: "Auto-tagged and segmented", color: "border-white/[0.08] bg-white/[0.02]", dot: "bg-white/30" },
-    { label: "Follow-Up Sequence", sub: "Email + DM sent within 60s", color: "border-white/[0.08] bg-white/[0.02]", dot: "bg-white/30" },
-    { label: "Call Booked", sub: "Calendar link sent automatically", color: "border-white/[0.08] bg-white/[0.02]", dot: "bg-white/30" },
-    { label: "Onboarded", sub: "Welcome flow triggers instantly", color: "border-emerald-500/30 bg-emerald-500/[0.06]", dot: "bg-emerald-400" },
-  ];
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * devicePixelRatio;
+    canvas.height = rect.height * devicePixelRatio;
+    ctx.scale(devicePixelRatio, devicePixelRatio);
+    const W = rect.width;
+    const H = rect.height;
+
+    const NR = Math.min(W * 0.075, 26);
+    const lx = W * 0.24;
+    const rx = W * 0.73;
+    const ys = [H * 0.10, H * 0.29, H * 0.50, H * 0.70, H * 0.89];
+
+    type AgentNode = {
+      cx: number; cy: number;
+      label: string; sub: string;
+      color: string; rgba: string;
+      spinDir: number; glow: number; pulse: number;
+    };
+
+    const nodes: AgentNode[] = [
+      { cx: lx, cy: ys[0], label: "Lead Comes In", sub: "IG DM · Website Form", color: "#FF4500", rgba: "rgba(255,69,0", spinDir: 1, glow: 0, pulse: 0 },
+      { cx: rx, cy: ys[1], label: "CRM Entry", sub: "Auto-tagged · Segmented", color: "#818CF8", rgba: "rgba(129,140,248", spinDir: -1, glow: 0, pulse: 0.4 },
+      { cx: lx, cy: ys[2], label: "Follow-Up Sequence", sub: "Email + DM within 60s", color: "#C084FC", rgba: "rgba(192,132,252", spinDir: 1, glow: 0, pulse: 0.8 },
+      { cx: rx, cy: ys[3], label: "Call Booked", sub: "Calendar link sent", color: "#FBBF24", rgba: "rgba(251,191,36", spinDir: -1, glow: 0, pulse: 1.2 },
+      { cx: lx, cy: ys[4], label: "Onboarded", sub: "Welcome flow triggers", color: "#34D399", rgba: "rgba(52,211,153", spinDir: 1, glow: 0, pulse: 1.6 },
+    ];
+
+    type Packet = { from: number; to: number; t: number; trail: { x: number; y: number }[] };
+    const packets: Packet[] = [];
+    let frame = 0;
+    let raf: number;
+
+    const spawnChain = () => {
+      for (let i = 0; i < nodes.length - 1; i++) {
+        setTimeout(() => packets.push({ from: i, to: i + 1, t: 0, trail: [] }), i * 500);
+      }
+    };
+    spawnChain();
+
+    const drawRR = (x: number, y: number, w: number, h: number, r: number) => {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.arcTo(x + w, y, x + w, y + r, r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+      ctx.lineTo(x + r, y + h);
+      ctx.arcTo(x, y + h, x, y + h - r, r);
+      ctx.lineTo(x, y + r);
+      ctx.arcTo(x, y, x + r, y, r);
+      ctx.closePath();
+    };
+
+    const drawNode = (nd: AgentNode, idx: number) => {
+      const { cx, cy, glow, color, rgba, spinDir, label, sub } = nd;
+      const pulse = (Math.sin(frame * 0.04 + nd.pulse) * 0.5 + 0.5);
+
+      // Outer atmospheric glow
+      if (glow > 0.02 || pulse > 0.6) {
+        const g = ctx.createRadialGradient(cx, cy, NR, cx, cy, NR + 22);
+        g.addColorStop(0, `${rgba},${(glow * 0.4 + pulse * 0.08)})`);
+        g.addColorStop(1, `${rgba},0)`);
+        ctx.beginPath();
+        ctx.arc(cx, cy, NR + 22, 0, Math.PI * 2);
+        ctx.fillStyle = g;
+        ctx.fill();
+      }
+
+      // Node background circle
+      ctx.beginPath();
+      ctx.arc(cx, cy, NR, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(12,12,12,0.97)";
+      ctx.fill();
+
+      // Border ring
+      ctx.beginPath();
+      ctx.arc(cx, cy, NR, 0, Math.PI * 2);
+      ctx.strokeStyle = `${rgba},${0.28 + glow * 0.62 + pulse * 0.08})`;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Spinning outer arc (processing indicator)
+      const spinA = frame * 0.032 * spinDir + nd.pulse;
+      ctx.beginPath();
+      ctx.arc(cx, cy, NR + 5, spinA, spinA + Math.PI * 1.25);
+      ctx.strokeStyle = `${rgba},${0.35 + glow * 0.45 + pulse * 0.1})`;
+      ctx.lineWidth = 1.5;
+      ctx.lineCap = "round";
+      ctx.stroke();
+
+      // Second counter-arc (smaller)
+      ctx.beginPath();
+      ctx.arc(cx, cy, NR + 5, spinA + Math.PI * 1.5, spinA + Math.PI * 1.75);
+      ctx.strokeStyle = `${rgba},${0.18 + pulse * 0.06})`;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Inner filled core
+      const coreR = NR * 0.38;
+      const coreG = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR);
+      coreG.addColorStop(0, `${rgba},${0.9 + pulse * 0.1})`);
+      coreG.addColorStop(1, `${rgba},${0.5 + glow * 0.3})`);
+      ctx.beginPath();
+      ctx.arc(cx, cy, coreR, 0, Math.PI * 2);
+      ctx.fillStyle = coreG;
+      ctx.fill();
+
+      // Step number
+      ctx.font = `700 9px "Space Grotesk", system-ui, sans-serif`;
+      ctx.fillStyle = "rgba(255,255,255,0.92)";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(`${idx + 1}`, cx, cy);
+
+      // Label position - left nodes go right, right nodes go left
+      const goRight = cx < W * 0.5;
+      const lx2 = goRight ? cx + NR + 11 : cx - NR - 11;
+      const align = goRight ? "left" : "right";
+
+      // Label card background (subtle pill)
+      const labelW = goRight ? Math.min(W - lx2 - 6, 150) : Math.min(lx2 - 6, 150);
+      const lCardX = goRight ? lx2 - 6 : lx2 - labelW + 6;
+      drawRR(lCardX, cy - 20, labelW, 36, 7);
+      ctx.fillStyle = "rgba(255,255,255,0.025)";
+      ctx.fill();
+
+      ctx.textAlign = align;
+      ctx.textBaseline = "middle";
+      ctx.font = `600 11px "Space Grotesk", system-ui, sans-serif`;
+      ctx.fillStyle = `rgba(255,255,255,${0.68 + glow * 0.32})`;
+      ctx.fillText(label, lx2, cy - 6.5);
+
+      ctx.font = `400 9.5px "Space Grotesk", system-ui, sans-serif`;
+      ctx.fillStyle = `rgba(255,255,255,${0.26 + glow * 0.12})`;
+      ctx.fillText(sub, lx2, cy + 7.5);
+    };
+
+    const animate = () => {
+      ctx.clearRect(0, 0, W, H);
+      frame++;
+
+      if (frame % 280 === 0) spawnChain();
+
+      // Draw connection lines (dashed)
+      for (let i = 0; i < nodes.length - 1; i++) {
+        const a = nodes[i];
+        const b = nodes[i + 1];
+        const dx = b.cx - a.cx;
+        const dy = b.cy - a.cy;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const nx = dx / dist;
+        const ny = dy / dist;
+        const x1 = a.cx + nx * (NR + 7);
+        const y1 = a.cy + ny * (NR + 7);
+        const x2 = b.cx - nx * (NR + 7);
+        const y2 = b.cy - ny * (NR + 7);
+
+        // Gradient line
+        const lineG = ctx.createLinearGradient(x1, y1, x2, y2);
+        lineG.addColorStop(0, `${a.rgba},0.1)`);
+        lineG.addColorStop(1, `${b.rgba},0.08)`);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = lineG;
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 6]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // Update + draw packets
+      for (let i = packets.length - 1; i >= 0; i--) {
+        const p = packets[i];
+        p.t += 0.007;
+
+        if (p.t >= 1) {
+          nodes[p.to].glow = 1.0;
+          packets.splice(i, 1);
+          continue;
+        }
+
+        const fn = nodes[p.from];
+        const tn = nodes[p.to];
+        const px = fn.cx + (tn.cx - fn.cx) * p.t;
+        const py = fn.cy + (tn.cy - fn.cy) * p.t;
+
+        p.trail.push({ x: px, y: py });
+        if (p.trail.length > 10) p.trail.shift();
+
+        // Trail
+        for (let t = 1; t < p.trail.length; t++) {
+          const ta = (t / p.trail.length) * 0.5;
+          ctx.beginPath();
+          ctx.moveTo(p.trail[t - 1].x, p.trail[t - 1].y);
+          ctx.lineTo(p.trail[t].x, p.trail[t].y);
+          ctx.strokeStyle = `${fn.rgba},${ta})`;
+          ctx.lineWidth = 1.5;
+          ctx.lineCap = "round";
+          ctx.stroke();
+        }
+
+        // Packet glow
+        const pg = ctx.createRadialGradient(px, py, 0, px, py, 9);
+        pg.addColorStop(0, `${fn.rgba},0.85)`);
+        pg.addColorStop(1, `${fn.rgba},0)`);
+        ctx.beginPath();
+        ctx.arc(px, py, 9, 0, Math.PI * 2);
+        ctx.fillStyle = pg;
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(px, py, 3, 0, Math.PI * 2);
+        ctx.fillStyle = fn.color;
+        ctx.fill();
+
+        // White highlight
+        ctx.beginPath();
+        ctx.arc(px - 1, py - 1, 1.2, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255,255,255,0.7)";
+        ctx.fill();
+      }
+
+      // Decay glow
+      nodes.forEach(n => { if (n.glow > 0) n.glow = Math.max(0, n.glow - 0.018); });
+
+      // Draw all nodes
+      nodes.forEach(drawNode);
+
+      // Footer
+      ctx.font = `500 9px "Space Grotesk", system-ui, sans-serif`;
+      ctx.fillStyle = "rgba(255,255,255,0.16)";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "bottom";
+      ctx.fillText("RUNS 24 / 7  ·  ZERO MANUAL INPUT", W / 2, H - 7);
+
+      raf = requestAnimationFrame(animate);
+    };
+
+    animate();
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
   return (
-    <div className="rounded-2xl border border-white/[0.07] bg-[#0A0A0A] p-6">
-      <p className="text-[10px] text-white/20 uppercase tracking-[0.18em] mb-5">AutoNation Flow</p>
-      <div className="relative">
-        <div className="absolute left-[15px] top-4 bottom-4 w-px bg-gradient-to-b from-[#FF4500]/40 via-white/[0.08] to-emerald-500/30" />
-        <div className="space-y-2">
-          {steps.map((s, i) => (
-            <div key={i} className={`relative flex items-start gap-4 p-4 rounded-xl border ${s.color} transition-all`}>
-              <div className={`w-[10px] h-[10px] rounded-full ${s.dot} flex-shrink-0 mt-0.5 ring-[3px] ring-[#0A0A0A]`} />
-              <div>
-                <p className="text-[13px] font-semibold text-white/75 leading-tight">{s.label}</p>
-                <p className="text-[11px] text-white/30 mt-0.5">{s.sub}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      <p className="text-[11px] text-white/20 text-center mt-5 font-mono">Runs 24 / 7 · Zero manual input</p>
+    <div className="rounded-2xl border border-white/[0.07] bg-[#0A0A0A] overflow-hidden">
+      <canvas ref={canvasRef} className="w-full h-[390px]" />
     </div>
   );
 }
