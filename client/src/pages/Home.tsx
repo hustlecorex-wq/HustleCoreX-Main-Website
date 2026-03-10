@@ -410,23 +410,23 @@ function Hero() {
       </div>
 
       {/* ══ Main content ══ */}
-      <div className="relative z-10 w-full max-w-[960px] mx-auto px-5 sm:px-8 py-16 lg:py-20 flex flex-col items-center text-center">
+      <div className="relative z-10 w-full max-w-[960px] mx-auto px-5 sm:px-8 py-8 sm:py-14 lg:py-20 flex flex-col items-center text-center">
 
         {/* Agency label with flanking lines */}
         <motion.div
           initial={{ opacity: 0, scaleX: 0.6 }}
           animate={{ opacity: 1, scaleX: 1 }}
           transition={{ duration: 0.7, ease }}
-          className="flex items-center gap-4 mb-10 sm:mb-12 w-full max-w-[320px]">
+          className="flex items-center gap-4 mb-7 sm:mb-10 w-full max-w-[260px]">
           <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[#FF4500]/30 to-[#FF4500]/30" />
-          <span data-testid="hero-badge" className="text-[10px] font-bold text-[#FF4500]/55 uppercase tracking-[0.26em] whitespace-nowrap">
+          <span data-testid="hero-badge" className="text-[9px] sm:text-[10px] font-bold text-[#FF4500]/55 uppercase tracking-[0.22em] whitespace-nowrap">
             HustleCoreX
           </span>
           <div className="flex-1 h-px bg-gradient-to-l from-transparent via-[#FF4500]/30 to-[#FF4500]/30" />
         </motion.div>
 
         {/* ══ Headline — 3-tier typographic display ══ */}
-        <div className="mb-9 sm:mb-11 w-full">
+        <div className="mb-6 sm:mb-9 w-full">
 
           {/* Line 1: ghost/outline — contextual */}
           <div className="overflow-hidden">
@@ -434,7 +434,7 @@ function Hero() {
               initial={{ y: "105%" }}
               animate={{ y: "0%" }}
               transition={{ duration: 0.75, delay: 0.08, ease }}
-              className="display text-outline text-[clamp(2.6rem,7vw,6.5rem)] leading-[0.9] text-center tracking-[-0.05em]">
+              className="display text-outline text-[clamp(1.7rem,5vw,5.5rem)] leading-[0.92] text-center tracking-[-0.04em]">
               THE FUTURE OF
             </motion.p>
           </div>
@@ -445,7 +445,7 @@ function Hero() {
               initial={{ y: "105%" }}
               animate={{ y: "0%" }}
               transition={{ duration: 0.78, delay: 0.2, ease }}
-              className="display shimmer-text text-[clamp(3.2rem,10vw,9.5rem)] leading-[0.86] text-center tracking-[-0.06em]">
+              className="display shimmer-text text-[clamp(2.2rem,7.5vw,8rem)] leading-[0.88] text-center tracking-[-0.05em]">
               ONLINE COACHING
             </motion.p>
           </div>
@@ -456,7 +456,7 @@ function Hero() {
               initial={{ y: "105%" }}
               animate={{ y: "0%" }}
               transition={{ duration: 0.75, delay: 0.32, ease }}
-              className="display text-white text-[clamp(2.6rem,7vw,6.5rem)] leading-[0.9] text-center tracking-[-0.05em]">
+              className="display text-white text-[clamp(1.7rem,5vw,5.5rem)] leading-[0.92] text-center tracking-[-0.04em]">
               IS HERE.
             </motion.p>
           </div>
@@ -467,14 +467,14 @@ function Hero() {
           initial={{ scaleX: 0, opacity: 0 }}
           animate={{ scaleX: 1, opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.48, ease }}
-          className="w-12 h-px bg-gradient-to-r from-transparent via-[#FF4500]/40 to-transparent mb-8 sm:mb-9"
+          className="w-10 h-px bg-gradient-to-r from-transparent via-[#FF4500]/40 to-transparent mb-5 sm:mb-7"
         />
 
         {/* Subheadline */}
         <motion.p data-testid="hero-subheadline"
           initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.52, ease }}
-          className="text-[19px] sm:text-[23px] md:text-[26px] text-white/40 leading-[1.55] max-w-[560px] mb-9 sm:mb-11 font-light tracking-[-0.01em]">
+          className="text-[15px] sm:text-[18px] md:text-[21px] text-white/40 leading-[1.6] max-w-[480px] mb-7 sm:mb-10 font-light tracking-[-0.01em]">
           The system that scales online coaches to consistent 5-figure months.
         </motion.p>
 
@@ -482,14 +482,14 @@ function Hero() {
         <motion.div
           initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, delay: 0.62 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-11 sm:mb-14 w-full max-w-[420px]">
+          className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8 sm:mb-12 w-full max-w-[400px]">
           <button data-testid="hero-cta-primary" onClick={() => go("apply")}
-            className="btn-glow relative w-full sm:flex-1 flex items-center justify-center gap-2.5 h-[54px] px-8 rounded-2xl bg-[#FF4500] hover:bg-[#FF5500] active:scale-[0.97] text-white text-[14px] sm:text-[15px] font-bold transition-colors overflow-hidden group shadow-[0_0_60px_rgba(255,69,0,0.35),0_0_20px_rgba(255,69,0,0.2)]">
+            className="btn-glow relative w-full sm:flex-1 flex items-center justify-center gap-2.5 h-[50px] sm:h-[54px] px-7 rounded-2xl bg-[#FF4500] hover:bg-[#FF5500] active:scale-[0.97] text-white text-[14px] sm:text-[15px] font-bold transition-colors overflow-hidden group shadow-[0_0_60px_rgba(255,69,0,0.35),0_0_20px_rgba(255,69,0,0.2)]">
             <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
             Get Your Free Audit <ArrowRight size={15} />
           </button>
           <button data-testid="hero-cta-secondary" onClick={() => go("results")}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 h-[54px] px-7 rounded-2xl border border-white/[0.09] text-white/38 hover:text-white/65 hover:border-white/[0.17] text-[14px] sm:text-[15px] font-medium transition-all active:scale-[0.97]">
+            className="w-full sm:w-auto flex items-center justify-center gap-2 h-[50px] sm:h-[54px] px-6 rounded-2xl border border-white/[0.09] text-white/38 hover:text-white/65 hover:border-white/[0.17] text-[14px] sm:text-[15px] font-medium transition-all active:scale-[0.97]">
             See How It Works
           </button>
         </motion.div>
@@ -498,29 +498,29 @@ function Hero() {
         <motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }}
           transition={{ duration: 0.7, delay: 0.78 }}
-          className="flex items-center justify-center gap-0">
+          className="flex items-center justify-center">
           {[
             { n: "50+", label: "Coaches" },
-            { n: "$2M+", label: "Revenue Generated" },
+            { n: "$2M+", label: "Revenue" },
             { n: "12", label: "Countries" },
           ].map((s, i) => (
             <div key={i} className="flex items-center">
-              {i > 0 && <div className="w-px h-7 bg-white/[0.07] mx-6 sm:mx-8 flex-shrink-0" />}
+              {i > 0 && <div className="w-px h-6 bg-white/[0.07] mx-5 sm:mx-7 flex-shrink-0" />}
               <div className="text-center">
-                <p className="text-[20px] sm:text-[24px] font-black text-white leading-none tracking-tight">{s.n}</p>
-                <p className="text-[10px] text-white/22 mt-1.5 uppercase tracking-[0.14em] font-medium">{s.label}</p>
+                <p className="text-[18px] sm:text-[22px] font-black text-white leading-none tracking-tight">{s.n}</p>
+                <p className="text-[9px] sm:text-[10px] text-white/22 mt-1.5 uppercase tracking-[0.12em] font-medium">{s.label}</p>
               </div>
             </div>
           ))}
         </motion.div>
 
-        {/* Scroll hint */}
+        {/* Scroll hint — hidden on short screens */}
         <motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1.5 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+          className="hidden sm:flex absolute bottom-6 left-1/2 -translate-x-1/2 flex-col items-center gap-2">
           <span className="text-[9px] text-white/15 uppercase tracking-[0.28em] font-bold">Scroll</span>
-          <div className="w-px h-9 bg-gradient-to-b from-white/20 to-transparent" />
+          <div className="w-px h-8 bg-gradient-to-b from-white/20 to-transparent" />
         </motion.div>
 
       </div>
