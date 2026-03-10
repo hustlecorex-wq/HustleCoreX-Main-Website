@@ -143,6 +143,37 @@
 /* ── Spin ── */
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ── Premium card hover lift ── */
+.card-lift {
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.3s ease,
+              box-shadow 0.3s ease;
+}
+.card-lift:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255,255,255,0.1);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+}
+
+/* ── Orange glow button pulse ── */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 28px rgba(255,69,0,0.22); }
+  50%       { box-shadow: 0 0 44px rgba(255,69,0,0.36); }
+}
+.btn-glow { animation: glow-pulse 2.8s ease-in-out infinite; }
+
+/* ── Section gradient divider ── */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,255,255,0.05) 20%,
+    rgba(255,255,255,0.08) 50%,
+    rgba(255,255,255,0.05) 80%,
+    transparent 100%
+  );
+}
+
 /* ── Hide scrollbar ── */
 @layer utilities {
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }

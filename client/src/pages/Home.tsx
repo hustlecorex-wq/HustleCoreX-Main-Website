@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 import logoImg from "@assets/logo_transparent.png";
-import founderImg from "@assets/main_profile_pic_20260225_150724_0000_1773138297391.png";
+import heroImg from "@assets/generated_images/hero_coach.png";
 import coach1Img from "@assets/580868512_17843744343613829_22300884961125480_n_1773149974233.jpg";
 import coach2Img from "@assets/626956249_18573276355036228_693123345985490863_n_1773149974233.jpg";
 import coach3Img from "@assets/637758797_17889993744428899_7709878898914652022_n_1773149974234.jpg";
@@ -62,6 +62,46 @@ function FadeIn({ children, className = "", delay = 0, from = "below" }: {
       transition={{ delay }}>
       {children}
     </motion.div>
+  );
+}
+
+/* ─── scroll progress bar ─────────────────────────────────────── */
+function ScrollProgress() {
+  const [pct, setPct] = useState(0);
+  useEffect(() => {
+    const onScroll = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      setPct(max > 0 ? (window.scrollY / max) * 100 : 0);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  return (
+    <div className="fixed top-0 left-0 z-[300] h-[2px] pointer-events-none"
+      style={{
+        width: `${pct}%`,
+        background: "linear-gradient(90deg, #FF4500, #FF7A00)",
+        boxShadow: "0 0 8px rgba(255,69,0,0.55)",
+        transition: "width 0.08s linear",
+      }} />
+  );
+}
+
+/* ─── page ambient ───────────────────────────────────────────── */
+function PageAmbient() {
+  return (
+    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+      <div className="absolute -top-[20%] -right-[10%] w-[55vw] h-[55vw] max-w-[680px] max-h-[680px]"
+        style={{
+          background: "radial-gradient(circle, rgba(255,69,0,0.055) 0%, transparent 65%)",
+          animation: "orb-float-1 28s ease-in-out infinite",
+        }} />
+      <div className="absolute bottom-[10%] -left-[8%] w-[45vw] h-[45vw] max-w-[560px] max-h-[560px]"
+        style={{
+          background: "radial-gradient(circle, rgba(255,100,0,0.035) 0%, transparent 65%)",
+          animation: "orb-float-2 38s ease-in-out infinite",
+        }} />
+    </div>
   );
 }
 
@@ -282,7 +322,7 @@ function Hero() {
             transition={{ duration: 0.5, delay: 0.7 }}
             className="flex flex-col sm:flex-row gap-2.5 mb-8 sm:mb-10">
             <button data-testid="hero-cta-primary" onClick={() => go("apply")}
-              className="relative flex items-center justify-center gap-2 h-11 sm:h-12 px-6 rounded-xl bg-[#FF4500] hover:bg-[#FF5500] active:scale-[0.97] text-white text-[13px] sm:text-[14px] font-bold transition-colors overflow-hidden group">
+              className="btn-glow relative flex items-center justify-center gap-2 h-11 sm:h-12 px-6 rounded-xl bg-[#FF4500] hover:bg-[#FF5500] active:scale-[0.97] text-white text-[13px] sm:text-[14px] font-bold transition-colors overflow-hidden group">
               <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-600 bg-gradient-to-r from-transparent via-white/[0.09] to-transparent" />
               Get Your Free Audit <ArrowRight size={14} />
             </button>
@@ -317,13 +357,21 @@ function Hero() {
         </div>
       </div>
 
-      {/* ══ Founder photo — desktop only ══ */}
-      <div className="hidden lg:block w-[43%] xl:w-[40%] relative flex-shrink-0 z-10">
-        <img src={founderImg} alt="HustleCoreX founder" data-testid="hero-image"
-          className="absolute inset-0 w-full h-full object-cover object-top" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#080808] via-[#080808]/10 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#080808]/50 via-transparent to-[#080808]/25" />
-      </div>
+      {/* ══ Hero image — desktop only ══ */}
+      <motion.div
+        initial={{ opacity: 0, scale: 1.03 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1.2, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="hidden lg:block w-[46%] xl:w-[44%] relative flex-shrink-0 z-10">
+        <img src={heroImg} alt="HustleCoreX elite coach" data-testid="hero-image"
+          className="absolute inset-0 w-full h-full object-cover object-center" />
+        {/* left-to-right fade into page */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#080808] via-[#080808]/20 to-transparent" />
+        {/* top and bottom edge fades */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#080808]/70 via-transparent to-[#080808]/50" />
+        {/* subtle vignette on right edge */}
+        <div className="absolute inset-0 bg-gradient-to-l from-[#080808]/30 to-transparent" />
+      </motion.div>
 
     </section>
   );
@@ -524,7 +572,7 @@ function Results() {
           {cards.map((r, i) => (
             <motion.div key={i} variants={childVariantsScale}>
               <div data-testid={`result-card-${i}`}
-                className="border border-white/[0.05] rounded-2xl bg-[#0D0D0D] overflow-hidden h-full flex flex-col hover:border-white/[0.09] transition-colors">
+                className="card-lift border border-white/[0.05] rounded-2xl bg-[#0D0D0D] overflow-hidden h-full flex flex-col">
 
                 {/* quote */}
                 <div className="flex-1 p-6 md:p-8">
@@ -614,7 +662,7 @@ function Pricing() {
           {plans.map((p, i) => (
             <motion.div key={i} variants={childVariantsScale}>
               <div data-testid={`pricing-card-${p.name.replace(" ", "").toLowerCase()}`}
-                className={`rounded-2xl p-6 md:p-8 flex flex-col h-full relative overflow-hidden ${
+                className={`card-lift rounded-2xl p-6 md:p-8 flex flex-col h-full relative overflow-hidden ${
                   p.highlight
                     ? "border border-white/[0.12] bg-[#0D0D0D]"
                     : "border border-white/[0.05] bg-[#0D0D0D]"
@@ -767,7 +815,7 @@ function CTAStrip() {
               </h2>
             </div>
             <button data-testid="cta-banner-button" onClick={() => go("apply")}
-              className="relative flex-shrink-0 flex items-center gap-2 h-12 px-7 rounded-xl bg-[#FF4500] hover:bg-[#FF5500] text-white text-[14px] font-bold transition-colors active:scale-[0.97] shadow-[0_0_40px_rgba(255,69,0,0.18)]">
+              className="btn-glow relative flex-shrink-0 flex items-center gap-2 h-12 px-7 rounded-xl bg-[#FF4500] hover:bg-[#FF5500] text-white text-[14px] font-bold transition-colors active:scale-[0.97]">
               Get a Free Audit <ArrowRight size={15} />
             </button>
           </div>
@@ -832,8 +880,8 @@ function Apply() {
 
             {/* founder photo + quote */}
             <div className="flex items-center gap-4 p-5 rounded-2xl border border-white/[0.05] bg-[#0D0D0D]">
-              <img src={founderImg} alt="Founder"
-                className="w-12 h-12 rounded-full object-cover object-top border border-white/[0.08] flex-shrink-0" />
+              <img src={heroImg} alt="Founder"
+                className="w-12 h-12 rounded-full object-cover object-center border border-white/[0.08] flex-shrink-0" />
               <div>
                 <p className="text-[13px] text-white/50 italic leading-relaxed mb-1.5">
                   "Every coach who applies gets a real audit - not a sales pitch."
@@ -1010,6 +1058,8 @@ function Footer() {
 export default function Home() {
   return (
     <div className="min-h-screen bg-[#080808] overflow-x-hidden">
+      <ScrollProgress />
+      <PageAmbient />
       <IntroOverlay />
       <Nav />
       <Hero />
