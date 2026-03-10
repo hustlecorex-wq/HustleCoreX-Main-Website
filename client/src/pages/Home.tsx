@@ -19,20 +19,76 @@ import coach2Img from "@assets/626956249_18573276355036228_693123345985490863_n_
 import coach3Img from "@assets/637758797_17889993744428899_7709878898914652022_n_1773149974234.jpg";
 import coach4Img from "@assets/641246630_18408593131131876_4631414787526160229_n_1773149974234.jpg";
 
-/* ─── utils ─────────────────────────────────────────────────── */
+/* ─── animation constants ─────────────────────────────────────── */
+const EASE = [0.22, 1, 0.36, 1] as const;
 
-function FadeIn({ children, className = "", delay = 0 }: {
+const childVariants = {
+  hidden: { opacity: 0, y: 22 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.62, ease: EASE } },
+};
+const childVariantsScale = {
+  hidden: { opacity: 0, y: 18, scale: 0.96 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.62, ease: EASE } },
+};
+const childVariantsLeft = {
+  hidden: { opacity: 0, x: -22 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.62, ease: EASE } },
+};
+const childVariantsRight = {
+  hidden: { opacity: 0, x: 22 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.62, ease: EASE } },
+};
+
+function staggerContainer(stagger = 0.08, delay = 0) {
+  return {
+    hidden: {},
+    visible: { transition: { staggerChildren: stagger, delayChildren: delay } },
+  };
+}
+
+/* ─── utils ─────────────────────────────────────────────────── */
+function FadeIn({ children, className = "", delay = 0, from = "below" }: {
   children: React.ReactNode; className?: string; delay?: number;
+  from?: "below" | "left" | "right" | "scale";
 }) {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-50px" });
+  const inView = useInView(ref, { once: true, margin: "-40px" });
+  const variants = { below: childVariants, left: childVariantsLeft, right: childVariantsRight, scale: childVariantsScale };
   return (
     <motion.div ref={ref} className={className}
-      initial={{ opacity: 0, y: 22 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] }}>
+      initial="hidden"
+      animate={inView ? "visible" : "hidden"}
+      variants={variants[from]}
+      transition={{ delay }}>
       {children}
     </motion.div>
+  );
+}
+
+/* ─── intro overlay ──────────────────────────────────────────── */
+function IntroOverlay() {
+  const [gone, setGone] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setGone(true), 650);
+    return () => clearTimeout(t);
+  }, []);
+  return (
+    <AnimatePresence>
+      {!gone && (
+        <motion.div
+          className="fixed inset-0 z-[200] bg-[#080808] flex items-center justify-center pointer-events-none"
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.55, ease: EASE }}>
+          <motion.img
+            src={logoImg} alt="HustleCoreX"
+            className="w-12 h-12 object-contain"
+            initial={{ opacity: 0, scale: 0.7, filter: "blur(10px)" }}
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+            exit={{ opacity: 0, scale: 1.15, filter: "blur(4px)" }}
+            transition={{ duration: 0.38, ease: EASE }} />
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
@@ -65,7 +121,10 @@ function Nav() {
   ];
 
   return (
-    <header data-testid="navbar"
+    <motion.header data-testid="navbar"
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5, delay: 0.85, ease: EASE }}
       className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${
         scrolled ? "bg-[#080808]/92 backdrop-blur-2xl border-b border-white/[0.05]" : ""
       }`}>
@@ -113,7 +172,7 @@ function Nav() {
           </motion.div>
         )}
       </AnimatePresence>
-    </header>
+    </motion.header>
   );
 }
 
@@ -323,9 +382,12 @@ function Problem() {
             </p>
           </FadeIn>
 
-          <div className="grid sm:grid-cols-2 gap-0 border border-white/[0.05] rounded-2xl overflow-hidden">
+          <motion.div
+            className="grid sm:grid-cols-2 gap-0 border border-white/[0.05] rounded-2xl overflow-hidden"
+            initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }}
+            variants={staggerContainer(0.07, 0.1)}>
             {items.map((item, i) => (
-              <FadeIn key={i} delay={i * 0.04}>
+              <motion.div key={i} variants={childVariants}>
                 <div data-testid={`problem-card-${i}`}
                   className={`p-6 md:p-7 h-full bg-[#0D0D0D] hover:bg-[#0F0F0F] transition-colors
                     ${i % 2 === 0 ? "sm:border-r border-white/[0.05]" : ""}
@@ -334,9 +396,9 @@ function Problem() {
                   <p className="text-[12px] text-white/18 line-through leading-snug mb-3 font-medium">{item.before}</p>
                   <p className="text-[13px] md:text-[14px] text-white/75 font-semibold leading-snug">{item.after}</p>
                 </div>
-              </FadeIn>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
@@ -456,9 +518,11 @@ function Results() {
           </FadeIn>
         </div>
 
-        <div className="grid sm:grid-cols-2 gap-4 mb-16">
+        <motion.div className="grid sm:grid-cols-2 gap-4 mb-16"
+          initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }}
+          variants={staggerContainer(0.1, 0.05)}>
           {cards.map((r, i) => (
-            <FadeIn key={i} delay={i * 0.06}>
+            <motion.div key={i} variants={childVariantsScale}>
               <div data-testid={`result-card-${i}`}
                 className="border border-white/[0.05] rounded-2xl bg-[#0D0D0D] overflow-hidden h-full flex flex-col hover:border-white/[0.09] transition-colors">
 
@@ -488,9 +552,9 @@ function Results() {
                   </div>
                 </div>
               </div>
-            </FadeIn>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
@@ -544,9 +608,11 @@ function Pricing() {
           </FadeIn>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-4">
+        <motion.div className="grid md:grid-cols-3 gap-4"
+          initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }}
+          variants={staggerContainer(0.1, 0.05)}>
           {plans.map((p, i) => (
-            <FadeIn key={i} delay={i * 0.07}>
+            <motion.div key={i} variants={childVariantsScale}>
               <div data-testid={`pricing-card-${p.name.replace(" ", "").toLowerCase()}`}
                 className={`rounded-2xl p-6 md:p-8 flex flex-col h-full relative overflow-hidden ${
                   p.highlight
@@ -605,9 +671,9 @@ function Pricing() {
                   {p.name === "Empire" ? "Book a Strategy Call" : "Get Started"}
                 </button>
               </div>
-            </FadeIn>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
@@ -648,9 +714,11 @@ function FAQ() {
             </p>
           </FadeIn>
 
-          <div className="border border-white/[0.05] rounded-2xl overflow-hidden divide-y divide-white/[0.05]">
+          <motion.div className="border border-white/[0.05] rounded-2xl overflow-hidden divide-y divide-white/[0.05]"
+            initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-40px" }}
+            variants={staggerContainer(0.06, 0.05)}>
             {items.map((item, i) => (
-              <FadeIn key={i}>
+              <motion.div key={i} variants={childVariants}>
                 <div data-testid={`faq-item-${i}`}>
                   <button data-testid={`faq-toggle-${i}`}
                     onClick={() => setOpen(open === i ? null : i)}
@@ -670,9 +738,9 @@ function FAQ() {
                     )}
                   </AnimatePresence>
                 </div>
-              </FadeIn>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
@@ -684,7 +752,11 @@ function CTAStrip() {
   return (
     <section className="border-t border-white/[0.05] px-6 md:px-10 py-20 md:py-28">
       <div className="max-w-6xl mx-auto">
-        <FadeIn>
+        <motion.div
+          initial={{ opacity: 0, y: 28, scale: 0.97 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.7, ease: EASE }}>
           <div className="relative rounded-2xl border border-white/[0.07] bg-[#0D0D0D] overflow-hidden px-8 md:px-14 py-12 md:py-16 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
             {/* subtle glow */}
             <div className="absolute right-0 top-0 w-[500px] h-[300px] bg-[#FF4500]/[0.04] rounded-full blur-[100px] pointer-events-none translate-x-1/3 -translate-y-1/4" />
@@ -699,7 +771,7 @@ function CTAStrip() {
               Get a Free Audit <ArrowRight size={15} />
             </button>
           </div>
-        </FadeIn>
+        </motion.div>
       </div>
     </section>
   );
@@ -734,7 +806,7 @@ function Apply() {
         <div className="grid lg:grid-cols-2 gap-14 lg:gap-24 items-start">
 
           {/* left */}
-          <FadeIn>
+          <FadeIn from="left">
             <p className="label-accent mb-6">Apply Now</p>
             <h2 className="display text-[clamp(2.8rem,5.5vw,4.5rem)] text-white mb-7">
               Ready to build<br />your system?
@@ -772,7 +844,7 @@ function Apply() {
           </FadeIn>
 
           {/* form */}
-          <FadeIn delay={0.1}>
+          <FadeIn from="right" delay={0.1}>
             {done ? (
               <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
                 className="border border-white/[0.05] rounded-2xl p-10 md:p-14 bg-[#0D0D0D] text-center" data-testid="apply-success">
@@ -938,6 +1010,7 @@ function Footer() {
 export default function Home() {
   return (
     <div className="min-h-screen bg-[#080808] overflow-x-hidden">
+      <IntroOverlay />
       <Nav />
       <Hero />
       <Ticker />
