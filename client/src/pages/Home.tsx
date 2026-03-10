@@ -216,59 +216,174 @@ function Nav() {
   );
 }
 
+/* ─── network animation ──────────────────────────────────────── */
+function NetworkAnimation() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    let animId: number;
+
+    const resize = () => {
+      canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+      canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    };
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+
+    const W = () => canvas.offsetWidth;
+    const H = () => canvas.offsetHeight;
+    const isMob = () => W() < 768;
+    const count = () => isMob() ? 38 : 70;
+    const connDist = () => isMob() ? 110 : 148;
+
+    interface Node { x: number; y: number; vx: number; vy: number; r: number; special: boolean; phase: number; phaseSpeed: number; }
+    interface Packet { fi: number; ti: number; t: number; speed: number; }
+
+    let nodes: Node[] = [];
+    let packets: Packet[] = [];
+
+    const init = () => {
+      nodes = Array.from({ length: count() }, () => ({
+        x: Math.random() * W(), y: Math.random() * H(),
+        vx: (Math.random() - 0.5) * 0.28,
+        vy: (Math.random() - 0.5) * 0.28,
+        r: Math.random() * 1.2 + 0.6,
+        special: Math.random() < 0.07,
+        phase: Math.random() * Math.PI * 2,
+        phaseSpeed: 0.018 + Math.random() * 0.016,
+      }));
+    };
+    init();
+
+    let pktTimer = 0;
+    const spawnPacket = () => {
+      const fi = Math.floor(Math.random() * nodes.length);
+      const candidates: { i: number; d: number }[] = [];
+      for (let i = 0; i < nodes.length; i++) {
+        if (i === fi) continue;
+        const d = Math.hypot(nodes[i].x - nodes[fi].x, nodes[i].y - nodes[fi].y);
+        if (d < connDist()) candidates.push({ i, d });
+      }
+      if (!candidates.length) return;
+      candidates.sort((a, b) => a.d - b.d);
+      const ti = candidates[Math.floor(Math.random() * Math.min(4, candidates.length))].i;
+      packets.push({ fi, ti, t: 0, speed: 0.007 + Math.random() * 0.01 });
+    };
+
+    const draw = () => {
+      const w = W(), h = H(), cd = connDist();
+      ctx.clearRect(0, 0, w, h);
+
+      for (const n of nodes) {
+        n.x += n.vx; n.y += n.vy; n.phase += n.phaseSpeed;
+        if (n.x < 0 || n.x > w) { n.vx *= -1; n.x = Math.max(0, Math.min(w, n.x)); }
+        if (n.y < 0 || n.y > h) { n.vy *= -1; n.y = Math.max(0, Math.min(h, n.y)); }
+      }
+
+      pktTimer++;
+      if (pktTimer > 45 && packets.length < (isMob() ? 4 : 8)) { spawnPacket(); pktTimer = 0; }
+      for (let i = packets.length - 1; i >= 0; i--) {
+        packets[i].t += packets[i].speed;
+        if (packets[i].t >= 1) packets.splice(i, 1);
+      }
+
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = nodes[j].x - nodes[i].x, dy = nodes[j].y - nodes[i].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist >= cd) continue;
+          const t = 1 - dist / cd;
+          const isHot = nodes[i].special || nodes[j].special;
+          ctx.beginPath();
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(nodes[j].x, nodes[j].y);
+          ctx.strokeStyle = isHot ? `rgba(255,90,20,${t * 0.22})` : `rgba(255,255,255,${t * 0.1})`;
+          ctx.lineWidth = isHot ? 0.75 : 0.45;
+          ctx.stroke();
+        }
+      }
+
+      for (const p of packets) {
+        const fn = nodes[p.fi], tn = nodes[p.ti];
+        const px = fn.x + (tn.x - fn.x) * p.t, py = fn.y + (tn.y - fn.y) * p.t;
+        const trail = ctx.createRadialGradient(px, py, 0, px, py, 7);
+        trail.addColorStop(0, "rgba(255,80,0,0.28)");
+        trail.addColorStop(1, "rgba(255,80,0,0)");
+        ctx.beginPath(); ctx.arc(px, py, 7, 0, Math.PI * 2);
+        ctx.fillStyle = trail; ctx.fill();
+        ctx.beginPath(); ctx.arc(px, py, 1.8, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255,110,30,0.95)"; ctx.fill();
+      }
+
+      for (const n of nodes) {
+        const pulse = Math.sin(n.phase);
+        if (n.special) {
+          const gr = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 10);
+          gr.addColorStop(0, `rgba(255,69,0,${0.18 + pulse * 0.1})`);
+          gr.addColorStop(1, "rgba(255,69,0,0)");
+          ctx.beginPath(); ctx.arc(n.x, n.y, n.r * 10, 0, Math.PI * 2);
+          ctx.fillStyle = gr; ctx.fill();
+          ctx.beginPath(); ctx.arc(n.x, n.y, n.r * (1 + pulse * 0.35), 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255,100,30,${0.85 + pulse * 0.12})`; ctx.fill();
+        } else {
+          ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(255,255,255,0.3)"; ctx.fill();
+        }
+      }
+
+      animId = requestAnimationFrame(draw);
+    };
+    draw();
+
+    return () => { cancelAnimationFrame(animId); ro.disconnect(); };
+  }, []);
+
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" style={{ opacity: 0.75 }} />;
+}
+
 /* ─── hero ───────────────────────────────────────────────────── */
 function Hero() {
   const ease = [0.22, 1, 0.36, 1] as const;
 
   return (
-    <section id="hero" className="relative min-h-[100svh] flex flex-col lg:flex-row items-stretch overflow-hidden pt-[62px]">
+    <section id="hero" className="relative min-h-[100svh] flex flex-col justify-center overflow-hidden pt-[62px]">
 
-      {/* ══ Animated background ══ */}
+      {/* ══ Ambient orbs ══ */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        {/* dot grid */}
-        <div className="absolute inset-0" style={{
-          backgroundImage: "radial-gradient(rgba(255,255,255,0.02) 1px, transparent 1px)",
-          backgroundSize: "32px 32px",
-        }} />
-
-        {/* Orb 1 - top-right, dominant orange */}
         <motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-          transition={{ duration: 2, delay: 0 }}
-          className="absolute -top-[10%] -right-[5%] w-[80vw] h-[80vw] max-w-[820px] max-h-[820px]"
+          transition={{ duration: 2.5, delay: 0 }}
+          className="absolute -top-[10%] right-[15%] w-[70vw] h-[70vw] max-w-[700px] max-h-[700px]"
           style={{
-            background: "radial-gradient(circle, rgba(255,69,0,0.13) 0%, rgba(255,69,0,0.04) 40%, transparent 68%)",
+            background: "radial-gradient(circle, rgba(255,69,0,0.1) 0%, rgba(255,69,0,0.03) 40%, transparent 68%)",
             animation: "orb-float-1 22s ease-in-out infinite",
           }} />
-
-        {/* Orb 2 - bottom-left, amber */}
         <motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-          transition={{ duration: 2.5, delay: 0.3 }}
-          className="absolute -bottom-[25%] -left-[10%] w-[65vw] h-[65vw] max-w-[650px] max-h-[650px]"
+          transition={{ duration: 3, delay: 0.4 }}
+          className="absolute bottom-[5%] left-[5%] w-[55vw] h-[55vw] max-w-[580px] max-h-[580px]"
           style={{
-            background: "radial-gradient(circle, rgba(255,130,0,0.07) 0%, transparent 62%)",
+            background: "radial-gradient(circle, rgba(255,100,0,0.06) 0%, transparent 65%)",
             animation: "orb-float-2 30s ease-in-out infinite",
           }} />
+        <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-[#080808] to-transparent" />
+        <div className="absolute bottom-0 inset-x-0 h-40 bg-gradient-to-t from-[#080808] to-transparent" />
+        <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-[#080808]/60 to-transparent" />
+      </div>
 
-        {/* Orb 3 - mobile only, centered warm glow */}
-        <motion.div
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-          transition={{ duration: 2, delay: 0.2 }}
-          className="lg:hidden absolute top-[25%] left-1/2 -translate-x-1/2 w-[100vw] h-[100vw]"
-          style={{
-            background: "radial-gradient(circle, rgba(255,69,0,0.07) 0%, transparent 60%)",
-            animation: "orb-float-3 25s ease-in-out infinite",
-          }} />
-
-        {/* edge fades */}
-        <div className="absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-[#080808] to-transparent" />
-        <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-[#080808] to-transparent" />
+      {/* ══ Network canvas ══ */}
+      <div className="absolute inset-0 z-[1] pointer-events-none">
+        <NetworkAnimation />
       </div>
 
       {/* ══ Content ══ */}
-      <div className="relative z-10 flex-1 flex flex-col justify-center px-5 sm:px-8 md:px-10 lg:px-14 xl:px-20 py-10 lg:py-16">
-        <div className="w-full max-w-[540px]">
+      <div className="relative z-10 w-full px-5 sm:px-8 md:px-10 lg:px-14 xl:px-20 py-14 lg:py-20">
+        <div className="w-full max-w-[580px]">
 
           {/* Badge */}
           <motion.div data-testid="hero-badge"
@@ -356,22 +471,6 @@ function Hero() {
 
         </div>
       </div>
-
-      {/* ══ Hero image — desktop only ══ */}
-      <motion.div
-        initial={{ opacity: 0, scale: 1.03 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1.2, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="hidden lg:block w-[46%] xl:w-[44%] relative flex-shrink-0 z-10">
-        <img src={heroImg} alt="HustleCoreX elite coach" data-testid="hero-image"
-          className="absolute inset-0 w-full h-full object-cover object-center" />
-        {/* left-to-right fade into page */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#080808] via-[#080808]/20 to-transparent" />
-        {/* top and bottom edge fades */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#080808]/70 via-transparent to-[#080808]/50" />
-        {/* subtle vignette on right edge */}
-        <div className="absolute inset-0 bg-gradient-to-l from-[#080808]/30 to-transparent" />
-      </motion.div>
 
     </section>
   );
