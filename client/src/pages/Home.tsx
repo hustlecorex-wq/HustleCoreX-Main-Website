@@ -490,7 +490,7 @@ function Hero() {
           </button>
           <button data-testid="hero-cta-secondary" onClick={() => go("results")}
             className="w-full sm:w-auto flex items-center justify-center gap-2 h-[54px] px-7 rounded-2xl border border-white/[0.09] text-white/38 hover:text-white/65 hover:border-white/[0.17] text-[14px] sm:text-[15px] font-medium transition-all active:scale-[0.97]">
-            See Results
+            See How It Works
           </button>
         </motion.div>
 
