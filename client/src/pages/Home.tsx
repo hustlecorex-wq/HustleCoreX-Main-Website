@@ -1322,7 +1322,7 @@ function System() {
 function Results() {
   const cards = [
     { name: "Bela Toth", role: "Online Fitness Coach · @belatoth", img: coach1Img,
-      quote: "Signed two new clients the week after we went live. Didn't change anything on my end - the system just handled it. Didn't expect it to move that fast." },
+      quote: "Two new clients in my first week. I hadn't changed a thing on my end - it just started working. Caught me off guard if I'm honest." },
     { name: "Sarah M.", role: "PT & Nutrition · Manchester", img: coach2Img,
       quote: "I used to post every day and get nothing back. Now I wake up to booked calls. I haven't chased a lead in months." },
     { name: "Marcus R.", role: "Strength Coach · New York", img: coach3Img,
