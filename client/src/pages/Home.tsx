@@ -435,29 +435,29 @@ function Hero() {
               animate={{ y: "0%" }}
               transition={{ duration: 0.75, delay: 0.08, ease }}
               className="display text-outline text-[clamp(2.6rem,7vw,6.5rem)] leading-[0.9] text-center tracking-[-0.05em]">
-              THE SYSTEM
+              THE FUTURE OF
             </motion.p>
           </div>
 
-          {/* Line 2: 6-FIGURE — THE dominant element, orange shimmer */}
+          {/* Line 2: dominant element, orange shimmer */}
           <div className="overflow-hidden">
             <motion.p
               initial={{ y: "105%" }}
               animate={{ y: "0%" }}
               transition={{ duration: 0.78, delay: 0.2, ease }}
-              className="display shimmer-text text-[clamp(4rem,13vw,12rem)] leading-[0.86] text-center tracking-[-0.06em]">
-              6-FIGURE
+              className="display shimmer-text text-[clamp(3.2rem,10vw,9.5rem)] leading-[0.86] text-center tracking-[-0.06em]">
+              ONLINE COACHING
             </motion.p>
           </div>
 
-          {/* Line 3: COACHES. — solid white, grounds the headline */}
+          {/* Line 3: solid white, grounds the headline */}
           <div className="overflow-hidden">
             <motion.p
               initial={{ y: "105%" }}
               animate={{ y: "0%" }}
               transition={{ duration: 0.75, delay: 0.32, ease }}
               className="display text-white text-[clamp(2.6rem,7vw,6.5rem)] leading-[0.9] text-center tracking-[-0.05em]">
-              COACHES.
+              IS HERE.
             </motion.p>
           </div>
         </div>
@@ -475,7 +475,7 @@ function Hero() {
           initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.52, ease }}
           className="text-[19px] sm:text-[23px] md:text-[26px] text-white/40 leading-[1.55] max-w-[560px] mb-9 sm:mb-11 font-light tracking-[-0.01em]">
-          The future of online coaching is here.
+          The system that scales online coaches to consistent 5-figure months.
         </motion.p>
 
         {/* CTAs */}
