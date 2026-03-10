@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   ArrowRight, CheckCircle2, ChevronDown, Menu, X,
   Instagram, Mail, Star, Shield, Clock,
-  Target, BarChart3, BrainCircuit, Sparkles, Zap, Globe, Layers, TrendingUp,
+  Target, BrainCircuit, Sparkles, Zap, Globe, Layers, TrendingUp,
 } from "lucide-react";
 
 import logoImg from "@assets/logo_transparent.png";
@@ -369,9 +369,6 @@ function System() {
     { n: "04", tab: "AutoNation", title: "AutoNation System", icon: <BrainCircuit size={16} />,
       body: "Every tool in your stack intelligently connected. Leads come in, get nurtured, book a call, and onboard - entirely without you lifting a finger.",
       points: ["Full CRM Integration", "Email Automation", "DM Auto-Responses", "Lead Scoring & Routing", "Onboarding Flow"] },
-    { n: "05", tab: "Analytics", title: "Growth Analytics", icon: <BarChart3 size={16} />,
-      body: "Complete visibility into your pipeline. See exactly where your leads come from, where they drop off, and where to focus your energy for maximum growth.",
-      points: ["Unified Dashboard", "Revenue Attribution", "Conversion Tracking", "Weekly Insights Reports", "Continuous Optimisation"] },
   ];
 
   return (
