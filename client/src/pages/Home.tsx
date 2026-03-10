@@ -1078,7 +1078,7 @@ function System() {
 
         <PillarRow n="03" label="Leads" flip={false}
           title="10+ qualified enquiries a week. On average."
-          body="We rebuild your Instagram presence and lead flow so that qualified people find you, follow you, and come to you. Not tyre-kickers. People who are ready to invest in their training and looking for exactly what you offer."
+          body="Most coaches post consistently for months and barely get a serious DM. We look at why that's happening, fix it, and build a system that brings the right people to you. People who can afford coaching, who are serious about it, and who reach out already half-sold on working with you."
           points={["Instagram Overhaul","Content-to-DM Funnel","Strategic Outreach System","Paid Ad Strategy","Lead Magnet Creation"]}
           visual={<LeadsVisual />} />
 
