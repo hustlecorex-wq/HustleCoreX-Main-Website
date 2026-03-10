@@ -1333,13 +1333,8 @@ function Results() {
           <FadeIn>
             <p className="label-accent mb-6">Results</p>
             <h2 className="display text-[clamp(2.8rem,5.5vw,4.5rem)] text-white">
-              Real coaches.<br />Real numbers.
+              Results.
             </h2>
-          </FadeIn>
-          <FadeIn delay={0.1}>
-            <p className="text-[13px] text-white/28 max-w-[260px] leading-relaxed">
-              These aren't outliers. These are coaches who were right where you are.
-            </p>
           </FadeIn>
         </div>
 
