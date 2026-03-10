@@ -13,6 +13,7 @@ import {
   TrendingUp, Award, ArrowUpRight,
 } from "lucide-react";
 
+import logoImg from "@assets/logo_transparent.png";
 import heroCoachImg from "@assets/generated_images/hero_coach.png";
 import coach1Img from "@assets/stock_images/coach_james.jpg";
 import coach2Img from "@assets/stock_images/coach_sarah.jpg";
@@ -55,9 +56,7 @@ const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ b
 function Logo() {
   return (
     <div className="flex items-center gap-2.5">
-      <div className="w-7 h-7 rounded-lg bg-[#FF4500] flex items-center justify-center font-mono font-black text-white text-[9px] leading-none flex-shrink-0 tracking-tight">
-        HCX
-      </div>
+      <img src={logoImg} alt="HustleCoreX logo mark" className="w-9 h-9 object-contain flex-shrink-0" />
       <span className="font-black text-white text-[15px] tracking-[-0.02em]">HustleCoreX</span>
     </div>
   );
