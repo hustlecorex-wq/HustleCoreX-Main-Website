@@ -14,6 +14,7 @@ import {
 
 import logoImg from "@assets/logo_transparent.png";
 import heroImg from "@assets/generated_images/hero_coach.png";
+import founderImg from "@assets/main_profile_pic_1773158514731.png";
 import coach1Img from "@assets/580868512_17843744343613829_22300884961125480_n_1773149974233.jpg";
 import coach2Img from "@assets/626956249_18573276355036228_693123345985490863_n_1773149974233.jpg";
 import coach3Img from "@assets/637758797_17889993744428899_7709878898914652022_n_1773149974234.jpg";
@@ -833,7 +834,7 @@ function Pricing() {
                       ? "bg-[#FF4500] hover:bg-[#FF5500] text-white"
                       : "border border-white/[0.08] text-white/40 hover:text-white/65 hover:border-white/14"
                   }`}>
-                  {p.name === "Empire" ? "Book a Strategy Call" : "Get Started"}
+                  Get Started
                 </button>
               </div>
             </motion.div>
@@ -977,14 +978,14 @@ function Apply() {
               Let's see if<br />we're a fit.
             </h2>
             <p className="text-[14px] md:text-[15px] text-white/35 leading-[1.8] mb-10 max-w-[360px]">
-              Fill in the form below. We'll take a proper look at where you're at and tell you honestly what needs to change. No pitch, no pressure - just a real conversation.
+              Fill in the form below. We'll take a proper look at where you're at and tell you honestly what needs to change.
             </p>
 
             <ul className="space-y-5 mb-12">
               {[
                 { icon: <Clock size={13} />, text: "We reply within 24 hours, always" },
                 { icon: <Shield size={13} />, text: "We only work with coaches we can genuinely help" },
-                { icon: <Star size={13} />, text: "Every application gets a free audit" },
+                { icon: <Star size={13} />, text: "Every application gets a free audit whether you buy or not" },
               ].map((item, i) => (
                 <li key={i} className="flex items-center gap-3.5">
                   <div className="w-8 h-8 rounded-lg border border-white/[0.06] flex items-center justify-center text-white/25 flex-shrink-0">
@@ -997,8 +998,8 @@ function Apply() {
 
             {/* founder photo + quote */}
             <div className="flex items-center gap-4 p-5 rounded-2xl border border-white/[0.05] bg-[#0D0D0D]">
-              <img src={heroImg} alt="Founder"
-                className="w-12 h-12 rounded-full object-cover object-center border border-white/[0.08] flex-shrink-0" />
+              <img src={founderImg} alt="Founder"
+                className="w-12 h-12 rounded-full object-cover object-top border border-white/[0.08] flex-shrink-0" />
               <div>
                 <p className="text-[13px] text-white/50 italic leading-relaxed mb-1.5">
                   "Every coach who applies gets an honest audit - not a pitch."
@@ -1146,7 +1147,7 @@ function Footer() {
             <p className="label mb-5">Contact</p>
             <div className="space-y-3">
               {[
-                { icon: <Mail size={11} />, t: "hello@hustlecorex.io" },
+                { icon: <Mail size={11} />, t: "info@hustlecorex.com" },
                 { icon: <Instagram size={11} />, t: "@hustlecorex" },
                 { icon: <Clock size={11} />, t: "Mon–Fri · 9am–6pm GMT" },
               ].map((c, i) => (
