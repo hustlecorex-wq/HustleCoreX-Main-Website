@@ -701,46 +701,283 @@ function WebsiteVisual() {
 }
 
 function LeadsVisual() {
-  const metrics = [
-    { label: "Profile Visits", value: "8,240", change: "+34%", up: true },
-    { label: "DMs Received", value: "127", change: "+91%", up: true },
-    { label: "Calls Booked", value: "19", change: "+58%", up: true },
-  ];
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const countRef = useRef(0);
+  const [displayCount, setDisplayCount] = useState(0);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const setup = () => {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * devicePixelRatio;
+      canvas.height = rect.height * devicePixelRatio;
+      ctx.scale(devicePixelRatio, devicePixelRatio);
+      return { W: rect.width, H: rect.height };
+    };
+
+    let { W, H } = setup();
+    let cx = W / 2;
+    let cy = H / 2;
+    const centerR = 34;
+    let spawnR = Math.min(W, H) * 0.42;
+
+    type Particle = {
+      x: number; y: number; vx: number; vy: number;
+      r: number; alpha: number; hue: number;
+      absorbed: boolean; age: number; spin: number;
+      tailX: number[]; tailY: number[];
+    };
+    type Ripple = { r: number; alpha: number };
+    type Notif = { text: string; x: number; y: number; alpha: number };
+
+    const particles: Particle[] = [];
+    const ripples: Ripple[] = [];
+    const notifs: Notif[] = [];
+    const notifLabels = ["New Enquiry", "Call Booked", "DM Received", "Discovery Call", "Lead In"];
+    let frame = 0;
+    let raf: number;
+
+    const spawn = () => {
+      const angle = Math.random() * Math.PI * 2;
+      const jitter = (Math.random() - 0.5) * 20;
+      const x = cx + Math.cos(angle) * (spawnR + jitter);
+      const y = cy + Math.sin(angle) * (spawnR + jitter);
+      const hue = 15 + Math.random() * 30; // orange to red-orange
+      particles.push({
+        x, y, vx: 0, vy: 0,
+        r: 2.8 + Math.random() * 2.2,
+        alpha: 0, hue,
+        absorbed: false, age: 0,
+        spin: Math.random() > 0.5 ? 1 : -1,
+        tailX: [x], tailY: [y],
+      });
+    };
+
+    // Pre-populate
+    for (let i = 0; i < 5; i++) setTimeout(spawn, i * 300);
+
+    const drawCenter = () => {
+      const pulse = Math.sin(frame * 0.045) * 0.5 + 0.5;
+
+      // Outer glow
+      const glowR = centerR + 14 + pulse * 5;
+      const glow = ctx.createRadialGradient(cx, cy, centerR - 4, cx, cy, glowR + 12);
+      glow.addColorStop(0, `rgba(255,69,0,${0.28 * pulse})`);
+      glow.addColorStop(1, "rgba(255,69,0,0)");
+      ctx.beginPath();
+      ctx.arc(cx, cy, glowR + 12, 0, Math.PI * 2);
+      ctx.fillStyle = glow;
+      ctx.fill();
+
+      // Pulse ring
+      ctx.beginPath();
+      ctx.arc(cx, cy, glowR, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(255,80,0,${0.18 * pulse})`;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      // Instagram gradient fill
+      const grad = ctx.createLinearGradient(cx - centerR, cy + centerR, cx + centerR, cy - centerR);
+      grad.addColorStop(0, "#f09433");
+      grad.addColorStop(0.3, "#e6683c");
+      grad.addColorStop(0.6, "#dc2743");
+      grad.addColorStop(0.85, "#cc2366");
+      grad.addColorStop(1, "#bc1888");
+      ctx.beginPath();
+      ctx.arc(cx, cy, centerR, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Instagram camera icon (rounded square outline)
+      const s = centerR * 0.62;
+      ctx.save();
+      ctx.strokeStyle = "rgba(255,255,255,0.88)";
+      ctx.lineWidth = 1.8;
+      ctx.lineJoin = "round";
+      const bx = cx - s, by = cy - s, bw = s * 2, bh = s * 2, br = s * 0.28;
+      ctx.beginPath();
+      ctx.moveTo(bx + br, by);
+      ctx.lineTo(bx + bw - br, by);
+      ctx.arcTo(bx + bw, by, bx + bw, by + br, br);
+      ctx.lineTo(bx + bw, by + bh - br);
+      ctx.arcTo(bx + bw, by + bh, bx + bw - br, by + bh, br);
+      ctx.lineTo(bx + br, by + bh);
+      ctx.arcTo(bx, by + bh, bx, by + bh - br, br);
+      ctx.lineTo(bx, by + br);
+      ctx.arcTo(bx, by, bx + br, by, br);
+      ctx.closePath();
+      ctx.stroke();
+      // Lens circle
+      ctx.beginPath();
+      ctx.arc(cx, cy, s * 0.44, 0, Math.PI * 2);
+      ctx.stroke();
+      // Top-right dot
+      ctx.beginPath();
+      ctx.arc(cx + s * 0.52, cy - s * 0.52, 2.2, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(255,255,255,0.88)";
+      ctx.fill();
+      ctx.restore();
+    };
+
+    const animate = () => {
+      ctx.clearRect(0, 0, W, H);
+      frame++;
+
+      // Spawn every ~52 frames
+      if (frame % 52 === 0) spawn();
+
+      drawCenter();
+
+      // Ripples
+      for (let i = ripples.length - 1; i >= 0; i--) {
+        const r = ripples[i];
+        ctx.beginPath();
+        ctx.arc(cx, cy, r.r, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(255,80,0,${r.alpha})`;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        r.r += 2.2;
+        r.alpha -= 0.018;
+        if (r.alpha <= 0) ripples.splice(i, 1);
+      }
+
+      // Notifications
+      for (let i = notifs.length - 1; i >= 0; i--) {
+        const n = notifs[i];
+        n.y -= 0.55;
+        n.alpha -= 0.011;
+        if (n.alpha <= 0) { notifs.splice(i, 1); continue; }
+        ctx.save();
+        ctx.globalAlpha = n.alpha;
+        ctx.font = `500 9.5px "Space Grotesk", system-ui, sans-serif`;
+        const tw = ctx.measureText(n.text).width;
+        const pw = tw + 18, ph = 19;
+        const nx = n.x - pw / 2, ny = n.y - ph / 2, nr = 9;
+        ctx.fillStyle = "rgba(22,22,22,0.92)";
+        ctx.strokeStyle = "rgba(255,80,0,0.35)";
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(nx + nr, ny); ctx.lineTo(nx + pw - nr, ny);
+        ctx.arcTo(nx + pw, ny, nx + pw, ny + nr, nr);
+        ctx.lineTo(nx + pw, ny + ph - nr);
+        ctx.arcTo(nx + pw, ny + ph, nx + pw - nr, ny + ph, nr);
+        ctx.lineTo(nx + nr, ny + ph);
+        ctx.arcTo(nx, ny + ph, nx, ny + ph - nr, nr);
+        ctx.lineTo(nx, ny + nr);
+        ctx.arcTo(nx, ny, nx + nr, ny, nr);
+        ctx.closePath();
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "rgba(255,255,255,0.72)";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(n.text, n.x, n.y);
+        ctx.restore();
+      }
+
+      // Particles
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        if (p.absorbed) { particles.splice(i, 1); continue; }
+        p.age++;
+        p.alpha = Math.min(1, p.age / 18);
+
+        const dx = cx - p.x, dy = cy - p.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < centerR + p.r - 2) {
+          p.absorbed = true;
+          countRef.current++;
+          setDisplayCount(c => c + 1);
+          ripples.push({ r: centerR + 2, alpha: 0.75 });
+          if (notifs.length < 3) {
+            notifs.push({
+              text: notifLabels[countRef.current % notifLabels.length],
+              x: cx + (Math.random() - 0.5) * 70,
+              y: cy - centerR - 18,
+              alpha: 1,
+            });
+          }
+          continue;
+        }
+
+        // Movement — curved path toward center
+        const speed = 0.85 + (1 - Math.min(1, dist / spawnR)) * 1.4;
+        const nx = dx / dist, ny2 = dy / dist;
+        const curveFactor = 0.28 * (dist / spawnR);
+        const px = -ny2 * p.spin * curveFactor;
+        const py = nx * p.spin * curveFactor;
+        p.vx = p.vx * 0.82 + (nx + px) * speed * 0.18;
+        p.vy = p.vy * 0.82 + (ny2 + py) * speed * 0.18;
+        p.x += p.vx + nx * speed * 0.65;
+        p.y += p.vy + ny2 * speed * 0.65;
+
+        // Trail
+        p.tailX.push(p.x); p.tailY.push(p.y);
+        if (p.tailX.length > 14) { p.tailX.shift(); p.tailY.shift(); }
+
+        if (p.tailX.length > 2) {
+          for (let t = 1; t < p.tailX.length; t++) {
+            const tA = (t / p.tailX.length) * 0.3 * p.alpha;
+            ctx.beginPath();
+            ctx.moveTo(p.tailX[t - 1], p.tailY[t - 1]);
+            ctx.lineTo(p.tailX[t], p.tailY[t]);
+            ctx.strokeStyle = `hsla(${p.hue},100%,55%,${tA})`;
+            ctx.lineWidth = p.r * 0.7;
+            ctx.lineCap = "round";
+            ctx.stroke();
+          }
+        }
+
+        // Particle glow
+        const glowG = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 3.5);
+        glowG.addColorStop(0, `hsla(${p.hue},100%,55%,${0.45 * p.alpha})`);
+        glowG.addColorStop(1, `hsla(${p.hue},100%,55%,0)`);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r * 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = glowG;
+        ctx.fill();
+
+        // Core
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${p.hue},100%,62%,${p.alpha})`;
+        ctx.fill();
+
+        // Highlight
+        ctx.beginPath();
+        ctx.arc(p.x - p.r * 0.28, p.y - p.r * 0.28, p.r * 0.4, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${0.4 * p.alpha})`;
+        ctx.fill();
+      }
+
+      raf = requestAnimationFrame(animate);
+    };
+
+    animate();
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
   return (
     <div className="rounded-2xl border border-white/[0.07] bg-[#0A0A0A] overflow-hidden">
-      <div className="flex items-center gap-3 p-5 border-b border-white/[0.05]">
-        <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#FF4500] via-[#FF6B00] to-[#FF9A00] p-0.5 flex-shrink-0">
-          <div className="w-full h-full rounded-full bg-[#111] flex items-center justify-center">
-            <span className="text-[9px] font-black text-white">IG</span>
-          </div>
-        </div>
+      <canvas ref={canvasRef} className="w-full h-[260px] sm:h-[300px]" />
+      <div className="px-5 py-4 border-t border-white/[0.05] flex items-center justify-between gap-4">
         <div>
-          <p className="text-[12px] font-bold text-white/80">@yourcoachingpage</p>
-          <p className="text-[10px] text-white/30">12,480 followers</p>
+          <p className="text-[30px] sm:text-[34px] font-black text-white leading-none tracking-tight">10+</p>
+          <p className="text-[10px] text-white/28 mt-1.5 uppercase tracking-[0.15em]">Qualified leads per week</p>
         </div>
-        <div className="ml-auto px-3 py-1 rounded-full bg-[#FF4500] text-[10px] font-bold text-white">Follow</div>
-      </div>
-      <div className="grid grid-cols-3 gap-px bg-white/[0.04] border-b border-white/[0.05]">
-        {["Posts","Followers","Following"].map((l, i) => (
-          <div key={i} className="bg-[#0A0A0A] py-3 text-center">
-            <p className="text-[13px] font-bold text-white">{["148","12.4K","380"][i]}</p>
-            <p className="text-[9px] text-white/25">{l}</p>
-          </div>
-        ))}
-      </div>
-      <div className="p-5 space-y-3">
-        <p className="text-[10px] text-white/25 uppercase tracking-[0.18em] mb-3">This Week</p>
-        {metrics.map((m, i) => (
-          <div key={i} className="flex items-center justify-between py-2.5 border-b border-white/[0.04] last:border-0">
-            <span className="text-[12px] text-white/45">{m.label}</span>
-            <div className="flex items-center gap-2">
-              <span className="text-[13px] font-bold text-white">{m.value}</span>
-              <span className="text-[10px] font-semibold text-emerald-400">{m.change}</span>
+        <div className="flex gap-4 sm:gap-6">
+          {[["DMs", "127"], ["Calls", "19"], ["Close Rate", "86%"]].map(([l, v]) => (
+            <div key={l} className="text-center">
+              <p className="text-[15px] sm:text-[17px] font-black text-white/75 leading-none">{v}</p>
+              <p className="text-[9px] text-white/22 mt-1 uppercase tracking-[0.1em]">{l}</p>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-
     </div>
   );
 }
@@ -844,8 +1081,8 @@ function System() {
           visual={<WebsiteVisual />} />
 
         <PillarRow n="03" label="Leads" flip={false}
-          title="Real leads from Instagram, every day."
-          body="We build your Instagram presence and lead flow from scratch - or take over what's already there. Either way the goal is the same: qualified people who want to enquire for your coaching, coming to you."
+          title="10+ qualified enquiries a week. On average."
+          body="We rebuild your Instagram presence and lead flow so that qualified people find you, follow you, and come to you. Not tyre-kickers. People who are ready to invest in their training and looking for exactly what you offer."
           points={["Instagram Overhaul","Content-to-DM Funnel","Strategic Outreach System","Paid Ad Strategy","Lead Magnet Creation"]}
           visual={<LeadsVisual />} />
 
