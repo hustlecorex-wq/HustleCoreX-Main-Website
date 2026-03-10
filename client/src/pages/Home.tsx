@@ -741,16 +741,6 @@ function LeadsVisual() {
         ))}
       </div>
 
-      {/* Proof screenshots */}
-      <div className="px-5 pb-5 space-y-3">
-        <p className="text-[10px] text-white/25 uppercase tracking-[0.18em] mb-3">Real Results</p>
-        <div className="rounded-xl overflow-hidden border border-white/[0.07] shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
-          <img src={proofChatImg} alt="Client message - booked 3 more calls" className="w-full block" />
-        </div>
-        <div className="rounded-xl overflow-hidden border border-white/[0.07] shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
-          <img src={proofCalendarImg} alt="Discovery calls calendar - fully booked" className="w-full block" />
-        </div>
-      </div>
     </div>
   );
 }
