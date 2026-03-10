@@ -276,50 +276,7 @@ function Hero() {
         <div className="absolute inset-0 bg-gradient-to-b from-[#080808]/55 via-transparent to-[#080808]/28" />
       </div>
 
-      {/* ══ Mobile stats strip ══ */}
-      <div className="lg:hidden relative z-10 grid grid-cols-4 border-t border-white/[0.05]">
-        {[
-          { n: 150, s: "+", l: "Coaches" },
-          { n: 12, p: "$", s: "M+", l: "Revenue" },
-          { n: 97, s: "%", l: "Retention" },
-          { n: 90, s: "d", l: "To Live" },
-        ].map((s, i) => (
-          <div key={i} className={`py-5 text-center ${i < 3 ? "border-r border-white/[0.05]" : ""}`}>
-            <p className="text-[1.15rem] font-black text-white leading-none tracking-tight mb-1">
-              <Count end={s.n} suffix={s.s} prefix={s.p} />
-            </p>
-            <p className="label" style={{ fontSize: "9px" }}>{s.l}</p>
-          </div>
-        ))}
-      </div>
     </section>
-  );
-}
-
-/* ─── stats strip ────────────────────────────────────────────── */
-function StatsStrip() {
-  const stats = [
-    { n: 150, s: "+", label: "Coaches Scaled" },
-    { n: 12, p: "$", s: "M+", label: "Revenue Generated" },
-    { n: 97, s: "%", label: "Client Retention" },
-    { n: 90, s: " Days", label: "Full System Live" },
-  ];
-  return (
-    <div className="hidden lg:block border-y border-white/[0.05]">
-      <div className="max-w-6xl mx-auto px-10">
-        <div className="grid grid-cols-4 divide-x divide-white/[0.05]">
-          {stats.map((s, i) => (
-            <FadeIn key={i} delay={i * 0.07}
-              className="py-10 text-center">
-              <p data-testid={`stat-${i}`} className="display text-[3.2rem] text-white mb-1.5">
-                <Count end={s.n} suffix={s.s} prefix={s.p} />
-              </p>
-              <p className="label">{s.label}</p>
-            </FadeIn>
-          ))}
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -1016,7 +973,6 @@ export default function Home() {
     <div className="min-h-screen bg-[#080808] overflow-x-hidden">
       <Nav />
       <Hero />
-      <StatsStrip />
       <Ticker />
       <Problem />
       <System />
