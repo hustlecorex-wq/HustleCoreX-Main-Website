@@ -474,8 +474,8 @@ function Hero() {
         <motion.p data-testid="hero-subheadline"
           initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.52, ease }}
-          className="text-[15px] sm:text-[17px] text-white/32 leading-[1.78] max-w-[460px] mb-9 sm:mb-11">
-          Brand. Website. Lead generation. Automation. The complete system built for you, runs without you.
+          className="text-[19px] sm:text-[23px] md:text-[26px] text-white/40 leading-[1.55] max-w-[560px] mb-9 sm:mb-11 font-light tracking-[-0.01em]">
+          The future of online coaching is here.
         </motion.p>
 
         {/* CTAs */}
