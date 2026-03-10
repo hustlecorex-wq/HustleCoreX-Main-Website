@@ -21,6 +21,10 @@ import coach1Img from "@assets/580868512_17843744343613829_22300884961125480_n_1
 import coach2Img from "@assets/626956249_18573276355036228_693123345985490863_n_1773149974233.jpg";
 import coach3Img from "@assets/637758797_17889993744428899_7709878898914652022_n_1773149974234.jpg";
 import coach4Img from "@assets/641246630_18408593131131876_4631414787526160229_n_1773149974234.jpg";
+import kyleProfileImg from "@assets/641246630_18408593131131876_4631414787526160229_n_1773161570730.jpg";
+import reel1Img from "@assets/Snímek_obrazovky_2026-03-10_175400_1773161935655.png";
+import reel2Img from "@assets/Snímek_obrazovky_2026-03-10_175420_1773161935656.png";
+import reel3Img from "@assets/Snímek_obrazovky_2026-03-10_175429_1773161935657.png";
 
 /* ─── animation constants ─────────────────────────────────────── */
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -629,34 +633,62 @@ function Problem() {
 /* ─── system pillar visuals ──────────────────────────────────── */
 function BrandVisual() {
   return (
-    <div className="relative rounded-2xl border border-white/[0.07] bg-[#0A0A0A] overflow-hidden p-7">
-      <span className="absolute -right-4 -bottom-4 text-[10rem] font-black text-white/[0.025] leading-none tracking-tighter select-none pointer-events-none">HCX</span>
-      <div className="flex items-center gap-3 mb-7">
-        <div className="w-9 h-9 rounded-xl bg-[#FF4500] flex items-center justify-center flex-shrink-0">
-          <span className="text-[10px] font-black text-white tracking-tight">HCX</span>
+    <div className="relative rounded-2xl border border-white/[0.07] bg-[#090909] overflow-hidden">
+      {/* red ambient glow at top */}
+      <div className="absolute top-0 inset-x-0 h-36 pointer-events-none"
+        style={{ background: "radial-gradient(ellipse 90% 100% at 50% -10%, rgba(160,0,0,0.22) 0%, transparent 70%)" }} />
+
+      <div className="relative p-6">
+
+        {/* Profile row */}
+        <div className="flex items-center gap-4 mb-6">
+          <div className="relative flex-shrink-0 w-[56px] h-[56px] rounded-full overflow-hidden"
+            style={{ boxShadow: "0 0 0 2px rgba(180,0,0,0.5), 0 0 20px rgba(160,0,0,0.35)" }}>
+            <img src={kyleProfileImg} alt="Kyle Shayler" className="w-full h-full object-cover object-top scale-110" />
+          </div>
+          <div>
+            <p className="text-[16px] font-black text-white leading-tight tracking-[-0.02em]">Kyle Shayler</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] mt-0.5" style={{ color: "#CC1500" }}>Elite Athletes Coaching</p>
+            <p className="text-[10px] text-white/22 mt-0.5">@kyleshayler</p>
+          </div>
         </div>
+
+        {/* Brand palette */}
+        <div className="mb-5">
+          <p className="text-[9px] text-white/18 uppercase tracking-[0.22em] mb-2.5 font-semibold">Brand Palette</p>
+          <div className="flex items-end gap-2">
+            {[
+              { c: "#CC1100", h: "h-9" },
+              { c: "#8B0000", h: "h-7" },
+              { c: "#111111", h: "h-9" },
+              { c: "#252525", h: "h-7" },
+              { c: "#FFFFFF", h: "h-9" },
+            ].map(({ c, h }, i) => (
+              <div key={i} className={`flex-1 ${h} rounded-lg border border-white/[0.06]`} style={{ background: c }} />
+            ))}
+          </div>
+        </div>
+
+        {/* Typography */}
+        <div className="mb-5 pb-5 border-b border-white/[0.05]">
+          <p className="text-[9px] text-white/18 uppercase tracking-[0.22em] mb-2 font-semibold">Typography</p>
+          <p className="text-[10px] font-bold text-white/22 uppercase tracking-[0.34em] mb-0.5">Setting The</p>
+          <p className="text-[28px] font-black text-white leading-none tracking-[-0.03em]">STANDARD.</p>
+          <p className="text-[9px] text-white/18 mt-2 uppercase tracking-[0.26em]">Bold · Condensed · Elite</p>
+        </div>
+
+        {/* Reel / content covers */}
         <div>
-          <p className="text-[13px] font-bold text-white/80 leading-tight">YourName</p>
-          <p className="text-[10px] text-[#FF4500] uppercase tracking-[0.18em]">Elite Coaching</p>
+          <p className="text-[9px] text-white/18 uppercase tracking-[0.22em] mb-2.5 font-semibold">Content Style</p>
+          <div className="grid grid-cols-3 gap-2">
+            {[reel1Img, reel2Img, reel3Img].map((src, i) => (
+              <div key={i} className="rounded-xl overflow-hidden border border-white/[0.07] aspect-[9/16]">
+                <img src={src} alt={`reel ${i + 1}`} className="w-full h-full object-cover" />
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-      <div className="mb-6">
-        <p className="text-[10px] text-white/20 uppercase tracking-[0.18em] mb-3">Brand Palette</p>
-        <div className="flex gap-2">
-          {["#FF4500","#FF7A33","#1A1A1A","#0D0D0D","rgba(255,255,255,0.9)"].map((c, i) => (
-            <div key={i} className="w-10 h-10 rounded-xl border border-white/[0.07]" style={{ background: c }} />
-          ))}
-        </div>
-      </div>
-      <div className="space-y-2.5">
-        <p className="text-[10px] text-white/20 uppercase tracking-[0.18em]">Typography</p>
-        <p className="text-[28px] font-black text-white/80 leading-tight tracking-tight">Aa Bb Cc</p>
-        <p className="text-[11px] text-white/30 font-mono uppercase tracking-[0.22em]">PREMIUM · BOLD · AUTHORITY</p>
-      </div>
-      <div className="mt-7 pt-5 border-t border-white/[0.05] flex gap-2 flex-wrap">
-        {["Logo Pack", "Brand Guide", "Visual Kit", "Templates"].map(t => (
-          <span key={t} className="px-2.5 py-1 rounded-lg border border-white/[0.07] text-[10px] text-white/30 font-medium">{t}</span>
-        ))}
+
       </div>
     </div>
   );
