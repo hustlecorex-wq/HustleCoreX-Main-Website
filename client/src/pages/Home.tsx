@@ -1500,12 +1500,18 @@ function Apply() {
 
           {/* left */}
           <FadeIn from="left">
-            <p className="label-accent mb-6">Free Trial</p>
+            <div className="flex items-center gap-3 mb-6">
+              <p className="label-accent">Free Trial</p>
+              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#FF4500]/10 border border-[#FF4500]/25 text-[10px] font-bold text-[#FF4500] uppercase tracking-[0.14em]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#FF4500] animate-pulse inline-block" />
+                2 Spaces Left
+              </span>
+            </div>
             <h2 className="display text-[clamp(2.8rem,5.5vw,4.5rem)] text-white mb-7">
               Start your<br />free trial.
             </h2>
             <p className="text-[14px] md:text-[15px] text-white/35 leading-[1.8] mb-10 max-w-[360px]">
-              Fill in the form below. We'll set up your website, run a full profile audit, and put a basic system in place - no cost, no commitment.
+              We'll get your website built, go through your profile, and put the foundations of the system in place. Nothing to pay, no strings attached.
             </p>
 
             <ul className="space-y-5 mb-12">
