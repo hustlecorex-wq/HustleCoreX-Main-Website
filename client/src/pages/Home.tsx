@@ -462,7 +462,7 @@ function Hero() {
           <button data-testid="hero-cta-primary" onClick={() => go("apply")}
             className="btn-glow relative w-full sm:flex-1 flex items-center justify-center gap-2.5 h-[50px] sm:h-[54px] px-7 rounded-2xl bg-[#FF4500] hover:bg-[#FF5500] active:scale-[0.97] text-white text-[14px] sm:text-[15px] font-bold transition-colors overflow-hidden group shadow-[0_0_60px_rgba(255,69,0,0.35),0_0_20px_rgba(255,69,0,0.2)]">
             <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
-            Get Your Free Audit <ArrowRight size={15} />
+            Free Trial <ArrowRight size={15} />
           </button>
           <button data-testid="hero-cta-secondary" onClick={() => go("results")}
             className="w-full sm:w-auto flex items-center justify-center gap-2 h-[50px] sm:h-[54px] px-6 rounded-2xl border border-white/[0.09] text-white/38 hover:text-white/65 hover:border-white/[0.17] text-[14px] sm:text-[15px] font-medium transition-all active:scale-[0.97]">
@@ -1435,7 +1435,7 @@ function CTAStrip() {
             </div>
             <button data-testid="cta-banner-button" onClick={() => go("apply")}
               className="btn-glow relative flex-shrink-0 flex items-center gap-2 h-12 px-7 rounded-xl bg-[#FF4500] hover:bg-[#FF5500] text-white text-[14px] font-bold transition-colors active:scale-[0.97]">
-              Get a Free Audit <ArrowRight size={15} />
+              Free Trial <ArrowRight size={15} />
             </button>
           </div>
         </motion.div>
