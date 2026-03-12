@@ -17,6 +17,9 @@ import heroImg from "@assets/generated_images/hero_coach.png";
 import founderImg from "@assets/main_profile_pic_1773158514731.png";
 import website1Img from "@assets/Snímek_obrazovky_2026-03-10_170325_1773158874311.png";
 import website2Img from "@assets/Snímek_obrazovky_2026-03-10_170555_1773158874312.png";
+import kyleWebImg from "@assets/Snímek_obrazovky_2026-03-10_170325_1773300425126.png";
+import patrickWebImg from "@assets/Snímek_obrazovky_2026-03-10_170555_1773300425128.png";
+import benOlaWebImg from "@assets/Snímek_obrazovky_2026-03-12_082648_1773300425129.png";
 import coach1Img from "@assets/580868512_17843744343613829_22300884961125480_n_1773149974233.jpg";
 import coach2Img from "@assets/626956249_18573276355036228_693123345985490863_n_1773149974233.jpg";
 import coach3Img from "@assets/637758797_17889993744428899_7709878898914652022_n_1773149974234.jpg";
@@ -1291,15 +1294,21 @@ function System() {
 
 /* ─── results (testimonials) ─────────────────────────────────── */
 function Results() {
-  const cards = [
-    { name: "Bela Toth", role: "Online Fitness Coach · @belatoth", img: coach1Img,
+  const items = [
+    { type: "website" as const, img: kyleWebImg,    name: "Kyle Shayler",  sub: "Elite Athletes Coaching · @kyleshayler" },
+    { type: "text"    as const, img: coach1Img,     name: "Bela Toth",     role: "Online Fitness Coach · @belatoth",
       quote: "Working with HustleCoreX has been great. Signed two new clients the week after we put the system in place. Honestly didn't expect it to do that well that quickly." },
+    { type: "video"   as const, src: "https://jumpshare.com/embed/DnJjQp8snvvTiW6KKxxQ" },
+    { type: "website" as const, img: patrickWebImg, name: "Patrick Brody", sub: "Elite Coaching · @patrickbrody" },
+    { type: "video"   as const, src: "https://jumpshare.com/embed/sRGrwQ6ARitVyI2dTvwl" },
+    { type: "website" as const, img: benOlaWebImg,  name: "Ben Ola",       sub: "Online Coach for Busy People · @benola" },
   ];
 
-  return (
-    <section id="results" className="border-t border-white/[0.05] px-6 md:px-10 py-24 md:py-36">
-      <div className="max-w-6xl mx-auto">
+  const doubled = [...items, ...items];
 
+  return (
+    <section id="results" className="border-t border-white/[0.05] py-24 md:py-36">
+      <div className="max-w-6xl mx-auto px-6 md:px-10">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14 md:mb-16">
           <FadeIn>
             <p className="label-accent mb-6">Results</p>
@@ -1308,66 +1317,58 @@ function Results() {
             </h2>
           </FadeIn>
         </div>
+      </div>
 
-        <div className="grid md:grid-cols-3 gap-6 mb-16 items-start max-w-5xl">
-          {/* Testimonial card */}
-          <motion.div
-            initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }}
-            variants={staggerContainer(0.1, 0.05)}>
-            {cards.map((r, i) => (
-              <motion.div key={i} variants={childVariantsScale}>
-                <div data-testid={`result-card-${i}`}
-                  className="card-lift border border-white/[0.05] rounded-2xl bg-[#0D0D0D] overflow-hidden flex flex-col">
-                  <div className="flex-1 p-6 md:p-8">
-                    <div className="flex gap-0.5 mb-5">
-                      {[...Array(5)].map((_, j) => <Star key={j} size={11} className="text-[#FF4500]/70 fill-[#FF4500]/70" />)}
-                    </div>
-                    <p className="text-[14px] md:text-[15px] text-white/55 leading-[1.8] italic mb-0">
-                      "{r.quote}"
-                    </p>
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-y-0 left-0 w-20 md:w-32 bg-gradient-to-r from-[#080808] to-transparent z-10 pointer-events-none" />
+        <div className="absolute inset-y-0 right-0 w-20 md:w-32 bg-gradient-to-l from-[#080808] to-transparent z-10 pointer-events-none" />
+
+        <div className="marquee-track flex gap-5 pl-6">
+          {doubled.map((item, idx) => {
+            if (item.type === "website") return (
+              <div key={idx} data-testid={`bento-website-${idx}`}
+                className="flex-shrink-0 w-[560px] h-[380px] rounded-2xl overflow-hidden border border-white/[0.05] relative">
+                <img src={item.img} alt={item.name} className="w-full h-full object-cover object-top" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+                <div className="absolute bottom-0 left-0 p-5">
+                  <p className="text-[10px] text-white/40 uppercase tracking-[0.15em] mb-1.5">Website Build</p>
+                  <p className="text-[15px] font-bold text-white leading-tight">{item.name}</p>
+                  <p className="text-[11px] text-white/40 mt-0.5">{item.sub}</p>
+                </div>
+              </div>
+            );
+
+            if (item.type === "text") return (
+              <div key={idx} data-testid={`bento-text-${idx}`}
+                className="flex-shrink-0 w-[300px] h-[380px] rounded-2xl border border-white/[0.05] bg-[#0D0D0D] flex flex-col overflow-hidden">
+                <div className="flex-1 p-6">
+                  <div className="flex gap-0.5 mb-5">
+                    {[...Array(5)].map((_, j) => <Star key={j} size={11} className="text-[#FF4500]/70 fill-[#FF4500]/70" />)}
                   </div>
-                  <div className="border-t border-white/[0.05] px-6 md:px-8 py-4 flex items-center gap-3">
-                    <img src={r.img} alt={r.name}
-                      className="w-9 h-9 rounded-full object-cover object-top border border-white/[0.08] flex-shrink-0" />
-                    <div>
-                      <p className="text-[13px] font-bold text-white leading-tight">{r.name}</p>
-                      <p className="text-[11px] text-white/25">{r.role}</p>
-                    </div>
+                  <p className="text-[14px] text-white/55 leading-[1.8] italic">"{item.quote}"</p>
+                </div>
+                <div className="border-t border-white/[0.05] px-6 py-4 flex items-center gap-3">
+                  <img src={item.img} alt={item.name} className="w-9 h-9 rounded-full object-cover object-top border border-white/[0.08] flex-shrink-0" />
+                  <div>
+                    <p className="text-[13px] font-bold text-white leading-tight">{item.name}</p>
+                    <p className="text-[11px] text-white/25">{item.role}</p>
                   </div>
                 </div>
-              </motion.div>
-            ))}
-          </motion.div>
+              </div>
+            );
 
-          {/* Testimonial video 1 */}
-          <FadeIn delay={0.15}>
-            <div className="rounded-2xl overflow-hidden border border-white/[0.05] bg-[#0D0D0D]">
-              <p className="text-[10px] text-white/20 uppercase tracking-[0.18em] px-5 pt-4 pb-3">Testimonial</p>
-              <div className="relative w-full" style={{ paddingBottom: "177.78%" }}>
+            return (
+              <div key={idx} data-testid={`bento-video-${idx}`}
+                className="flex-shrink-0 w-[215px] h-[380px] rounded-2xl overflow-hidden border border-white/[0.05] bg-[#0D0D0D]">
                 <iframe
-                  src="https://jumpshare.com/embed/DnJjQp8snvvTiW6KKxxQ"
-                  className="absolute inset-0 w-full h-full border-0"
+                  src={item.src}
+                  className="w-full h-full border-0"
                   allowFullScreen
                   allow="autoplay; fullscreen"
                 />
               </div>
-            </div>
-          </FadeIn>
-
-          {/* Testimonial video 2 */}
-          <FadeIn delay={0.25}>
-            <div className="rounded-2xl overflow-hidden border border-white/[0.05] bg-[#0D0D0D]">
-              <p className="text-[10px] text-white/20 uppercase tracking-[0.18em] px-5 pt-4 pb-3">Testimonial</p>
-              <div className="relative w-full" style={{ paddingBottom: "177.78%" }}>
-                <iframe
-                  src="https://jumpshare.com/embed/sRGrwQ6ARitVyI2dTvwl"
-                  className="absolute inset-0 w-full h-full border-0"
-                  allowFullScreen
-                  allow="autoplay; fullscreen"
-                />
-              </div>
-            </div>
-          </FadeIn>
+            );
+          })}
         </div>
       </div>
     </section>
