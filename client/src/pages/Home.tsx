@@ -1411,23 +1411,20 @@ function VideoCarousel() {
 }
 
 function Results() {
+  // Every item appears exactly once across all three columns
   const col1: BentoColItem[] = [
     { kind: "web",        img: kyleWebImg,            name: "Kyle Shayler",  sub: "Elite Athletes Coaching · @kyleshayler" },
     { kind: "screenshot", img: kyleSwinburnReviewImg, alt: "Kyle Swinburn Google review" },
     { kind: "text",       img: coach1Img,             name: "Bela Toth",     role: "Online Fitness Coach · @belatoth",
       quote: "Working with HustleCoreX has been great. Signed two new clients the week after we put the system in place. Honestly didn't expect it to do that well that quickly." },
-    { kind: "web",        img: patrickWebImg,         name: "Patrick Brody", sub: "Elite Coaching · @patrickbrody" },
   ];
   const col2: BentoColItem[] = [
     { kind: "screenshot", img: benolaDMImg,            alt: "Client DM reaction · @benolaaa" },
-    { kind: "web",        img: benOlaWebImg,           name: "Ben Ola",      sub: "Online Coach for Busy People · @benola" },
-    { kind: "screenshot", img: kyleSwinburnReviewImg, alt: "Kyle Swinburn Google review" },
+    { kind: "web",        img: patrickWebImg,          name: "Patrick Brody", sub: "Elite Coaching · @patrickbrody" },
   ];
   const col3: BentoColItem[] = [
     { kind: "screenshot", img: anthonyGraceReviewImg, alt: "Anthony Grace Google review" },
-    { kind: "web",        img: benOlaWebImg,           name: "Ben Ola",      sub: "Online Coach for Busy People · @benola" },
-    { kind: "web",        img: kyleWebImg,             name: "Kyle Shayler",  sub: "Elite Athletes Coaching · @kyleshayler" },
-    { kind: "screenshot", img: anthonyGraceReviewImg, alt: "Anthony Grace Google review" },
+    { kind: "web",        img: benOlaWebImg,           name: "Ben Ola",       sub: "Online Coach for Busy People · @benola" },
   ];
 
   return (
