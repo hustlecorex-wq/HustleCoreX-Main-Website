@@ -130,7 +130,7 @@ function IntroOverlay() {
           transition={{ duration: 0.55, ease: EASE }}>
           <motion.img
             src={logoImg} alt="HustleCoreX"
-            className="w-12 h-12 object-contain"
+            className="w-12 h-12 object-cover rounded-full"
             initial={{ opacity: 0, scale: 0.7, filter: "blur(10px)" }}
             animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
             exit={{ opacity: 0, scale: 1.15, filter: "blur(4px)" }}
@@ -148,7 +148,7 @@ const go = (id: string) => document.getElementById(id)?.scrollIntoView({ behavio
 function Logo() {
   return (
     <div className="flex items-center gap-2.5">
-      <img src={logoImg} alt="HustleCoreX" className="w-8 h-8 object-contain flex-shrink-0" />
+      <img src={logoImg} alt="HustleCoreX" className="w-8 h-8 object-cover rounded-full flex-shrink-0" />
       <span className="font-black text-white text-[15px] tracking-[-0.025em]">HustleCoreX</span>
     </div>
   );
