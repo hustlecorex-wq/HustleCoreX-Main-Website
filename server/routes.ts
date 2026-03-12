@@ -20,10 +20,10 @@ export async function registerRoutes(
       const payload = {
         name: data.name,
         email: data.email,
-        "Instagram Headline": data.instagram ?? "",
-        "Current Monthly Revenue": data.currentRevenue,
-        "6-Month Revenue Goal": data.goal,
-        "Biggest Bottleneck": data.message ?? "",
+        instagram_headline: data.instagram ?? "",
+        field_1773303162142: data.currentRevenue,
+        field_1773303170671: data.goal,
+        field_1773303182985: data.message ?? "",
       };
       console.log("[FastSubmit] sending payload:", JSON.stringify(payload));
       fetch(FASTSUBMIT_URL, {
