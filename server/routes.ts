@@ -23,7 +23,14 @@ export async function registerRoutes(
           "Content-Type": "application/json",
           "Authorization": `Bearer ${FASTSUBMIT_API_KEY}`,
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          instagram: data.instagram ?? "",
+          current_monthly_revenue: data.currentRevenue,
+          six_month_revenue_goal: data.goal,
+          biggest_bottleneck: data.message ?? "",
+        }),
       }).catch((err) => console.error("[FastSubmit] forward failed:", err));
 
       res.json({ success: true, lead });
