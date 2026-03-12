@@ -561,7 +561,7 @@ function Problem() {
     { before: "Looking like every other coach online", after: "A brand people actually pay premium prices for" },
     { before: "Chasing every lead manually", after: "Follow-up running on its own, around the clock" },
     { before: "A website that loses you clients", after: "A website that books calls while you sleep" },
-    { before: "Stuck at $5–10k with no clear path up", after: "Hitting $30k+ months and knowing exactly how" },
+    { before: "Stuck at $5–10k with no clear path up", after: "Hitting consistent $15k+ months and scaling" },
     { before: "Working in your business all day", after: "Working on your business, not buried inside it" },
   ];
 
@@ -1285,9 +1285,6 @@ function System() {
           <h2 className="display text-[clamp(2.8rem,5.5vw,4.5rem)] text-white mb-5">
             Four pillars.<br />One system.
           </h2>
-          <p className="text-[14px] md:text-[15px] text-white/35 leading-[1.8] max-w-[340px]">
-            Each piece is built to feed the next. Scroll through to see how it works.
-          </p>
         </FadeIn>
 
         <PillarRow n="01" label="Brand" flip={false}
