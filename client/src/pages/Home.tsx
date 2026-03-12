@@ -8,7 +8,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
   ArrowRight, CheckCircle2, ChevronDown, Menu, X,
-  Instagram, Mail, Shield, Clock,
+  Instagram, Mail, Star, Shield, Clock,
   Target, BrainCircuit, Sparkles, Zap, Globe, Layers, TrendingUp,
 } from "lucide-react";
 
@@ -1291,6 +1291,11 @@ function System() {
 
 /* ─── results (testimonials) ─────────────────────────────────── */
 function Results() {
+  const cards = [
+    { name: "Bela Toth", role: "Online Fitness Coach · @belatoth", img: coach1Img,
+      quote: "Working with HustleCoreX has been great. Signed two new clients the week after we put the system in place. Honestly didn't expect it to do that well that quickly." },
+  ];
+
   return (
     <section id="results" className="border-t border-white/[0.05] px-6 md:px-10 py-24 md:py-36">
       <div className="max-w-6xl mx-auto">
@@ -1304,7 +1309,36 @@ function Results() {
           </FadeIn>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6 mb-16 items-start max-w-3xl">
+        <div className="grid md:grid-cols-3 gap-6 mb-16 items-start max-w-5xl">
+          {/* Testimonial card */}
+          <motion.div
+            initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }}
+            variants={staggerContainer(0.1, 0.05)}>
+            {cards.map((r, i) => (
+              <motion.div key={i} variants={childVariantsScale}>
+                <div data-testid={`result-card-${i}`}
+                  className="card-lift border border-white/[0.05] rounded-2xl bg-[#0D0D0D] overflow-hidden flex flex-col">
+                  <div className="flex-1 p-6 md:p-8">
+                    <div className="flex gap-0.5 mb-5">
+                      {[...Array(5)].map((_, j) => <Star key={j} size={11} className="text-[#FF4500]/70 fill-[#FF4500]/70" />)}
+                    </div>
+                    <p className="text-[14px] md:text-[15px] text-white/55 leading-[1.8] italic mb-0">
+                      "{r.quote}"
+                    </p>
+                  </div>
+                  <div className="border-t border-white/[0.05] px-6 md:px-8 py-4 flex items-center gap-3">
+                    <img src={r.img} alt={r.name}
+                      className="w-9 h-9 rounded-full object-cover object-top border border-white/[0.08] flex-shrink-0" />
+                    <div>
+                      <p className="text-[13px] font-bold text-white leading-tight">{r.name}</p>
+                      <p className="text-[11px] text-white/25">{r.role}</p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+
           {/* Testimonial video 1 */}
           <FadeIn delay={0.15}>
             <div className="rounded-2xl overflow-hidden border border-white/[0.05] bg-[#0D0D0D]">
