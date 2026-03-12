@@ -1296,16 +1296,10 @@ function System() {
 }
 
 /* ─── results (testimonials) ─────────────────────────────────── */
-function BentoWebsite({ img, name, sub }: { img: string; name: string; sub: string }) {
+function BentoWebsite({ img, name }: { img: string; name: string; sub: string }) {
   return (
     <div className="relative rounded-2xl overflow-hidden border border-white/[0.05] w-full">
-      <img src={img} alt={name} className="w-full h-full object-cover object-top" style={{ minHeight: 220 }} />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
-      <div className="absolute bottom-0 left-0 p-4">
-        <p className="text-[9px] text-white/35 uppercase tracking-[0.18em] mb-1">Website Build</p>
-        <p className="text-[14px] font-bold text-white leading-tight">{name}</p>
-        <p className="text-[10px] text-white/35 mt-0.5">{sub}</p>
-      </div>
+      <img src={img} alt={name} className="w-full h-auto object-cover object-top" style={{ minHeight: 220 }} />
     </div>
   );
 }
