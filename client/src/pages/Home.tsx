@@ -1529,17 +1529,6 @@ function Apply() {
               ))}
             </ul>
 
-            {/* founder photo + quote */}
-            <div className="flex items-center gap-4 p-5 rounded-2xl border border-white/[0.05] bg-[#0D0D0D]">
-              <img src={founderImg} alt="Founder"
-                className="w-12 h-12 rounded-full object-cover object-top border border-white/[0.08] flex-shrink-0" />
-              <div>
-                <p className="text-[13px] text-white/50 italic leading-relaxed mb-1.5">
-                  "Every coach who applies gets an honest audit - not a pitch."
-                </p>
-                <p className="text-[11px] text-white/25 font-semibold">HustleCoreX Founder</p>
-              </div>
-            </div>
           </FadeIn>
 
           {/* form */}
@@ -1632,7 +1621,6 @@ function Apply() {
                     ? <><div className="w-4 h-4 border-2 border-white/25 border-t-white rounded-full" style={{ animation: "spin 0.7s linear infinite" }} />Submitting...</>
                     : <>Submit Application <ArrowRight size={14} /></>}
                 </button>
-                <p className="text-[11px] text-white/16 text-center">No spam. No hard sell. Just strategy.</p>
               </form>
             )}
           </FadeIn>
