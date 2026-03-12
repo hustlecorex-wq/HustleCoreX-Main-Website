@@ -496,10 +496,23 @@ function Hero() {
           </button>
         </motion.div>
 
+        {/* Free trial inclusions */}
+        <motion.div
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.7 }}
+          className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+          {["Website", "Profile Audit", "Basic Custom System Setup"].map((item) => (
+            <span key={item} className="flex items-center gap-1.5 text-[11px] sm:text-[12px] text-white/35 font-medium">
+              <CheckCircle2 size={11} className="text-[#FF4500]/55 flex-shrink-0" />
+              {item}
+            </span>
+          ))}
+        </motion.div>
+
         {/* Social proof row */}
         <motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-          transition={{ duration: 0.7, delay: 0.78 }}
+          transition={{ duration: 0.7, delay: 0.88 }}
           className="flex items-center justify-center gap-4">
           <div className="flex items-center">
             {[coach1Img, coach2Img, coach3Img, coach4Img].map((src, i) => (
