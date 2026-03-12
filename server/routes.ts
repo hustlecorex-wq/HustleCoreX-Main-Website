@@ -30,7 +30,6 @@ export async function registerRoutes(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${FASTSUBMIT_API_KEY}`,
         },
         body: JSON.stringify(payload),
       })
