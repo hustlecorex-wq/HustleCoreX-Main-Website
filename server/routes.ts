@@ -17,21 +17,28 @@ export async function registerRoutes(
 
       const lead = await storage.createLead(data);
 
+      const payload = {
+        name: data.name,
+        email: data.email,
+        "Instagram Headline": data.instagram ?? "",
+        "Current Monthly Revenue": data.currentRevenue,
+        "6-Month Revenue Goal": data.goal,
+        "Biggest Bottleneck": data.message ?? "",
+      };
+      console.log("[FastSubmit] sending payload:", JSON.stringify(payload));
       fetch(FASTSUBMIT_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${FASTSUBMIT_API_KEY}`,
         },
-        body: JSON.stringify({
-          name: data.name,
-          email: data.email,
-          "Instagram Headline": data.instagram ?? "",
-          "Current Monthly Revenue": data.currentRevenue,
-          "6-Month Revenue Goal": data.goal,
-          "Biggest Bottleneck": data.message ?? "",
-        }),
-      }).catch((err) => console.error("[FastSubmit] forward failed:", err));
+        body: JSON.stringify(payload),
+      })
+        .then(async (r) => {
+          const text = await r.text();
+          console.log("[FastSubmit] response status:", r.status, "body:", text);
+        })
+        .catch((err) => console.error("[FastSubmit] forward failed:", err));
 
       res.json({ success: true, lead });
     } catch (err) {
