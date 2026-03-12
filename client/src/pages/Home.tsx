@@ -1500,12 +1500,12 @@ function Apply() {
 
           {/* left */}
           <FadeIn from="left">
-            <p className="label-accent mb-6">Apply Now</p>
+            <p className="label-accent mb-6">Free Trial</p>
             <h2 className="display text-[clamp(2.8rem,5.5vw,4.5rem)] text-white mb-7">
-              Let's see if<br />we're a fit.
+              Start your<br />free trial.
             </h2>
             <p className="text-[14px] md:text-[15px] text-white/35 leading-[1.8] mb-10 max-w-[360px]">
-              Fill in the form below. We'll take a proper look at where you're at and tell you honestly what needs to change.
+              Fill in the form below. We'll set up your website, run a full profile audit, and put a basic system in place - no cost, no commitment.
             </p>
 
             <ul className="space-y-5 mb-12">
@@ -1554,8 +1554,8 @@ function Apply() {
                 data-testid="apply-form"
                 className="border border-white/[0.05] rounded-2xl p-6 md:p-8 bg-[#0D0D0D] space-y-5">
                 <div className="mb-2">
-                  <p className="heading text-[1.1rem] text-white">Free System Audit</p>
-                  <p className="text-[12px] text-white/25 mt-1">2 minutes. No commitment required.</p>
+                  <p className="heading text-[1.1rem] text-white">Claim Your Free Trial</p>
+                  <p className="text-[12px] text-white/25 mt-1">2 minutes. No cost. No commitment.</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
