@@ -190,15 +190,15 @@
   .scrollbar-hide::-webkit-scrollbar { display: none; }
 }
 
-/* ── Infinite marquee ── */
-@keyframes marquee-left {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+/* ── Bento flowing columns ── */
+@keyframes scroll-up {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-50%); }
 }
-.marquee-track {
-  animation: marquee-left 40s linear infinite;
+.bento-col {
+  animation: scroll-up linear infinite;
   will-change: transform;
 }
-.marquee-track:hover {
+.bento-col:hover {
   animation-play-state: paused;
 }

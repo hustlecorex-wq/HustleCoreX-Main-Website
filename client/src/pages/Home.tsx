@@ -1293,18 +1293,86 @@ function System() {
 }
 
 /* ─── results (testimonials) ─────────────────────────────────── */
-function Results() {
-  const items = [
-    { type: "website" as const, img: kyleWebImg,    name: "Kyle Shayler",  sub: "Elite Athletes Coaching · @kyleshayler" },
-    { type: "text"    as const, img: coach1Img,     name: "Bela Toth",     role: "Online Fitness Coach · @belatoth",
-      quote: "Working with HustleCoreX has been great. Signed two new clients the week after we put the system in place. Honestly didn't expect it to do that well that quickly." },
-    { type: "video"   as const, src: "https://jumpshare.com/embed/DnJjQp8snvvTiW6KKxxQ" },
-    { type: "website" as const, img: patrickWebImg, name: "Patrick Brody", sub: "Elite Coaching · @patrickbrody" },
-    { type: "video"   as const, src: "https://jumpshare.com/embed/sRGrwQ6ARitVyI2dTvwl" },
-    { type: "website" as const, img: benOlaWebImg,  name: "Ben Ola",       sub: "Online Coach for Busy People · @benola" },
-  ];
+function BentoWebsite({ img, name, sub }: { img: string; name: string; sub: string }) {
+  return (
+    <div className="relative rounded-2xl overflow-hidden border border-white/[0.05] w-full">
+      <img src={img} alt={name} className="w-full h-full object-cover object-top" style={{ minHeight: 220 }} />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
+      <div className="absolute bottom-0 left-0 p-4">
+        <p className="text-[9px] text-white/35 uppercase tracking-[0.18em] mb-1">Website Build</p>
+        <p className="text-[14px] font-bold text-white leading-tight">{name}</p>
+        <p className="text-[10px] text-white/35 mt-0.5">{sub}</p>
+      </div>
+    </div>
+  );
+}
 
-  const doubled = [...items, ...items];
+function BentoText({ img, name, role, quote }: { img: string; name: string; role: string; quote: string }) {
+  return (
+    <div className="rounded-2xl border border-white/[0.05] bg-[#0D0D0D] flex flex-col overflow-hidden w-full">
+      <div className="flex-1 p-5">
+        <div className="flex gap-0.5 mb-4">
+          {[...Array(5)].map((_, j) => <Star key={j} size={10} className="text-[#FF4500]/70 fill-[#FF4500]/70" />)}
+        </div>
+        <p className="text-[13px] text-white/55 leading-[1.8] italic">"{quote}"</p>
+      </div>
+      <div className="border-t border-white/[0.05] px-5 py-3.5 flex items-center gap-3">
+        <img src={img} alt={name} className="w-8 h-8 rounded-full object-cover object-top border border-white/[0.08] flex-shrink-0" />
+        <div>
+          <p className="text-[12px] font-bold text-white leading-tight">{name}</p>
+          <p className="text-[10px] text-white/25">{role}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BentoVideo({ src }: { src: string }) {
+  return (
+    <div className="rounded-2xl overflow-hidden border border-white/[0.05] bg-[#0D0D0D] w-full" style={{ aspectRatio: "9/16" }}>
+      <iframe src={src} className="w-full h-full border-0" allowFullScreen allow="autoplay; fullscreen" />
+    </div>
+  );
+}
+
+type BentoColItem =
+  | { kind: "web"; img: string; name: string; sub: string }
+  | { kind: "text"; img: string; name: string; role: string; quote: string }
+  | { kind: "video"; src: string };
+
+function renderBentoItem(item: BentoColItem, key: string) {
+  if (item.kind === "web")  return <BentoWebsite key={key} img={item.img} name={item.name} sub={item.sub} />;
+  if (item.kind === "text") return <BentoText    key={key} img={item.img} name={item.name} role={item.role} quote={item.quote} />;
+                            return <BentoVideo   key={key} src={item.src} />;
+}
+
+function BentoColTrack({ items, duration, offsetPx = 0 }: { items: BentoColItem[]; duration: number; offsetPx?: number }) {
+  return (
+    <div className="overflow-hidden" style={{ marginTop: offsetPx }}>
+      <div className="bento-col flex flex-col gap-4" style={{ animationDuration: `${duration}s` }}>
+        {[...items, ...items].map((item, i) => renderBentoItem(item, `${duration}-${i}`))}
+      </div>
+    </div>
+  );
+}
+
+function Results() {
+  const col1: BentoColItem[] = [
+    { kind: "web",  img: kyleWebImg,    name: "Kyle Shayler",  sub: "Elite Athletes Coaching · @kyleshayler" },
+    { kind: "text", img: coach1Img,     name: "Bela Toth",     role: "Online Fitness Coach · @belatoth",
+      quote: "Working with HustleCoreX has been great. Signed two new clients the week after we put the system in place. Honestly didn't expect it to do that well that quickly." },
+    { kind: "web",  img: patrickWebImg, name: "Patrick Brody", sub: "Elite Coaching · @patrickbrody" },
+  ];
+  const col2: BentoColItem[] = [
+    { kind: "video", src: "https://jumpshare.com/embed/DnJjQp8snvvTiW6KKxxQ" },
+    { kind: "web",   img: benOlaWebImg,  name: "Ben Ola",      sub: "Online Coach for Busy People · @benola" },
+    { kind: "video", src: "https://jumpshare.com/embed/DnJjQp8snvvTiW6KKxxQ" },
+  ];
+  const col3: BentoColItem[] = [
+    { kind: "web",   img: benOlaWebImg,  name: "Ben Ola",      sub: "Online Coach for Busy People · @benola" },
+    { kind: "video", src: "https://jumpshare.com/embed/sRGrwQ6ARitVyI2dTvwl" },
+    { kind: "web",   img: kyleWebImg,    name: "Kyle Shayler",  sub: "Elite Athletes Coaching · @kyleshayler" },
+  ];
 
   return (
     <section id="results" className="border-t border-white/[0.05] py-24 md:py-36">
@@ -1312,63 +1380,20 @@ function Results() {
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14 md:mb-16">
           <FadeIn>
             <p className="label-accent mb-6">Results</p>
-            <h2 className="display text-[clamp(2.8rem,5.5vw,4.5rem)] text-white">
-              Results.
-            </h2>
+            <h2 className="display text-[clamp(2.8rem,5.5vw,4.5rem)] text-white">Results.</h2>
           </FadeIn>
         </div>
-      </div>
 
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-y-0 left-0 w-20 md:w-32 bg-gradient-to-r from-[#080808] to-transparent z-10 pointer-events-none" />
-        <div className="absolute inset-y-0 right-0 w-20 md:w-32 bg-gradient-to-l from-[#080808] to-transparent z-10 pointer-events-none" />
+        {/* Flowing bento grid — 3 columns scrolling at different speeds */}
+        <div className="relative h-[640px] overflow-hidden rounded-3xl">
+          <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#080808] to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#080808] to-transparent z-10 pointer-events-none" />
 
-        <div className="marquee-track flex gap-5 pl-6">
-          {doubled.map((item, idx) => {
-            if (item.type === "website") return (
-              <div key={idx} data-testid={`bento-website-${idx}`}
-                className="flex-shrink-0 w-[560px] h-[380px] rounded-2xl overflow-hidden border border-white/[0.05] relative">
-                <img src={item.img} alt={item.name} className="w-full h-full object-cover object-top" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
-                <div className="absolute bottom-0 left-0 p-5">
-                  <p className="text-[10px] text-white/40 uppercase tracking-[0.15em] mb-1.5">Website Build</p>
-                  <p className="text-[15px] font-bold text-white leading-tight">{item.name}</p>
-                  <p className="text-[11px] text-white/40 mt-0.5">{item.sub}</p>
-                </div>
-              </div>
-            );
-
-            if (item.type === "text") return (
-              <div key={idx} data-testid={`bento-text-${idx}`}
-                className="flex-shrink-0 w-[300px] h-[380px] rounded-2xl border border-white/[0.05] bg-[#0D0D0D] flex flex-col overflow-hidden">
-                <div className="flex-1 p-6">
-                  <div className="flex gap-0.5 mb-5">
-                    {[...Array(5)].map((_, j) => <Star key={j} size={11} className="text-[#FF4500]/70 fill-[#FF4500]/70" />)}
-                  </div>
-                  <p className="text-[14px] text-white/55 leading-[1.8] italic">"{item.quote}"</p>
-                </div>
-                <div className="border-t border-white/[0.05] px-6 py-4 flex items-center gap-3">
-                  <img src={item.img} alt={item.name} className="w-9 h-9 rounded-full object-cover object-top border border-white/[0.08] flex-shrink-0" />
-                  <div>
-                    <p className="text-[13px] font-bold text-white leading-tight">{item.name}</p>
-                    <p className="text-[11px] text-white/25">{item.role}</p>
-                  </div>
-                </div>
-              </div>
-            );
-
-            return (
-              <div key={idx} data-testid={`bento-video-${idx}`}
-                className="flex-shrink-0 w-[215px] h-[380px] rounded-2xl overflow-hidden border border-white/[0.05] bg-[#0D0D0D]">
-                <iframe
-                  src={item.src}
-                  className="w-full h-full border-0"
-                  allowFullScreen
-                  allow="autoplay; fullscreen"
-                />
-              </div>
-            );
-          })}
+          <div className="grid grid-cols-3 gap-4 h-full">
+            <BentoColTrack items={col1} duration={20} offsetPx={0} />
+            <BentoColTrack items={col2} duration={26} offsetPx={-90} />
+            <BentoColTrack items={col3} duration={16} offsetPx={-40} />
+          </div>
         </div>
       </div>
     </section>
