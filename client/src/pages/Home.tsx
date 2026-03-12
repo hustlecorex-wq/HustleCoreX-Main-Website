@@ -1339,17 +1339,16 @@ function Results() {
             ))}
           </motion.div>
 
-          {/* Instagram reel embed */}
+          {/* Testimonial video */}
           <FadeIn delay={0.15}>
             <div className="rounded-2xl overflow-hidden border border-white/[0.05] bg-[#0D0D0D]">
               <p className="text-[10px] text-white/20 uppercase tracking-[0.18em] px-5 pt-4 pb-3">Testimonial</p>
               <div className="relative w-full" style={{ paddingBottom: "177.78%" }}>
                 <iframe
-                  src="https://www.instagram.com/reel/DTuTD15Df5S/embed/"
+                  src="https://jumpshare.com/embed/DnJjQp8snvvTiW6KKxxQ"
                   className="absolute inset-0 w-full h-full border-0"
                   allowFullScreen
-                  scrolling="no"
-                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                  allow="autoplay; fullscreen"
                 />
               </div>
             </div>
