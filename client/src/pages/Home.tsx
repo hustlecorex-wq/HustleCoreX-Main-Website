@@ -1309,7 +1309,7 @@ function Results() {
           </FadeIn>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6 mb-16 items-start max-w-3xl">
+        <div className="grid md:grid-cols-3 gap-6 mb-16 items-start max-w-5xl">
           {/* Testimonial card */}
           <motion.div
             initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }}
@@ -1339,13 +1339,28 @@ function Results() {
             ))}
           </motion.div>
 
-          {/* Testimonial video */}
+          {/* Testimonial video 1 */}
           <FadeIn delay={0.15}>
             <div className="rounded-2xl overflow-hidden border border-white/[0.05] bg-[#0D0D0D]">
               <p className="text-[10px] text-white/20 uppercase tracking-[0.18em] px-5 pt-4 pb-3">Testimonial</p>
               <div className="relative w-full" style={{ paddingBottom: "177.78%" }}>
                 <iframe
                   src="https://jumpshare.com/embed/DnJjQp8snvvTiW6KKxxQ"
+                  className="absolute inset-0 w-full h-full border-0"
+                  allowFullScreen
+                  allow="autoplay; fullscreen"
+                />
+              </div>
+            </div>
+          </FadeIn>
+
+          {/* Testimonial video 2 */}
+          <FadeIn delay={0.25}>
+            <div className="rounded-2xl overflow-hidden border border-white/[0.05] bg-[#0D0D0D]">
+              <p className="text-[10px] text-white/20 uppercase tracking-[0.18em] px-5 pt-4 pb-3">Testimonial</p>
+              <div className="relative w-full" style={{ paddingBottom: "177.78%" }}>
+                <iframe
+                  src="https://jumpshare.com/embed/sRGrwQ6ARitVyI2dTvwl"
                   className="absolute inset-0 w-full h-full border-0"
                   allowFullScreen
                   allow="autoplay; fullscreen"
