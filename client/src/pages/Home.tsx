@@ -1309,37 +1309,52 @@ function Results() {
           </FadeIn>
         </div>
 
-        <motion.div className="max-w-md mb-16"
-          initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }}
-          variants={staggerContainer(0.1, 0.05)}>
-          {cards.map((r, i) => (
-            <motion.div key={i} variants={childVariantsScale}>
-              <div data-testid={`result-card-${i}`}
-                className="card-lift border border-white/[0.05] rounded-2xl bg-[#0D0D0D] overflow-hidden h-full flex flex-col">
-
-                {/* quote */}
-                <div className="flex-1 p-6 md:p-8">
-                  <div className="flex gap-0.5 mb-5">
-                    {[...Array(5)].map((_, j) => <Star key={j} size={11} className="text-[#FF4500]/70 fill-[#FF4500]/70" />)}
+        <div className="grid md:grid-cols-2 gap-6 mb-16 items-start max-w-3xl">
+          {/* Testimonial card */}
+          <motion.div
+            initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }}
+            variants={staggerContainer(0.1, 0.05)}>
+            {cards.map((r, i) => (
+              <motion.div key={i} variants={childVariantsScale}>
+                <div data-testid={`result-card-${i}`}
+                  className="card-lift border border-white/[0.05] rounded-2xl bg-[#0D0D0D] overflow-hidden flex flex-col">
+                  <div className="flex-1 p-6 md:p-8">
+                    <div className="flex gap-0.5 mb-5">
+                      {[...Array(5)].map((_, j) => <Star key={j} size={11} className="text-[#FF4500]/70 fill-[#FF4500]/70" />)}
+                    </div>
+                    <p className="text-[14px] md:text-[15px] text-white/55 leading-[1.8] italic mb-0">
+                      "{r.quote}"
+                    </p>
                   </div>
-                  <p className="text-[14px] md:text-[15px] text-white/55 leading-[1.8] italic mb-0">
-                    "{r.quote}"
-                  </p>
-                </div>
-
-                {/* bottom bar */}
-                <div className="border-t border-white/[0.05] px-6 md:px-8 py-4 flex items-center gap-3">
-                  <img src={r.img} alt={r.name}
-                    className="w-9 h-9 rounded-full object-cover object-top border border-white/[0.08] flex-shrink-0" />
-                  <div>
-                    <p className="text-[13px] font-bold text-white leading-tight">{r.name}</p>
-                    <p className="text-[11px] text-white/25">{r.role}</p>
+                  <div className="border-t border-white/[0.05] px-6 md:px-8 py-4 flex items-center gap-3">
+                    <img src={r.img} alt={r.name}
+                      className="w-9 h-9 rounded-full object-cover object-top border border-white/[0.08] flex-shrink-0" />
+                    <div>
+                      <p className="text-[13px] font-bold text-white leading-tight">{r.name}</p>
+                      <p className="text-[11px] text-white/25">{r.role}</p>
+                    </div>
                   </div>
                 </div>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Instagram reel embed */}
+          <FadeIn delay={0.15}>
+            <div className="rounded-2xl overflow-hidden border border-white/[0.05] bg-[#0D0D0D]">
+              <p className="text-[10px] text-white/20 uppercase tracking-[0.18em] px-5 pt-4 pb-3">Testimonial</p>
+              <div className="relative w-full" style={{ paddingBottom: "177.78%" }}>
+                <iframe
+                  src="https://www.instagram.com/reel/DTuTD15Df5S/embed/"
+                  className="absolute inset-0 w-full h-full border-0"
+                  allowFullScreen
+                  scrolling="no"
+                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                />
               </div>
-            </motion.div>
-          ))}
-        </motion.div>
+            </div>
+          </FadeIn>
+        </div>
       </div>
     </section>
   );
