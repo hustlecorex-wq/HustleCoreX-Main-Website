@@ -1680,10 +1680,10 @@ function Apply() {
                     <select {...field} data-testid="select-goal"
                       className={inputCls + " appearance-none cursor-pointer"}>
                       <option value="">Select goal...</option>
+                      <option value="5k">$5,000 / month</option>
                       <option value="10k">$10,000 / month</option>
                       <option value="20k">$20,000 / month</option>
                       <option value="50k">$50,000 / month</option>
-                      <option value="100k+">$100,000+ / month</option>
                     </select>
                   )} />
                   {form.formState.errors.goal && <p className="text-red-400/60 text-[11px] mt-1.5">{form.formState.errors.goal.message}</p>}
