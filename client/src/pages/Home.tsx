@@ -464,7 +464,7 @@ function Hero() {
             <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
             Free Trial <ArrowRight size={15} />
           </button>
-          <button data-testid="hero-cta-secondary" onClick={() => go("results")}
+          <button data-testid="hero-cta-secondary" onClick={() => go("system")}
             className="w-full sm:w-auto flex items-center justify-center gap-2 h-[50px] sm:h-[54px] px-6 rounded-2xl border border-white/[0.09] text-white/38 hover:text-white/65 hover:border-white/[0.17] text-[14px] sm:text-[15px] font-medium transition-all active:scale-[0.97]">
             See How It Works
           </button>
