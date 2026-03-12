@@ -114,32 +114,6 @@ function PageAmbient() {
   );
 }
 
-/* ─── intro overlay ──────────────────────────────────────────── */
-function IntroOverlay() {
-  const [gone, setGone] = useState(false);
-  useEffect(() => {
-    const t = setTimeout(() => setGone(true), 650);
-    return () => clearTimeout(t);
-  }, []);
-  return (
-    <AnimatePresence>
-      {!gone && (
-        <motion.div
-          className="fixed inset-0 z-[200] bg-[#080808] flex items-center justify-center pointer-events-none"
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.55, ease: EASE }}>
-          <motion.img
-            src={logoImg} alt="HustleCoreX"
-            className="w-12 h-12 object-cover rounded-full"
-            initial={{ opacity: 0, scale: 0.7, filter: "blur(10px)" }}
-            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-            exit={{ opacity: 0, scale: 1.15, filter: "blur(4px)" }}
-            transition={{ duration: 0.38, ease: EASE }} />
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-}
 
 
 const go = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -1698,7 +1672,7 @@ export default function Home() {
     <div className="min-h-screen bg-[#080808] overflow-x-hidden">
       <ScrollProgress />
       <PageAmbient />
-      <IntroOverlay />
+
       <Nav />
       <Hero />
       <Ticker />
