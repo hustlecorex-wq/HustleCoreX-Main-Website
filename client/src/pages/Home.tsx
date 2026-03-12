@@ -12,7 +12,7 @@ import {
   Target, BrainCircuit, Sparkles, Zap, Globe, Layers, TrendingUp,
 } from "lucide-react";
 
-import logoImg from "@assets/logo_transparent.png";
+import logoImg from "@assets/ChatGPT_Image_Mar_11,_2026,_07_10_08_AM_1773295534839.png";
 import heroImg from "@assets/generated_images/hero_coach.png";
 import founderImg from "@assets/main_profile_pic_1773158514731.png";
 import website1Img from "@assets/Snímek_obrazovky_2026-03-10_170325_1773158874311.png";
@@ -1511,7 +1511,7 @@ function Apply() {
               Start your<br />free trial.
             </h2>
             <p className="text-[14px] md:text-[15px] text-white/35 leading-[1.8] mb-10 max-w-[360px]">
-              We'll get your website built, go through your profile, and put the foundations of the system in place. Nothing to pay, no strings attached.
+              We'll get your website built, go through your profile, and put the foundations of the system in place.
             </p>
 
             <ul className="space-y-5 mb-12">
@@ -1550,7 +1550,6 @@ function Apply() {
                 className="border border-white/[0.05] rounded-2xl p-6 md:p-8 bg-[#0D0D0D] space-y-5">
                 <div className="mb-2">
                   <p className="heading text-[1.1rem] text-white">Claim Your Free Trial</p>
-                  <p className="text-[12px] text-white/25 mt-1">2 minutes. No cost. No commitment.</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
