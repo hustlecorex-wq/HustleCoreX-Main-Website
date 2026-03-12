@@ -1369,6 +1369,67 @@ function BentoColTrack({ items, duration, offsetPx = 0 }: { items: BentoColItem[
   );
 }
 
+/* ── Video testimonial horizontal marquee ── */
+function VideoMarquee() {
+  const [paused, setPaused] = useState(false);
+  const [activeIdx, setActiveIdx] = useState<number | null>(null);
+
+  const videos = [
+    "https://jumpshare.com/embed/DnJjQp8snvvTiW6KKxxQ",
+    "https://jumpshare.com/embed/sRGrwQ6ARitVyI2dTvwl",
+    "https://jumpshare.com/embed/DnJjQp8snvvTiW6KKxxQ",
+    "https://jumpshare.com/embed/sRGrwQ6ARitVyI2dTvwl",
+  ];
+
+  const handleVideoClick = (idx: number) => {
+    setPaused(true);
+    setActiveIdx(idx);
+  };
+
+  const handleResume = () => {
+    setPaused(false);
+    setActiveIdx(null);
+  };
+
+  return (
+    <div className="relative mt-6 overflow-hidden" onClick={(e) => { if ((e.target as HTMLElement).closest(".video-cell") === null) handleResume(); }}>
+      <div className="absolute inset-y-0 left-0 w-16 md:w-24 bg-gradient-to-r from-[#080808] to-transparent z-10 pointer-events-none" />
+      <div className="absolute inset-y-0 right-0 w-16 md:w-24 bg-gradient-to-l from-[#080808] to-transparent z-10 pointer-events-none" />
+      {paused && (
+        <button onClick={handleResume}
+          className="absolute top-3 right-6 z-20 text-[10px] text-white/40 hover:text-white/70 uppercase tracking-[0.15em] transition-colors">
+          Resume ›
+        </button>
+      )}
+      <div className="flex gap-4"
+        style={{
+          animation: `scroll-right 28s linear infinite`,
+          animationPlayState: paused ? "paused" : "running",
+          width: "max-content",
+          willChange: "transform",
+        }}>
+        {[...videos, ...videos].map((src, idx) => (
+          <div key={idx} className="video-cell flex-shrink-0 relative rounded-2xl overflow-hidden border border-white/[0.05] bg-[#0D0D0D]"
+            style={{ width: 200, height: 355 }}>
+            <iframe
+              src={src}
+              className="w-full h-full border-0 block"
+              allowFullScreen
+              allow="autoplay; fullscreen"
+            />
+            {activeIdx !== idx && (
+              <div
+                className="absolute inset-0 z-10 cursor-pointer"
+                onClick={(e) => { e.stopPropagation(); handleVideoClick(idx); }}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function Results() {
   const col1: BentoColItem[] = [
     { kind: "web",        img: kyleWebImg,            name: "Kyle Shayler",  sub: "Elite Athletes Coaching · @kyleshayler" },
@@ -1405,12 +1466,15 @@ function Results() {
           <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#080808] to-transparent z-10 pointer-events-none" />
 
           <div className="grid grid-cols-3 gap-4 h-full">
-            <BentoColTrack items={col1} duration={20} offsetPx={0} />
-            <BentoColTrack items={col2} duration={26} offsetPx={-90} />
-            <BentoColTrack items={col3} duration={16} offsetPx={-40} />
+            <BentoColTrack items={col1} duration={36} offsetPx={0} />
+            <BentoColTrack items={col2} duration={46} offsetPx={-90} />
+            <BentoColTrack items={col3} duration={28} offsetPx={-40} />
           </div>
         </div>
       </div>
+
+      {/* Video testimonials flowing left → right */}
+      <VideoMarquee />
     </section>
   );
 }

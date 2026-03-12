@@ -202,3 +202,9 @@
 .bento-col:hover {
   animation-play-state: paused;
 }
+
+/* ── Video testimonial horizontal flow (left → right) ── */
+@keyframes scroll-right {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0%); }
+}
