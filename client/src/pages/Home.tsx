@@ -496,19 +496,6 @@ function Hero() {
           </button>
         </motion.div>
 
-        {/* Free trial inclusions */}
-        <motion.div
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.7 }}
-          className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
-          {["Website", "Profile Audit", "Basic Custom System Setup"].map((item) => (
-            <span key={item} className="flex items-center gap-1.5 text-[11px] sm:text-[12px] text-white/35 font-medium">
-              <CheckCircle2 size={11} className="text-[#FF4500]/55 flex-shrink-0" />
-              {item}
-            </span>
-          ))}
-        </motion.div>
-
         {/* Social proof row */}
         <motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }}
@@ -1523,9 +1510,9 @@ function Apply() {
 
             <ul className="space-y-5 mb-12">
               {[
-                { icon: <Clock size={13} />, text: "We reply within 24 hours, always" },
-                { icon: <Shield size={13} />, text: "We only work with coaches we can genuinely help" },
-                { icon: <Star size={13} />, text: "Every application gets a free audit whether you buy or not" },
+                { icon: <Globe size={13} />, text: "Website" },
+                { icon: <Target size={13} />, text: "Profile Audit" },
+                { icon: <Zap size={13} />, text: "Basic Custom System Setup" },
               ].map((item, i) => (
                 <li key={i} className="flex items-center gap-3.5">
                   <div className="w-8 h-8 rounded-lg border border-white/[0.06] flex items-center justify-center text-white/25 flex-shrink-0">
