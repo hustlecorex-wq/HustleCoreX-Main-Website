@@ -26,10 +26,10 @@ export async function registerRoutes(
         body: JSON.stringify({
           name: data.name,
           email: data.email,
-          instagram: data.instagram ?? "",
-          current_monthly_revenue: data.currentRevenue,
-          six_month_revenue_goal: data.goal,
-          biggest_bottleneck: data.message ?? "",
+          "Instagram Headline": data.instagram ?? "",
+          "Current Monthly Revenue": data.currentRevenue,
+          "6-Month Revenue Goal": data.goal,
+          "Biggest Bottleneck": data.message ?? "",
         }),
       }).catch((err) => console.error("[FastSubmit] forward failed:", err));
 
