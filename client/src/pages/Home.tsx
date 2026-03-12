@@ -20,6 +20,9 @@ import website2Img from "@assets/Snímek_obrazovky_2026-03-10_170555_17731588743
 import kyleWebImg from "@assets/Snímek_obrazovky_2026-03-10_170325_1773300425126.png";
 import patrickWebImg from "@assets/Snímek_obrazovky_2026-03-10_170555_1773300425128.png";
 import benOlaWebImg from "@assets/Snímek_obrazovky_2026-03-12_082648_1773300425129.png";
+import kyleSwinburnReviewImg from "@assets/Snímek_obrazovky_2026-03-12_083352_1773300875853.png";
+import anthonyGraceReviewImg from "@assets/Snímek_obrazovky_2026-03-12_083358_1773300875855.png";
+import benolaDMImg from "@assets/Snímek_obrazovky_2026-03-12_083414_1773300875856.png";
 import coach1Img from "@assets/580868512_17843744343613829_22300884961125480_n_1773149974233.jpg";
 import coach2Img from "@assets/626956249_18573276355036228_693123345985490863_n_1773149974233.jpg";
 import coach3Img from "@assets/637758797_17889993744428899_7709878898914652022_n_1773149974234.jpg";
@@ -1335,15 +1338,25 @@ function BentoVideo({ src }: { src: string }) {
   );
 }
 
+function BentoScreenshot({ img, alt }: { img: string; alt: string }) {
+  return (
+    <div className="rounded-2xl overflow-hidden border border-white/[0.05] w-full">
+      <img src={img} alt={alt} className="w-full h-auto object-cover object-top" />
+    </div>
+  );
+}
+
 type BentoColItem =
-  | { kind: "web"; img: string; name: string; sub: string }
-  | { kind: "text"; img: string; name: string; role: string; quote: string }
-  | { kind: "video"; src: string };
+  | { kind: "web";        img: string; name: string; sub: string }
+  | { kind: "text";       img: string; name: string; role: string; quote: string }
+  | { kind: "video";      src: string }
+  | { kind: "screenshot"; img: string; alt: string };
 
 function renderBentoItem(item: BentoColItem, key: string) {
-  if (item.kind === "web")  return <BentoWebsite key={key} img={item.img} name={item.name} sub={item.sub} />;
-  if (item.kind === "text") return <BentoText    key={key} img={item.img} name={item.name} role={item.role} quote={item.quote} />;
-                            return <BentoVideo   key={key} src={item.src} />;
+  if (item.kind === "web")        return <BentoWebsite   key={key} img={item.img} name={item.name} sub={item.sub} />;
+  if (item.kind === "text")       return <BentoText      key={key} img={item.img} name={item.name} role={item.role} quote={item.quote} />;
+  if (item.kind === "screenshot") return <BentoScreenshot key={key} img={item.img} alt={item.alt} />;
+                                  return <BentoVideo     key={key} src={item.src} />;
 }
 
 function BentoColTrack({ items, duration, offsetPx = 0 }: { items: BentoColItem[]; duration: number; offsetPx?: number }) {
@@ -1358,20 +1371,22 @@ function BentoColTrack({ items, duration, offsetPx = 0 }: { items: BentoColItem[
 
 function Results() {
   const col1: BentoColItem[] = [
-    { kind: "web",  img: kyleWebImg,    name: "Kyle Shayler",  sub: "Elite Athletes Coaching · @kyleshayler" },
-    { kind: "text", img: coach1Img,     name: "Bela Toth",     role: "Online Fitness Coach · @belatoth",
+    { kind: "web",        img: kyleWebImg,            name: "Kyle Shayler",  sub: "Elite Athletes Coaching · @kyleshayler" },
+    { kind: "screenshot", img: kyleSwinburnReviewImg, alt: "Kyle Swinburn Google review" },
+    { kind: "text",       img: coach1Img,             name: "Bela Toth",     role: "Online Fitness Coach · @belatoth",
       quote: "Working with HustleCoreX has been great. Signed two new clients the week after we put the system in place. Honestly didn't expect it to do that well that quickly." },
-    { kind: "web",  img: patrickWebImg, name: "Patrick Brody", sub: "Elite Coaching · @patrickbrody" },
+    { kind: "web",        img: patrickWebImg,         name: "Patrick Brody", sub: "Elite Coaching · @patrickbrody" },
   ];
   const col2: BentoColItem[] = [
-    { kind: "video", src: "https://jumpshare.com/embed/DnJjQp8snvvTiW6KKxxQ" },
-    { kind: "web",   img: benOlaWebImg,  name: "Ben Ola",      sub: "Online Coach for Busy People · @benola" },
-    { kind: "video", src: "https://jumpshare.com/embed/DnJjQp8snvvTiW6KKxxQ" },
+    { kind: "video",      src: "https://jumpshare.com/embed/DnJjQp8snvvTiW6KKxxQ" },
+    { kind: "screenshot", img: benolaDMImg,            alt: "Client DM reaction · @benolaaa" },
+    { kind: "web",        img: benOlaWebImg,           name: "Ben Ola",      sub: "Online Coach for Busy People · @benola" },
   ];
   const col3: BentoColItem[] = [
-    { kind: "web",   img: benOlaWebImg,  name: "Ben Ola",      sub: "Online Coach for Busy People · @benola" },
-    { kind: "video", src: "https://jumpshare.com/embed/sRGrwQ6ARitVyI2dTvwl" },
-    { kind: "web",   img: kyleWebImg,    name: "Kyle Shayler",  sub: "Elite Athletes Coaching · @kyleshayler" },
+    { kind: "screenshot", img: anthonyGraceReviewImg, alt: "Anthony Grace Google review" },
+    { kind: "web",        img: benOlaWebImg,           name: "Ben Ola",      sub: "Online Coach for Busy People · @benola" },
+    { kind: "video",      src: "https://jumpshare.com/embed/sRGrwQ6ARitVyI2dTvwl" },
+    { kind: "web",        img: kyleWebImg,             name: "Kyle Shayler",  sub: "Elite Athletes Coaching · @kyleshayler" },
   ];
 
   return (
