@@ -1363,61 +1363,47 @@ function BentoColTrack({ items, duration, offsetPx = 0 }: { items: BentoColItem[
   );
 }
 
-/* ── Video testimonial horizontal marquee ── */
-function VideoMarquee() {
-  const [paused, setPaused] = useState(false);
-  const [activeIdx, setActiveIdx] = useState<number | null>(null);
-
+/* ── Video testimonial carousel ── */
+function VideoCarousel() {
+  const [current, setCurrent] = useState(0);
   const videos = [
     "https://jumpshare.com/embed/DnJjQp8snvvTiW6KKxxQ",
     "https://jumpshare.com/embed/sRGrwQ6ARitVyI2dTvwl",
-    "https://jumpshare.com/embed/DnJjQp8snvvTiW6KKxxQ",
-    "https://jumpshare.com/embed/sRGrwQ6ARitVyI2dTvwl",
   ];
-
-  const handleVideoClick = (idx: number) => {
-    setPaused(true);
-    setActiveIdx(idx);
-  };
-
-  const handleResume = () => {
-    setPaused(false);
-    setActiveIdx(null);
-  };
+  const prev = () => setCurrent((c) => (c - 1 + videos.length) % videos.length);
+  const next = () => setCurrent((c) => (c + 1) % videos.length);
 
   return (
-    <div className="relative mt-6 overflow-hidden" onClick={(e) => { if ((e.target as HTMLElement).closest(".video-cell") === null) handleResume(); }}>
-      <div className="absolute inset-y-0 left-0 w-16 md:w-24 bg-gradient-to-r from-[#080808] to-transparent z-10 pointer-events-none" />
-      <div className="absolute inset-y-0 right-0 w-16 md:w-24 bg-gradient-to-l from-[#080808] to-transparent z-10 pointer-events-none" />
-      {paused && (
-        <button onClick={handleResume}
-          className="absolute top-3 right-6 z-20 text-[10px] text-white/40 hover:text-white/70 uppercase tracking-[0.15em] transition-colors">
-          Resume ›
+    <div className="mt-10 flex flex-col items-center gap-6">
+      <div className="flex items-center gap-5">
+        <button onClick={prev} aria-label="Previous video"
+          className="w-11 h-11 rounded-full border border-white/[0.08] flex items-center justify-center text-white/40 hover:text-white hover:border-white/20 text-xl transition-all flex-shrink-0 active:scale-95">
+          ‹
         </button>
-      )}
-      <div className="flex gap-4"
-        style={{
-          animation: `scroll-right 28s linear infinite`,
-          animationPlayState: paused ? "paused" : "running",
-          width: "max-content",
-          willChange: "transform",
-        }}>
-        {[...videos, ...videos].map((src, idx) => (
-          <div key={idx} className="video-cell flex-shrink-0 relative rounded-2xl overflow-hidden border border-white/[0.05] bg-[#0D0D0D]"
-            style={{ width: 200, height: 355 }}>
-            <iframe
-              src={src}
-              className="w-full h-full border-0 block"
-              allowFullScreen
-              allow="autoplay; fullscreen"
-            />
-            {activeIdx !== idx && (
-              <div
-                className="absolute inset-0 z-10 cursor-pointer"
-                onClick={(e) => { e.stopPropagation(); handleVideoClick(idx); }}
-              />
-            )}
-          </div>
+
+        <div className="rounded-2xl overflow-hidden border border-white/[0.06] bg-[#0D0D0D] flex-shrink-0"
+          style={{ width: 340, height: 604 }}>
+          <iframe
+            key={current}
+            src={videos[current]}
+            className="w-full h-full border-0"
+            allowFullScreen
+            allow="autoplay; fullscreen"
+          />
+        </div>
+
+        <button onClick={next} aria-label="Next video"
+          className="w-11 h-11 rounded-full border border-white/[0.08] flex items-center justify-center text-white/40 hover:text-white hover:border-white/20 text-xl transition-all flex-shrink-0 active:scale-95">
+          ›
+        </button>
+      </div>
+
+      {/* Dot indicators */}
+      <div className="flex gap-2 items-center">
+        {videos.map((_, i) => (
+          <button key={i} onClick={() => setCurrent(i)} aria-label={`Video ${i + 1}`}
+            className={`rounded-full transition-all duration-300 ${i === current ? "w-6 h-1.5 bg-[#FF4500]" : "w-1.5 h-1.5 bg-white/20 hover:bg-white/40"}`}
+          />
         ))}
       </div>
     </div>
@@ -1433,15 +1419,15 @@ function Results() {
     { kind: "web",        img: patrickWebImg,         name: "Patrick Brody", sub: "Elite Coaching · @patrickbrody" },
   ];
   const col2: BentoColItem[] = [
-    { kind: "video",      src: "https://jumpshare.com/embed/DnJjQp8snvvTiW6KKxxQ" },
     { kind: "screenshot", img: benolaDMImg,            alt: "Client DM reaction · @benolaaa" },
     { kind: "web",        img: benOlaWebImg,           name: "Ben Ola",      sub: "Online Coach for Busy People · @benola" },
+    { kind: "screenshot", img: kyleSwinburnReviewImg, alt: "Kyle Swinburn Google review" },
   ];
   const col3: BentoColItem[] = [
     { kind: "screenshot", img: anthonyGraceReviewImg, alt: "Anthony Grace Google review" },
     { kind: "web",        img: benOlaWebImg,           name: "Ben Ola",      sub: "Online Coach for Busy People · @benola" },
-    { kind: "video",      src: "https://jumpshare.com/embed/sRGrwQ6ARitVyI2dTvwl" },
     { kind: "web",        img: kyleWebImg,             name: "Kyle Shayler",  sub: "Elite Athletes Coaching · @kyleshayler" },
+    { kind: "screenshot", img: anthonyGraceReviewImg, alt: "Anthony Grace Google review" },
   ];
 
   return (
@@ -1467,8 +1453,8 @@ function Results() {
         </div>
       </div>
 
-      {/* Video testimonials flowing left → right */}
-      <VideoMarquee />
+      {/* Video testimonial carousel */}
+      <VideoCarousel />
     </section>
   );
 }
