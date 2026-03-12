@@ -194,7 +194,7 @@ function Nav() {
         <div className="flex items-center gap-3">
           <button data-testid="nav-cta" onClick={() => go("apply")}
             className="hidden md:flex items-center gap-1.5 h-9 px-5 rounded-xl bg-[#FF4500] hover:bg-[#FF5A00] text-white text-[13px] font-bold transition-colors active:scale-[0.97]">
-            Apply Now
+            Free Trial
           </button>
           <button data-testid="mobile-menu-toggle" onClick={() => setOpen(!open)}
             className="md:hidden w-10 h-10 flex items-center justify-center text-white/40 hover:text-white transition-colors">
@@ -210,7 +210,7 @@ function Nav() {
             exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.16 }}
             className="md:hidden border-t border-white/[0.05] bg-[#080808]">
             <div className="max-w-6xl mx-auto px-6 py-2 pb-5">
-              {[...links, ["apply", "Apply Now"] as [string, string]].map(([id, label]) => (
+              {[...links, ["apply", "Free Trial"] as [string, string]].map(([id, label]) => (
                 <button key={id} data-testid={`mobile-nav-${id}`}
                   onClick={() => { go(id); setOpen(false); }}
                   className="flex w-full items-center justify-between py-4 text-[15px] font-semibold text-white/50 hover:text-white border-b border-white/[0.04] last:border-0 transition-colors">
