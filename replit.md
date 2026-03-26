@@ -4,7 +4,8 @@ Premium marketing website for HustleCoreX, an agency for online fitness coaches.
 
 ## Stack
 - **Frontend**: React + TypeScript + Vite + Tailwind CSS + Framer Motion
-- **Backend**: Express.js + in-memory storage
+- **Backend**: Express.js (serves frontend in dev via Vite middleware)
+- **Database**: PostgreSQL (Replit built-in) with Drizzle ORM
 - **Fonts**: Space Grotesk, JetBrains Mono
 - **UI**: Fully custom minimal design system
 
@@ -38,15 +39,27 @@ Premium marketing website for HustleCoreX, an agency for online fitness coaches.
 10. **Footer** — 4-col grid
 
 ## API
-- `POST /api/leads` — Submit application (name, email, instagram, currentRevenue, goal, message)
-- `GET /api/leads` — List all leads (in-memory)
+- `POST /api/leads` — Submit application (name, email, instagram, currentRevenue, goal, message). Also forwards to FastSubmit.
+- `GET /api/leads` — List all leads from PostgreSQL database
 
-## Form Notes
-- Select fields use `Controller` from react-hook-form (not `register`) for proper controlled behaviour
-- All interactive elements have `data-testid` attributes for e2e testing
+## Database Schema
+- `users` — id (uuid), username, password
+- `leads` — id (uuid), name, email, instagram, current_revenue, goal, message, created_at, contacted
+
+## Environment Variables
+- `DATABASE_URL` — PostgreSQL connection string (auto-provisioned)
+- `FASTSUBMIT_URL` — FastSubmit webhook URL for lead forwarding
+- `FASTSUBMIT_API_KEY` — FastSubmit API key
+- `PORT` — Server port (default: 5000)
 
 ## Running
 ```
 npm run dev
 ```
-Port 5000.
+Port 5000. Both frontend (Vite middleware) and backend API run on the same port.
+
+## Build & Deploy
+```
+npm run build   # builds to dist/
+npm run start   # runs production server
+```

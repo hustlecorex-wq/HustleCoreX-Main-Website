@@ -43,3 +43,6 @@ waitForPort = 5000
 [userenv.shared]
 FASTSUBMIT_URL = "https://fastsubmit.cloud/api/submit/Irtc1HcOJheCWAShxUt3"
 FASTSUBMIT_API_KEY = "fsk_live_tsYqfjSlh6UTTMy7LEzaHnfsyjXw3jpa"
+
+[agent]
+expertMode = true
