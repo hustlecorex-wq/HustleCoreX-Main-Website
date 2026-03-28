@@ -1368,6 +1368,8 @@ function VideoCarousel() {
   const [current, setCurrent] = useState(0);
   const videos = [
     "https://drive.google.com/file/d/1324Rgb3B8xCdpYT4n4-F0Ap4C_ZxHaaF/preview",
+    "https://drive.google.com/file/d/1cYz4LE0RInl0TCJY2cF00zR6gmT9oaZz/preview",
+    "https://drive.google.com/file/d/1MYdy8T5wRjn_RojrgP5AtyKKppVerC43/preview",
   ];
   const prev = () => setCurrent((c) => (c - 1 + videos.length) % videos.length);
   const next = () => setCurrent((c) => (c + 1) % videos.length);
