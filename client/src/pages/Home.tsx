@@ -1367,8 +1367,7 @@ function BentoColTrack({ items, duration, offsetPx = 0 }: { items: BentoColItem[
 function VideoCarousel() {
   const [current, setCurrent] = useState(0);
   const videos = [
-    "https://jumpshare.com/embed/DnJjQp8snvvTiW6KKxxQ",
-    "https://jumpshare.com/embed/sRGrwQ6ARitVyI2dTvwl",
+    "https://drive.google.com/file/d/1324Rgb3B8xCdpYT4n4-F0Ap4C_ZxHaaF/preview",
   ];
   const prev = () => setCurrent((c) => (c - 1 + videos.length) % videos.length);
   const next = () => setCurrent((c) => (c + 1) % videos.length);
