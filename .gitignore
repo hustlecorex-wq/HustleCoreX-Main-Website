@@ -9,6 +9,8 @@ vite.config.ts.*
 # Secrets live in .env locally and in Vercel project env vars
 .env
 .env.*
+# ...except the template, which holds names only, never values
+!.env.example
 
 # Backup archives, too large for GitHub's 100MB file limit
 *.zip

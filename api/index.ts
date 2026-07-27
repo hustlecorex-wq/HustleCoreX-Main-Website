@@ -1,8 +1,12 @@
+// No-op on Vercel, where the values come from the project's env vars, but it
+// makes `vercel dev` behave like `npm run dev`.
+import "dotenv/config";
 import express, { type Request, Response, NextFunction } from "express";
 // Explicit .js extensions: package.json sets "type": "module", so the
 // compiled function runs as ESM and Node will not guess at extensions.
 import { registerRoutes } from "../server/routes.js";
 import { initializeDatabase } from "../server/db.js";
+import { verifyMailchimpConfig } from "../server/mailchimp.js";
 import { createServer } from "http";
 
 const app = express();
@@ -41,6 +45,7 @@ app.use((req, res, next) => {
 let initializedPromise: Promise<void> | null = null;
 
 async function init() {
+  verifyMailchimpConfig();
   await initializeDatabase();
   await registerRoutes(httpServer, app);
 

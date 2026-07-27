@@ -17,6 +17,15 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
+export const MAILCHIMP_STATUSES = [
+  "pending",
+  "subscribed",
+  "failed",
+  "skipped",
+] as const;
+
+export type MailchimpStatus = (typeof MAILCHIMP_STATUSES)[number];
+
 export const leads = pgTable("leads", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
@@ -27,6 +36,13 @@ export const leads = pgTable("leads", {
   message: text("message"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   contacted: boolean("contacted").default(false).notNull(),
+  // Records how far this lead got with the newsletter audience:
+  // "pending" awaiting confirmation, "subscribed" confirmed, "failed" rejected
+  // by Mailchimp, "skipped" not attempted (no consent, or not configured).
+  mailchimpStatus: text("mailchimp_status")
+    .$type<MailchimpStatus>()
+    .default("skipped")
+    .notNull(),
 });
 
 export const insertLeadSchema = createInsertSchema(leads).pick({

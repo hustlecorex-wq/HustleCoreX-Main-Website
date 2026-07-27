@@ -41,8 +41,15 @@ export async function initializeDatabase() {
         goal TEXT NOT NULL,
         message TEXT,
         created_at TIMESTAMP DEFAULT now() NOT NULL,
-        contacted BOOLEAN DEFAULT false NOT NULL
+        contacted BOOLEAN DEFAULT false NOT NULL,
+        mailchimp_status TEXT DEFAULT 'skipped' NOT NULL
       );
+    `);
+    // Separate statement so existing deployments pick the column up too —
+    // CREATE TABLE IF NOT EXISTS is a no-op once the table is there.
+    await client.query(`
+      ALTER TABLE leads
+      ADD COLUMN IF NOT EXISTS mailchimp_status TEXT DEFAULT 'skipped' NOT NULL;
     `);
     console.log("[Database] Tables initialized successfully.");
   } catch (err) {

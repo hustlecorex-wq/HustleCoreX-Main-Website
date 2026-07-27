@@ -1,8 +1,12 @@
+// Must be the first import: db.ts reads process.env at module scope, so the
+// .env file has to be loaded before anything pulls it in.
+import "dotenv/config";
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes.js";
 import { serveStatic } from "./static.js";
 import { createServer } from "http";
 import { initializeDatabase } from "./db.js";
+import { verifyMailchimpConfig } from "./mailchimp.js";
 
 const app = express();
 const httpServer = createServer(app);
@@ -61,6 +65,7 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  verifyMailchimpConfig();
   await initializeDatabase();
   await registerRoutes(httpServer, app);
 
