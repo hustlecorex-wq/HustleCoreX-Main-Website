@@ -79,6 +79,22 @@ export default {
           "600": "#FF3300",
           "400": "#FF6622",
         },
+        // HustleCoreX palette
+        void: "#07070A",
+        panel: {
+          DEFAULT: "#0E0E13",
+          raised: "#14141A",
+        },
+        chalk: "#F5F3F1",
+        ash: {
+          DEFAULT: "#8C8C97",
+          dim: "#5A5A64",
+        },
+        ember: {
+          DEFAULT: "#FF4A17",
+          deep: "#E03600",
+        },
+        flare: "#FFA24D",
         status: {
           online: "rgb(34 197 94)",
           away: "rgb(245 158 11)",

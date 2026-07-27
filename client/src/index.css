@@ -2,204 +2,468 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ═══════════════════════════════════════════════════════════════
+   HustleCoreX - design tokens
+   Palette: a cool near-black so the ember reads hot against it.
+   Type:    General Sans (voice) + JetBrains Mono (instrumentation)
+   ═══════════════════════════════════════════════════════════════ */
+
 :root {
-  --bg: #080808;
-  --surface: #0D0D0D;
-  --border: rgba(255,255,255,0.05);
-  --border-hover: rgba(255,255,255,0.09);
-  --orange: #FF4500;
-  --foreground: 0 0% 94%;
-  --background: 0 0% 3%;
-  --card: 0 0% 5%;
-  --card-foreground: 0 0% 94%;
-  --border-color: 0 0% 10%;
-  --primary: 17 100% 50%;
+  /* - surfaces - */
+  --void: #07070A;
+  --panel: #0E0E13;
+  --panel-raised: #14141A;
+  --hairline: rgba(255, 255, 255, 0.06);
+  --hairline-lit: rgba(255, 255, 255, 0.12);
+
+  /* - ink - */
+  --chalk: #F5F3F1;
+  --ash: #9A9AA5;
+  --ash-dim: #74747F;
+
+  /* - ember - */
+  --ember: #FF4A17;
+  --ember-deep: #E03600;
+  --flare: #FFA24D;
+
+  /* - type - */
+  --font-sans: 'General Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* - motion - */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* - shadcn bridge (toaster, tooltip, dialog primitives) - */
+  --background: 240 14% 4%;
+  --foreground: 30 12% 95%;
+  --card: 240 12% 6%;
+  --card-foreground: 30 12% 95%;
+  --popover: 240 12% 7%;
+  --popover-foreground: 30 12% 95%;
+  --primary: 14 100% 54%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 0 0% 9%;
+  --secondary: 240 8% 11%;
   --secondary-foreground: 0 0% 88%;
-  --muted: 0 0% 9%;
-  --muted-foreground: 0 0% 45%;
-  --accent: 0 0% 9%;
-  --accent-foreground: 0 0% 90%;
-  --destructive: 0 84% 45%;
+  --muted: 240 8% 11%;
+  --muted-foreground: 240 5% 58%;
+  --accent: 240 8% 12%;
+  --accent-foreground: 0 0% 92%;
+  --destructive: 0 72% 45%;
   --destructive-foreground: 0 0% 98%;
-  --input: 0 0% 13%;
-  --ring: 17 100% 50%;
-  --popover: 0 0% 7%;
-  --popover-foreground: 0 0% 94%;
-  --border: 0 0% 10%;
-  --sidebar: 0 0% 5%;
-  --sidebar-foreground: 0 0% 94%;
-  --sidebar-border: 0 0% 8%;
-  --sidebar-primary: 17 100% 50%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 17 30% 10%;
-  --sidebar-accent-foreground: 17 100% 70%;
-  --sidebar-ring: 17 100% 50%;
-  --radius: 0.5rem;
-  --font-sans: 'Space Grotesk', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --border: 240 8% 13%;
+  --input: 240 8% 13%;
+  --ring: 14 100% 54%;
+  --radius: 0.75rem;
 }
 
 @layer base {
-  * { @apply border-border box-border; }
+  * {
+    @apply border-border box-border;
+  }
 
-  html { scroll-behavior: smooth; }
+  html {
+    scroll-behavior: smooth;
+    /* clears the floating nav when jumping to an anchor */
+    scroll-padding-top: 110px;
+  }
 
   body {
     @apply antialiased;
-    font-family: 'Space Grotesk', sans-serif;
-    background-color: #080808;
-    color: rgba(255,255,255,0.88);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01" 1, "cv01" 1;
+    background-color: var(--void);
+    color: var(--ash);
     overflow-x: hidden;
-    /* Subtle noise texture for depth */
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.028'/%3E%3C/svg%3E");
+  }
+
+  ::selection {
+    background: rgba(255, 74, 23, 0.28);
+    color: var(--chalk);
+  }
+
+  /* Visible, on-brand keyboard focus everywhere */
+  :focus-visible {
+    outline: 2px solid var(--ember);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  input,
+  textarea,
+  select {
+    font-family: inherit;
+  }
+
+  /* Native select popup should not flash white on Windows */
+  select option {
+    background: #14141A;
+    color: #F5F3F1;
   }
 }
 
-/* ── Ghost / outline text ── */
-.text-outline {
-  -webkit-text-stroke: 2px rgba(255,255,255,0.5);
-  color: transparent;
-}
-.text-outline-orange {
-  -webkit-text-stroke: 1.5px rgba(255,69,0,0.4);
-  color: transparent;
-}
+/* ── Typography scale ──────────────────────────────────────────── */
 
-/* ── Typography ── */
 .display {
-  font-weight: 900;
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 0.94;
+  color: var(--chalk);
+}
+
+.display-light {
+  font-weight: 400;
   letter-spacing: -0.04em;
-  line-height: 0.92;
+  line-height: 1.02;
+  color: var(--chalk);
 }
+
 .heading {
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.0;
-}
-.label {
-  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.28);
-}
-.label-accent {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgba(255,80,0,0.55);
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  color: var(--chalk);
 }
 
-/* ── Orange gradient text ── */
-.text-orange {
-  background: linear-gradient(120deg, #FF4500 0%, #FF6B2B 100%);
+/* Instrument labels - mono, the voice of the system itself */
+.mono-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #86868F;
+}
+
+.mono-label-ember {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #FF6A3D;
+}
+
+.text-ember-grad {
+  background: linear-gradient(96deg, var(--ember) 0%, var(--flare) 88%);
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-/* ── Ticker ── */
-@keyframes ticker {
+/* Headline that looks lit rather than coloured - the warmth only shows
+   where the beam would actually reach it. */
+.text-lit {
+  background: linear-gradient(103deg, #EDE9E6 0%, #F7F4F1 38%, #FFD3AC 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ═══ SIGNATURE: the ember beam ═══════════════════════════════════
+   A shaft of light rising behind the hero. The video frame sits in
+   it, so the page has one clear source of light rather than the
+   usual scatter of blurred gradient blobs.
+   ═══════════════════════════════════════════════════════════════ */
+
+@keyframes beam-breathe {
+  0%, 100% { opacity: 0.82; transform: translateX(-50%) scaleX(1); }
+  50%      { opacity: 1;    transform: translateX(-50%) scaleX(1.08); }
+}
+
+@keyframes core-flicker {
+  0%, 100% { opacity: 0.9; }
+  38%      { opacity: 0.62; }
+  52%      { opacity: 1; }
+  71%      { opacity: 0.78; }
+}
+
+@keyframes bloom-pulse {
+  0%, 100% { opacity: 0.55; transform: translateX(-50%) scale(1); }
+  50%      { opacity: 0.8;  transform: translateX(-50%) scale(1.12); }
+}
+
+/* Embers drifting up out of the beam */
+@keyframes ember-rise {
+  0%   { opacity: 0; transform: translate3d(0, 0, 0) scale(0.6); }
+  12%  { opacity: var(--spark-peak, 0.7); }
+  76%  { opacity: var(--spark-peak, 0.7); }
+  100% { opacity: 0; transform: translate3d(var(--spark-drift, 14px), -520px, 0) scale(1); }
+}
+
+.spark {
+  position: absolute;
+  bottom: 0;
+  width: 2px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--flare);
+  box-shadow: 0 0 6px rgba(255, 140, 60, 0.85);
+  animation: ember-rise var(--spark-dur, 11s) linear infinite;
+  animation-delay: var(--spark-delay, 0s);
+  will-change: transform, opacity;
+}
+
+/* Slow drift on the backdrop grid - keeps the page feeling alive
+   without anything visibly "animating" */
+@keyframes grid-drift {
+  from { transform: translateY(0); }
+  to   { transform: translateY(60px); }
+}
+
+.grid-plane {
+  animation: grid-drift 24s linear infinite;
+}
+
+/* ── Sheen sweep (video frame, buttons) ────────────────────────── */
+@keyframes sheen {
+  0%   { transform: translateX(-130%) skewX(-18deg); }
+  100% { transform: translateX(230%) skewX(-18deg); }
+}
+
+.sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 42%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.07),
+    transparent
+  );
+  animation: sheen 6.5s var(--ease-out-quint) infinite;
+  pointer-events: none;
+}
+
+/* ── Marquee ───────────────────────────────────────────────────────
+   Tracks hold two identical halves, so shifting by 50% loops seamlessly.
+   Reversing the keyframe direction is what sends a row the other way. */
+@keyframes marquee-left {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
-.animate-ticker { animation: ticker 38s linear infinite; }
 
-/* ── Orb float ── */
-@keyframes orb-float-1 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33%       { transform: translate(-3%, 6%) scale(1.07); }
-  66%       { transform: translate(4%, -3%) scale(0.95); }
-}
-@keyframes orb-float-2 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50%       { transform: translate(5%, -5%) scale(1.1); }
-}
-@keyframes orb-float-3 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  40%       { transform: translate(-6%, 4%) scale(0.92); }
-  80%       { transform: translate(3%, -2%) scale(1.05); }
+@keyframes marquee-right {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
 }
 
-/* ── Text shimmer (hero accent) ── */
-@keyframes text-shimmer {
-  0%   { background-position: 200% center; }
-  100% { background-position: -200% center; }
-}
-.shimmer-text {
-  background: linear-gradient(110deg, #FF4500 20%, #FFAA30 42%, #FF4500 60%);
-  background-size: 220% auto;
-  animation: text-shimmer 3.5s linear infinite;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* ── Pulse dot ── */
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.4; transform: scale(0.7); }
-}
-
-/* ── Fade-up ── */
-@keyframes fade-up {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ── Spin ── */
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ── Premium card hover lift ── */
-.card-lift {
-  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
-              border-color 0.3s ease,
-              box-shadow 0.3s ease;
-}
-.card-lift:hover {
-  transform: translateY(-3px);
-  border-color: rgba(255,255,255,0.1);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
-}
-
-/* ── Orange glow button pulse ── */
-@keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 28px rgba(255,69,0,0.22); }
-  50%       { box-shadow: 0 0 44px rgba(255,69,0,0.36); }
-}
-.btn-glow { animation: glow-pulse 2.8s ease-in-out infinite; }
-
-/* ── Section gradient divider ── */
-.section-divider {
-  height: 1px;
-  background: linear-gradient(90deg,
-    transparent 0%,
-    rgba(255,255,255,0.05) 20%,
-    rgba(255,255,255,0.08) 50%,
-    rgba(255,255,255,0.05) 80%,
-    transparent 100%
-  );
-}
-
-/* ── Hide scrollbar ── */
-@layer utilities {
-  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-  .scrollbar-hide::-webkit-scrollbar { display: none; }
-}
-
-/* ── Bento flowing columns ── */
-@keyframes scroll-up {
-  from { transform: translateY(0); }
-  to   { transform: translateY(-50%); }
-}
-.bento-col {
-  animation: scroll-up linear infinite;
+.marquee-left,
+.marquee-right {
   will-change: transform;
 }
-.bento-col:hover {
+
+.marquee-left  { animation: marquee-left linear infinite; }
+.marquee-right { animation: marquee-right linear infinite; }
+
+.marquee-left:hover,
+.marquee-right:hover {
   animation-play-state: paused;
 }
 
+/* ── Logo bloom ────────────────────────────────────────────────── */
+@keyframes hx-breathe {
+  0%, 100% { opacity: 0.7; }
+  50%      { opacity: 1; }
+}
+
+.hx-bloom {
+  animation: hx-breathe 5s ease-in-out infinite;
+  transform-origin: center;
+}
+
+/* ── Live dot ──────────────────────────────────────────────────── */
+@keyframes live-dot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255, 74, 23, 0.5); }
+  70%      { opacity: 0.75; box-shadow: 0 0 0 5px rgba(255, 74, 23, 0); }
+}
+
+.live-dot {
+  animation: live-dot 2.4s ease-out infinite;
+}
+
+/* ── Surfaces ──────────────────────────────────────────────────── */
+
+.panel {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.022), rgba(255, 255, 255, 0) 45%),
+    var(--panel);
+  border: 1px solid var(--hairline);
+}
+
+/* Cards lift toward the light source rather than just scaling */
+.lift {
+  transition:
+    transform 0.45s var(--ease-out-quint),
+    border-color 0.45s ease,
+    background-color 0.45s ease;
+}
+
+.lift:hover {
+  transform: translateY(-4px);
+  border-color: var(--hairline-lit);
+}
+
+.hairline-rule {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.07) 22%,
+    rgba(255, 255, 255, 0.07) 78%,
+    transparent
+  );
+}
+
+/* ── Ember button ──────────────────────────────────────────────── */
+.btn-ember {
+  position: relative;
+  background: linear-gradient(180deg, #FF6435 0%, var(--ember) 55%, var(--ember-deep) 100%);
+  color: #fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 6px 22px rgba(255, 74, 23, 0.26);
+  transition: box-shadow 0.35s ease, transform 0.35s var(--ease-out-quint);
+}
+
+.btn-ember:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.34),
+    0 10px 34px rgba(255, 74, 23, 0.42);
+  transform: translateY(-1px);
+}
+
+.btn-ember:active {
+  transform: translateY(0);
+}
+
+.btn-ghost {
+  border: 1px solid var(--hairline);
+  color: var(--chalk);
+  transition: border-color 0.35s ease, background-color 0.35s ease;
+}
+
+.btn-ghost:hover {
+  border-color: var(--hairline-lit);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* ── Form controls ─────────────────────────────────────────────── */
+.field {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.022);
+  border: 1px solid var(--hairline);
+  color: var(--chalk);
+  font-size: 14.5px;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+textarea.field {
+  height: auto;
+  padding: 14px 16px;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.field::placeholder {
+  color: var(--ash-dim);
+}
+
+.field:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.field:focus {
+  outline: none;
+  border-color: rgba(255, 74, 23, 0.55);
+  background: rgba(255, 74, 23, 0.028);
+}
+
+select.field {
+  appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%238C8C97' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
+}
+
+/* Placeholder colour for an unselected native select */
+select.field[data-empty="true"] {
+  color: var(--ash-dim);
+}
+
+/* ── Utilities ─────────────────────────────────────────────────── */
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .edge-fade-x {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+  }
+}
+
+/* ═══ VIDEO PLAYBACK ══════════════════════════════════════════════
+   A decoding 1080p video and a compositor busy re-rasterising large
+   blurred light layers are competing for the same GPU, and the video is
+   the one that visibly loses - it drops frames. So while anything on the
+   page is playing, the ambient motion holds still.
+
+   The grain sheet matters more than it looks: it is fixed and sits above
+   the video, so every decoded frame has to be blended with it instead of
+   going straight to the compositor. At 0.035 alpha nobody notices it
+   step aside for four minutes, and the stutter goes with it.
+   ═══════════════════════════════════════════════════════════════ */
+
+.video-surface {
+  /* Kept on its own compositor layer, with the rounding on the video
+     itself rather than an ancestor's overflow clip - a rounded ancestor
+     re-masks the video on every frame. */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* !important earns its place here: the beam's animations are declared as
+   inline `animation` shorthands in Ambient.tsx, and that shorthand resets
+   animation-play-state to running. Inline styles outrank any normal rule, so
+   this is the only way a stylesheet can hold them still. */
+html.video-playing .spark,
+html.video-playing .beam-layer,
+html.video-playing .grid-plane,
+html.video-playing .hx-bloom,
+html.video-playing .live-dot {
+  animation-play-state: paused !important;
+}
+
+.site-grain {
+  transition: opacity 350ms ease;
+}
+
+html.video-playing .site-grain {
+  opacity: 0;
+}
+
+/* ── Reduced motion ────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .spark,
+  .sheen::after {
+    display: none;
+  }
+}

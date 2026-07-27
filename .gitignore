@@ -4,3 +4,15 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+.vercel
+
+# Secrets live in .env locally and in Vercel project env vars
+.env
+.env.*
+
+# Backup archives, too large for GitHub's 100MB file limit
+*.zip
+
+# Local agent tooling, not part of the project
+.local
+.agents

@@ -1,0 +1,47 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "site",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["vite", "--port", "5173", "--strictPort"],
+      "port": 5173
+    },
+    {
+      "name": "site-alt",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["vite", "--port", "5174", "--strictPort"],
+      "port": 5174
+    },
+    {
+      "name": "site-alt2",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["vite", "--port", "5175", "--strictPort"],
+      "port": 5175
+    },
+    {
+      "name": "site-verify",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["vite", "--port", "5180", "--strictPort"],
+      "port": 5180
+    },
+    {
+      "name": "site-built",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["vite", "preview", "--port", "5181", "--strictPort"],
+      "port": 5181
+    },
+    {
+      "name": "deck",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "vite",
+        "../HustleCoreX-Pitch-Deck",
+        "--port",
+        "5199",
+        "--strictPort"
+      ],
+      "port": 5199
+    }
+  ]
+}

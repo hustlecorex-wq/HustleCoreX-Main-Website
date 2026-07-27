@@ -1,11 +1,9 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
-import { insertLeadSchema } from "@shared/schema";
+import { storage } from "./storage.js";
+// Relative, not the @shared alias — the alias only exists at build time.
+import { insertLeadSchema } from "../shared/schema.js";
 import { z } from "zod";
-
-const FASTSUBMIT_URL = process.env.FASTSUBMIT_URL!;
-const FASTSUBMIT_API_KEY = process.env.FASTSUBMIT_API_KEY!;
 
 export async function registerRoutes(
   httpServer: Server,
@@ -17,33 +15,12 @@ export async function registerRoutes(
 
       const lead = await storage.createLead(data);
 
-      const payload = {
-        name: data.name,
-        email: data.email,
-        instagram_headline: data.instagram ?? "",
-        field_1773303162142: data.currentRevenue,
-        field_1773303170671: data.goal,
-        field_1773303182985: data.message ?? "",
-      };
-      console.log("[FastSubmit] sending payload:", JSON.stringify(payload));
-      fetch(FASTSUBMIT_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      })
-        .then(async (r) => {
-          const text = await r.text();
-          console.log("[FastSubmit] response status:", r.status, "body:", text);
-        })
-        .catch((err) => console.error("[FastSubmit] forward failed:", err));
-
       res.json({ success: true, lead });
     } catch (err) {
       if (err instanceof z.ZodError) {
         res.status(400).json({ success: false, errors: err.errors });
       } else {
+        console.error("[Routes] POST /api/leads error:", err);
         res.status(500).json({ success: false, message: "Internal server error" });
       }
     }
@@ -52,6 +29,21 @@ export async function registerRoutes(
   app.get("/api/leads", async (_req, res) => {
     const leads = await storage.getLeads();
     res.json(leads);
+  });
+
+  app.patch("/api/leads/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { contacted } = req.body;
+      if (typeof contacted !== "boolean") {
+        return res.status(400).json({ success: false, message: "Contacted field must be a boolean" });
+      }
+      const lead = await storage.updateLead(id, contacted);
+      res.json({ success: true, lead });
+    } catch (err) {
+      console.error("[Routes] PATCH lead failed:", err);
+      res.status(500).json({ success: false, message: "Failed to update lead status" });
+    }
   });
 
   return httpServer;

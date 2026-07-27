@@ -19,7 +19,8 @@ import website1Img from "@assets/Snímek_obrazovky_2026-03-10_170325_17731588743
 import website2Img from "@assets/Snímek_obrazovky_2026-03-10_170555_1773158874312.png";
 import kyleWebImg from "@assets/Snímek_obrazovky_2026-03-10_170325_1773300425126.png";
 import patrickWebImg from "@assets/Snímek_obrazovky_2026-03-10_170555_1773300425128.png";
-import benOlaWebImg from "@assets/Snímek_obrazovky_2026-03-12_082648_1773300425129.png";
+import benOlaWebImg from "@assets/bowt_login_screen.png";
+import defineWellnessImg from "@assets/define_wellness.jpg";
 import kyleSwinburnReviewImg from "@assets/Snímek_obrazovky_2026-03-12_083352_1773300875853.png";
 import anthonyGraceReviewImg from "@assets/Snímek_obrazovky_2026-03-12_083358_1773300875855.png";
 import benolaDMImg from "@assets/Snímek_obrazovky_2026-03-12_083414_1773300875856.png";
@@ -452,13 +453,7 @@ function Hero() {
           className="w-10 h-px bg-gradient-to-r from-transparent via-[#FF4500]/40 to-transparent mb-5 sm:mb-7"
         />
 
-        {/* Subheadline */}
-        <motion.p data-testid="hero-subheadline"
-          initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.52, ease }}
-          className="text-[15px] sm:text-[18px] md:text-[21px] text-white/40 leading-[1.6] max-w-[480px] mb-7 sm:mb-10 font-light tracking-[-0.01em]">
-          The system that scales online coaches to consistent 5-figure months.
-        </motion.p>
+
 
         {/* CTAs */}
         <motion.div
@@ -502,82 +497,6 @@ function Hero() {
           <div className="w-px h-8 bg-gradient-to-b from-white/20 to-transparent" />
         </motion.div>
 
-      </div>
-    </section>
-  );
-}
-
-/* ─── ticker ─────────────────────────────────────────────────── */
-function Ticker() {
-  const items = [
-    "Bela Toth → 2 new clients signed in week 1",
-    "Sarah M. → $52k/month in 6 months",
-    "Marcus R. tripled revenue in 90 days",
-    "Priya S. → $67k/month in 5 months",
-    "Tom K. books 5+ calls daily on autopilot",
-    "Rachel L. built $40k/month while on holiday",
-    "Daniel W. → 47 clients in 6 months",
-    "Aisha M. → $25k in her first 90 days",
-  ];
-  const doubled = [...items, ...items];
-  return (
-    <div className="overflow-hidden border-b border-white/[0.05] py-3.5">
-      <div className="flex animate-ticker gap-0 whitespace-nowrap">
-        {doubled.map((item, i) => (
-          <div key={i} className="flex items-center gap-6 flex-shrink-0">
-            <span className="text-[12px] text-white/28 font-medium px-2">{item}</span>
-            <span className="text-white/10 flex-shrink-0">◆</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* ─── problem ────────────────────────────────────────────────── */
-function Problem() {
-  const items = [
-    { before: "Posting content, praying for leads", after: "Qualified prospects showing up every single day" },
-    { before: "Looking like every other coach online", after: "A brand people actually pay premium prices for" },
-    { before: "Chasing every lead manually", after: "Follow-up running on its own, around the clock" },
-    { before: "A website that loses you clients", after: "A website that books calls while you sleep" },
-    { before: "Stuck at $5–10k with no clear path up", after: "Hitting consistent $15k+ months and scaling" },
-    { before: "Working in your business all day", after: "Working on your business, not buried inside it" },
-  ];
-
-  return (
-    <section className="px-6 md:px-10 py-24 md:py-36">
-      <div className="max-w-6xl mx-auto">
-        <div className="grid lg:grid-cols-[380px_1fr] gap-12 lg:gap-20 items-start">
-
-          <FadeIn>
-            <p className="label-accent mb-6">The Problem</p>
-            <h2 className="display text-[clamp(2.8rem,5.5vw,4.5rem)] text-white mb-6">
-              You're working<br />hard in the<br />wrong places.
-            </h2>
-            <p className="text-[14px] md:text-[15px] text-white/35 leading-[1.8] max-w-[300px]">
-              Most coaches who come to us say the same thing: the coaching is great, everything else is a mess. That's the gap. That's what we fix.
-            </p>
-          </FadeIn>
-
-          <motion.div
-            className="grid sm:grid-cols-2 gap-0 border border-white/[0.05] rounded-2xl overflow-hidden"
-            initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }}
-            variants={staggerContainer(0.07, 0.1)}>
-            {items.map((item, i) => (
-              <motion.div key={i} variants={childVariants}>
-                <div data-testid={`problem-card-${i}`}
-                  className={`p-6 md:p-7 h-full bg-[#0D0D0D] hover:bg-[#0F0F0F] transition-colors
-                    ${i % 2 === 0 ? "sm:border-r border-white/[0.05]" : ""}
-                    ${i < items.length - 2 ? "border-b border-white/[0.05]" : ""}
-                  `}>
-                  <p className="text-[12px] text-white/18 line-through leading-snug mb-3 font-medium">{item.before}</p>
-                  <p className="text-[13px] md:text-[14px] text-white/75 font-semibold leading-snug">{item.after}</p>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
       </div>
     </section>
   );
@@ -984,11 +903,11 @@ function AutoNationVisual() {
     };
 
     const nodes: AgentNode[] = [
-      { cx: lx, cy: ys[0], label: "Lead Comes In", sub: "IG DM · Website Form", color: "#FF4500", rgba: "rgba(255,69,0", spinDir: 1, glow: 0, pulse: 0 },
-      { cx: rx, cy: ys[1], label: "CRM Entry", sub: "Auto-tagged · Segmented", color: "#818CF8", rgba: "rgba(129,140,248", spinDir: -1, glow: 0, pulse: 0.4 },
-      { cx: lx, cy: ys[2], label: "Follow-Up Sequence", sub: "Email + DM within 60s", color: "#C084FC", rgba: "rgba(192,132,252", spinDir: 1, glow: 0, pulse: 0.8 },
-      { cx: rx, cy: ys[3], label: "Call Booked", sub: "Calendar link sent", color: "#FBBF24", rgba: "rgba(251,191,36", spinDir: -1, glow: 0, pulse: 1.2 },
-      { cx: lx, cy: ys[4], label: "Onboarded", sub: "Welcome flow triggers", color: "#34D399", rgba: "rgba(52,211,153", spinDir: 1, glow: 0, pulse: 1.6 },
+      { cx: lx, cy: ys[0], label: "Client Logs Data", sub: "Workouts & Nutrition", color: "#FF4500", rgba: "rgba(255,69,0", spinDir: 1, glow: 0, pulse: 0 },
+      { cx: rx, cy: ys[1], label: "AI Analysis", sub: "Automated check-in review", color: "#818CF8", rgba: "rgba(129,140,248", spinDir: -1, glow: 0, pulse: 0.4 },
+      { cx: lx, cy: ys[2], label: "Admin Dashboard", sub: "Real-time coach alerts", color: "#C084FC", rgba: "rgba(192,132,252", spinDir: 1, glow: 0, pulse: 0.8 },
+      { cx: rx, cy: ys[3], label: "AI Response Draft", sub: "Feedback generated in secs", color: "#FBBF24", rgba: "rgba(251,191,36", spinDir: -1, glow: 0, pulse: 1.2 },
+      { cx: lx, cy: ys[4], label: "Progress Logged", sub: "Charts & data updated", color: "#34D399", rgba: "rgba(52,211,153", spinDir: 1, glow: 0, pulse: 1.6 },
     ];
 
     type Packet = { from: number; to: number; t: number; trail: { x: number; y: number }[] };
@@ -1198,7 +1117,7 @@ function AutoNationVisual() {
       ctx.fillStyle = "rgba(255,255,255,0.16)";
       ctx.textAlign = "center";
       ctx.textBaseline = "bottom";
-      ctx.fillText("RUNS 24 / 7  ·  ZERO MANUAL INPUT", W / 2, H - 7);
+      ctx.fillText("AUTOMATED CLIENT CARE  ·  POWERED BY AI", W / 2, H - 7);
 
       raf = requestAnimationFrame(animate);
     };
@@ -1213,6 +1132,25 @@ function AutoNationVisual() {
     </div>
   );
 }
+
+function DashboardVisual() {
+  return (
+    <div className="relative">
+      <div className="relative z-10 rounded-xl overflow-hidden border border-white/[0.1] shadow-[0_24px_80px_rgba(0,0,0,0.6)]">
+        <div className="flex items-center gap-1.5 px-4 py-2.5 bg-[#181818] border-b border-white/[0.06]">
+          <div className="w-3 h-3 rounded-full bg-[#FF5F57]" />
+          <div className="w-3 h-3 rounded-full bg-[#FEBC2E]" />
+          <div className="w-3 h-3 rounded-full bg-[#28C840]" />
+          <div className="flex-1 mx-3 h-5 rounded-md bg-white/[0.06] flex items-center px-2.5">
+            <span className="text-[9px] text-white/25 font-mono">app.benolacoaching.com</span>
+          </div>
+        </div>
+        <img src={benOlaWebImg} alt="Ben Ola Custom Coaching Dashboard" className="w-full block" />
+      </div>
+    </div>
+  );
+}
+
 
 /* ─── system section ─────────────────────────────────────────── */
 function PillarRow({ n, label, title, body, points, visual, flip }:
@@ -1285,11 +1223,11 @@ function System() {
           points={["Instagram Overhaul","Content-to-DM Funnel","Strategic Outreach System","Paid Ad Strategy","Lead Magnet Creation"]}
           visual={<LeadsVisual />} />
 
-        <PillarRow n="04" label="AutoNation" flip={true}
-          title="The admin runs itself."
-          body="The moment a lead comes in, the follow-up goes out, the call gets booked, the onboarding kicks off. None of that needs you. Your calls, your content, your coaching - that still does. And that's exactly how it should be."
-          points={["Full CRM Integration","Email Automation","DM Auto-Responses","Lead Scoring & Routing","Onboarding Flow"]}
-          visual={<AutoNationVisual />} />
+        <PillarRow n="04" label="Dashboard" flip={true}
+          title="Custom Dashboard Based on Your Needs."
+          body="Get a custom client app where your clients can log workouts, track nutrition, and communicate with you directly. On your end, powerful AI features automate check-ins, analyze metrics, and handle backend workflows, so your admin practically runs itself."
+          points={["Custom Client App", "AI-Powered Check-Ins", "Automated Workflows", "Progress & Data Tracking", "Instant Client Care"]}
+          visual={<DashboardVisual />} />
       </div>
     </section>
   );
@@ -1421,6 +1359,7 @@ function Results() {
   const col2: BentoColItem[] = [
     { kind: "screenshot", img: benolaDMImg,            alt: "Client DM reaction · @benolaaa" },
     { kind: "web",        img: patrickWebImg,          name: "Patrick Brody", sub: "Elite Coaching · @patrickbrody" },
+    { kind: "web",        img: defineWellnessImg,      name: "Define Wellness", sub: "Yoga & Mindfulness · @definewellness" },
   ];
   const col3: BentoColItem[] = [
     { kind: "screenshot", img: anthonyGraceReviewImg, alt: "Anthony Grace Google review" },
@@ -1786,8 +1725,6 @@ export default function Home() {
 
       <Nav />
       <Hero />
-      <Ticker />
-      <Problem />
       <System />
       <Results />
       <FAQ />

@@ -1,0 +1,18 @@
+# Ignore large backup zip files, node_modules, and git directories
+*.zip
+*.tar.gz
+node_modules
+dist
+.git
+.local
+.agents
+.replit
+replit.md
+replit.nix
+
+# Secrets live in Vercel project env vars, never in the upload
+.env
+.env.*
+
+# Separate standalone project, not part of this build (~39MB)
+Elite-Coach-Systems

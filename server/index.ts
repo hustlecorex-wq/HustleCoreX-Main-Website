@@ -1,7 +1,8 @@
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
-import { serveStatic } from "./static";
+import { registerRoutes } from "./routes.js";
+import { serveStatic } from "./static.js";
 import { createServer } from "http";
+import { initializeDatabase } from "./db.js";
 
 const app = express();
 const httpServer = createServer(app);
@@ -60,6 +61,7 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  await initializeDatabase();
   await registerRoutes(httpServer, app);
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
@@ -94,7 +96,6 @@ app.use((req, res, next) => {
     {
       port,
       host: "0.0.0.0",
-      reusePort: true,
     },
     () => {
       log(`serving on port ${port}`);
