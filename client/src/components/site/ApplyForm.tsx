@@ -37,6 +37,18 @@ const REVENUE_BANDS = [
 // TODO: point this at the real privacy policy once the page exists.
 const PRIVACY_URL = "/privacy";
 
+/* apiRequest throws `${status}: ${body}`. Pull the server's own wording out of
+   it so a rate limit or a rejected address explains itself. */
+function serverMessage(err: Error): string | null {
+  const body = err.message.slice(err.message.indexOf(":") + 1).trim();
+  try {
+    const parsed = JSON.parse(body) as { message?: string };
+    return typeof parsed.message === "string" ? parsed.message : null;
+  } catch {
+    return null;
+  }
+}
+
 const applicationSchema = z.object({
   name: z.string().trim().min(2, "Tell us your name"),
   email: z.string().trim().email("Use an email we can reply to"),
@@ -87,6 +99,9 @@ function Field({
 export default function ApplyForm() {
   const { toast } = useToast();
   const [submitted, setSubmitted] = useState(false);
+  /* Stamped once when the form mounts. The server rejects anything filled in
+     faster than a human could read it. */
+  const [renderedAt] = useState(() => Date.now());
 
   const {
     register,
@@ -109,7 +124,11 @@ export default function ApplyForm() {
 
   const mutation = useMutation({
     mutationFn: (values: Application) => {
-      const lead: InsertLead & { consent: boolean; website?: string } = {
+      const lead: InsertLead & {
+        consent: boolean;
+        website?: string;
+        renderedAt: number;
+      } = {
         name: values.name,
         email: values.email,
         instagram: values.instagram || null,
@@ -120,14 +139,17 @@ export default function ApplyForm() {
         // Sent along so the trap is enforced server-side too — a bot that
         // posts straight to the endpoint never runs this component.
         website: values.website,
+        renderedAt,
       };
       return apiRequest("POST", "/api/leads", lead);
     },
     onSuccess: () => setSubmitted(true),
-    onError: () =>
+    onError: (err: Error) =>
       toast({
         title: "That didn't send",
-        description: "Check your connection and try again, or email us directly.",
+        description:
+          serverMessage(err) ??
+          "Check your connection and try again, or email us directly.",
         variant: "destructive",
       }),
   });
@@ -162,10 +184,16 @@ export default function ApplyForm() {
           <Check size={20} strokeWidth={2.5} />
         </div>
         <h3 className="heading mb-4 text-[26px]">Almost there</h3>
-        <p className="mx-auto max-w-[380px] text-[15px] leading-[1.75] text-ash">
-          Please confirm the link in the email we just sent you. After that we
-          read your application by hand, and if your business is a fit for the
-          free build we'll reach out within two working days.
+        <p className="mx-auto max-w-[400px] text-[15px] leading-[1.75] text-ash">
+          We've sent a confirmation link to your inbox. Please click it to
+          confirm your application.{" "}
+          <strong className="font-medium text-chalk">
+            If it isn't there in a minute, check your spam folder.
+          </strong>
+        </p>
+        <p className="mx-auto mt-4 max-w-[400px] text-[14px] leading-[1.7] text-ash-dim">
+          Once confirmed, we read every application by hand. If your business is
+          a fit for the free build, we'll reach out within two working days.
         </p>
       </motion.div>
     );
