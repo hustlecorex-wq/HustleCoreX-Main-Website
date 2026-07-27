@@ -40,9 +40,8 @@ waitForPort = 5000
 
 [userenv]
 
-[userenv.shared]
-FASTSUBMIT_URL = "https://fastsubmit.cloud/api/submit/Irtc1HcOJheCWAShxUt3"
-FASTSUBMIT_API_KEY = "fsk_live_tsYqfjSlh6UTTMy7LEzaHnfsyjXw3jpa"
+# Secrets belong in .env locally and in the Vercel project env vars, never in a
+# tracked file. See .env.example for the list.
 
 [agent]
 expertMode = true

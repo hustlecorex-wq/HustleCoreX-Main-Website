@@ -1,4 +1,10 @@
-import { type User, type InsertUser, type Lead, type InsertLead } from "../shared/schema.js";
+import {
+  type User,
+  type InsertUser,
+  type Lead,
+  type InsertLead,
+  type MailchimpStatus,
+} from "../shared/schema.js";
 import { db } from "./db.js";
 import { users, leads } from "../shared/schema.js";
 import { eq, desc } from "drizzle-orm";
@@ -11,6 +17,7 @@ export interface IStorage {
   createLead(lead: InsertLead): Promise<Lead>;
   getLeads(): Promise<Lead[]>;
   updateLead(id: string, contacted: boolean): Promise<Lead>;
+  setMailchimpStatus(id: string, status: MailchimpStatus): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -61,6 +68,7 @@ export class DatabaseStorage implements IStorage {
         message: insertLead.message ?? null,
         createdAt: new Date(),
         contacted: false,
+        mailchimpStatus: "skipped",
       }).returning();
       return lead;
     } catch (err) {
@@ -76,6 +84,7 @@ export class DatabaseStorage implements IStorage {
         message: insertLead.message ?? null,
         createdAt: new Date(),
         contacted: false,
+        mailchimpStatus: "skipped",
       };
       return lead;
     }
@@ -100,6 +109,18 @@ export class DatabaseStorage implements IStorage {
     } catch (err) {
       console.error("[Storage] updateLead failed:", err);
       throw err;
+    }
+  }
+
+  /**
+   * Bookkeeping only. A failure here must not surface to the applicant — the
+   * lead itself is already saved.
+   */
+  async setMailchimpStatus(id: string, status: MailchimpStatus): Promise<void> {
+    try {
+      await db.update(leads).set({ mailchimpStatus: status }).where(eq(leads.id, id));
+    } catch (err) {
+      console.error("[Storage] setMailchimpStatus failed:", err);
     }
   }
 }
