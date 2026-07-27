@@ -7,6 +7,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "../server/routes.js";
 import { initializeDatabase } from "../server/db.js";
 import { verifyMailchimpConfig } from "../server/mailchimp.js";
+import { verifyAdminConfig } from "../server/adminAuth.js";
 import { createServer } from "http";
 
 const app = express();
@@ -46,6 +47,7 @@ let initializedPromise: Promise<void> | null = null;
 
 async function init() {
   verifyMailchimpConfig();
+  verifyAdminConfig();
   await initializeDatabase();
   await registerRoutes(httpServer, app);
 

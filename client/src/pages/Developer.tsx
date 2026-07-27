@@ -1,7 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import {
+  apiRequest,
+  queryClient,
+  getAdminPasscode,
+  setAdminPasscode,
+} from "@/lib/queryClient";
 import { type Lead } from "@shared/schema";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, Circle, Search, LogOut, ArrowLeft, Loader2, ShieldAlert, Sparkles, Mail, Instagram, TrendingUp, Target, MessageSquare, Calendar } from "lucide-react";
@@ -9,32 +14,48 @@ import { Link } from "wouter";
 
 export default function Developer() {
   const [passcode, setPasscode] = useState("");
-  const [isAuthorized, setIsAuthorized] = useState(() => {
-    return localStorage.getItem("dev_auth") === "true";
-  });
+  const [isAuthorized, setIsAuthorized] = useState(() => !!getAdminPasscode());
+  const [checking, setChecking] = useState(false);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [filterContacted, setFilterContacted] = useState<"all" | "pending" | "contacted">("all");
   const { toast } = useToast();
 
-  const handleLogin = (e: React.FormEvent) => {
+  /* The server holds the passcode. We send the entered value and let it
+     decide, so the bundle never contains anything worth stealing. */
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (passcode === "44445") {
-      setIsAuthorized(true);
-      localStorage.setItem("dev_auth", "true");
-      setError("");
-      toast({
-        title: "Access Granted",
-        description: "Welcome back, Lead Developer.",
+    if (!passcode || checking) return;
+    setChecking(true);
+    try {
+      const res = await fetch("/api/admin/verify", {
+        headers: { "x-admin-passcode": passcode },
       });
-    } else {
-      setError("Incorrect developer passcode");
-      setPasscode("");
+      if (res.ok) {
+        setAdminPasscode(passcode);
+        setIsAuthorized(true);
+        setError("");
+        toast({
+          title: "Access Granted",
+          description: "Welcome back, Lead Developer.",
+        });
+      } else if (res.status === 503) {
+        setError("Admin access is not configured on the server");
+        setPasscode("");
+      } else {
+        setError("Incorrect developer passcode");
+        setPasscode("");
+      }
+    } catch {
+      setError("Could not reach the server");
+    } finally {
+      setChecking(false);
     }
   };
 
   const handleLogout = () => {
     setIsAuthorized(false);
+    setAdminPasscode(null);
     localStorage.removeItem("dev_auth");
     toast({
       title: "Logged Out",
@@ -42,10 +63,20 @@ export default function Developer() {
     });
   };
 
-  const { data: leads = [], isLoading } = useQuery<Lead[]>({
+  const { data: leads = [], isLoading, error: leadsError } = useQuery<Lead[]>({
     queryKey: ["/api/leads"],
     enabled: isAuthorized,
   });
+
+  /* A stored passcode that the server no longer accepts should drop you back
+     to the login screen instead of showing an empty dashboard. */
+  useEffect(() => {
+    if (leadsError && /^401/.test(leadsError.message)) {
+      setAdminPasscode(null);
+      setIsAuthorized(false);
+      setError("Session expired, please enter the passcode again");
+    }
+  }, [leadsError]);
 
   const toggleMutation = useMutation({
     mutationFn: async ({ id, contacted }: { id: string; contacted: boolean }) => {
@@ -100,7 +131,7 @@ export default function Developer() {
             </div>
             <h2 className="text-[20px] font-bold text-white tracking-tight">Developer Access Only</h2>
             <p className="text-[13px] text-white/35 mt-1.5">
-              Please enter the 5-digit passcode to proceed
+              Please enter the admin passcode to proceed
             </p>
           </div>
 
@@ -111,8 +142,9 @@ export default function Developer() {
                 value={passcode}
                 onChange={(e) => setPasscode(e.target.value)}
                 placeholder="•••••"
-                className="w-full h-12 text-center text-[22px] tracking-[0.4em] font-mono rounded-xl bg-[#111] border border-white/[0.07] text-white placeholder-white/10 focus:outline-none focus:border-white/18 transition-all"
-                maxLength={8}
+                className="w-full h-12 text-center text-[22px] tracking-[0.4em] font-mono rounded-xl bg-[#111] border border-white/[0.07] text-white placeholder-white/10 focus:outline-none focus:border-white/18 transition-all disabled:opacity-60"
+                maxLength={64}
+                disabled={checking}
                 autoFocus
               />
               {error && (
@@ -128,9 +160,10 @@ export default function Developer() {
 
             <button
               type="submit"
-              className="w-full h-12 rounded-xl bg-[#FF4500] hover:bg-[#FF5500] active:scale-[0.98] text-white text-[13px] font-bold transition-all flex items-center justify-center gap-2"
+              disabled={checking}
+              className="w-full h-12 rounded-xl bg-[#FF4500] hover:bg-[#FF5500] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 text-white text-[13px] font-bold transition-all flex items-center justify-center gap-2"
             >
-              Verify Credentials
+              {checking ? "Checking…" : "Verify Credentials"}
             </button>
           </form>
 
