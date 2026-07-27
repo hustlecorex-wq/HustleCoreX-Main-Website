@@ -7,6 +7,7 @@ import { serveStatic } from "./static.js";
 import { createServer } from "http";
 import { initializeDatabase } from "./db.js";
 import { verifyMailchimpConfig } from "./mailchimp.js";
+import { verifyAdminConfig } from "./adminAuth.js";
 
 const app = express();
 const httpServer = createServer(app);
@@ -66,6 +67,7 @@ app.use((req, res, next) => {
 
 (async () => {
   verifyMailchimpConfig();
+  verifyAdminConfig();
   await initializeDatabase();
   await registerRoutes(httpServer, app);
 

@@ -2,15 +2,26 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Lock, X } from "lucide-react";
 import { useLocation } from "wouter";
+import { setAdminPasscode } from "@/lib/queryClient";
 
-/* The passcode is checked again by Developer.tsx before the dashboard
-   renders - this panel is the shortcut in, not the lock itself. */
-const PASSCODE = "44445";
+/* The passcode is verified by the server. Nothing here knows the right
+   answer, so reading the bundle no longer hands anyone the keys. */
+async function verifyPasscode(code: string): Promise<boolean> {
+  try {
+    const res = await fetch("/api/admin/verify", {
+      headers: { "x-admin-passcode": code },
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
 
 export default function AdminAccess() {
   const [open, setOpen] = useState(false);
   const [code, setCode] = useState("");
   const [error, setError] = useState(false);
+  const [checking, setChecking] = useState(false);
   const [, navigate] = useLocation();
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -43,9 +54,13 @@ export default function AdminAccess() {
     setError(false);
   }
 
-  function submit(value: string) {
-    if (value === PASSCODE) {
-      localStorage.setItem("dev_auth", "true");
+  async function submit(value: string) {
+    if (!value || checking) return;
+    setChecking(true);
+    const ok = await verifyPasscode(value);
+    setChecking(false);
+    if (ok) {
+      setAdminPasscode(value);
       close();
       navigate("/developer");
     } else {
@@ -55,11 +70,10 @@ export default function AdminAccess() {
   }
 
   function onChange(raw: string) {
-    const digits = raw.replace(/\D/g, "").slice(0, 5);
-    setCode(digits);
+    // No longer digits-only: the passcode now lives in an env var and should
+    // be free to be something longer than five digits.
+    setCode(raw.slice(0, 64));
     if (error) setError(false);
-    // Five digits is the whole code - no reason to make them press enter.
-    if (digits.length === 5) submit(digits);
   }
 
   return (
@@ -92,13 +106,13 @@ export default function AdminAccess() {
             <input
               ref={inputRef}
               type="password"
-              inputMode="numeric"
               autoComplete="off"
               value={code}
               onChange={(e) => onChange(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter") submit(code);
+                if (e.key === "Enter") void submit(code);
               }}
+              disabled={checking}
               placeholder="•••••"
               aria-label="Admin passcode"
               className={`h-11 w-full rounded-xl border bg-void text-center font-mono text-[18px] tracking-[0.35em] text-chalk placeholder:text-white/15 focus:outline-none ${
@@ -113,7 +127,11 @@ export default function AdminAccess() {
                 error ? "text-red-400/80" : "text-ash-dim"
               }`}
             >
-              {error ? "Incorrect code" : "Enter the 5-digit code"}
+              {checking
+                ? "Checking…"
+                : error
+                  ? "Incorrect code"
+                  : "Enter the passcode, then press Enter"}
             </p>
           </motion.div>
         )}

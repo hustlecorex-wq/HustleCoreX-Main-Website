@@ -4,6 +4,7 @@ import { storage } from "./storage.js";
 // Relative, not the @shared alias — the alias only exists at build time.
 import { insertLeadSchema } from "../shared/schema.js";
 import { subscribeToMailchimp } from "./mailchimp.js";
+import { requireAdmin } from "./adminAuth.js";
 import { z } from "zod";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -103,14 +104,20 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/leads", async (_req, res) => {
+  // Lets the dashboard check a passcode without pulling the whole lead list.
+  app.get("/api/admin/verify", requireAdmin, (_req, res) => {
+    res.json({ success: true });
+  });
+
+  app.get("/api/leads", requireAdmin, async (_req, res) => {
     const leads = await storage.getLeads();
     res.json(leads);
   });
 
-  app.patch("/api/leads/:id", async (req, res) => {
+  app.patch("/api/leads/:id", requireAdmin, async (req, res) => {
     try {
-      const { id } = req.params;
+      // Express 5's param typing widens once a guard middleware is in front.
+      const id = String(req.params.id);
       const { contacted } = req.body;
       if (typeof contacted !== "boolean") {
         return res.status(400).json({ success: false, message: "Contacted field must be a boolean" });
