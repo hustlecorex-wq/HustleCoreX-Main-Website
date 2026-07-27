@@ -41,14 +41,33 @@ function subscriberHash(email: string): string {
   return createHash("md5").update(email.trim().toLowerCase()).digest("hex");
 }
 
+/** Everything from the application that is worth carrying into the audience. */
+export type SubscriberDetails = {
+  name: string;
+  email: string;
+  instagram?: string | null;
+  currentRevenue?: string | null;
+  /** The client-count answer, stored in the lead as "Clients: <answer>". */
+  message?: string | null;
+  /** The "biggest time drain" free text. */
+  goal?: string | null;
+};
+
+/** Mailchimp text merge fields hold 255 characters. Longer answers are cut. */
+function fitMergeField(value: string | null | undefined): string {
+  if (!value) return "";
+  const trimmed = value.trim();
+  return trimmed.length > 255 ? trimmed.slice(0, 252) + "..." : trimmed;
+}
+
 /**
  * Upserts a contact into the audience. Never throws — the caller has already
  * persisted the lead and must not lose it because an upstream call failed.
  */
 export async function subscribeToMailchimp(
-  name: string,
-  email: string,
+  details: SubscriberDetails,
 ): Promise<SubscribeResult> {
+  const { name, email } = details;
   const apiKey = process.env.MAILCHIMP_API_KEY;
   const serverPrefix = process.env.MAILCHIMP_SERVER_PREFIX;
   const audienceId = process.env.MAILCHIMP_AUDIENCE_ID;
@@ -76,6 +95,14 @@ export async function subscribeToMailchimp(
     merge_fields: {
       FNAME: firstName ?? "",
       LNAME: rest.join(" "),
+      // These four are custom fields on the audience, created as non-public so
+      // they never appear on Mailchimp's own signup forms.
+      INSTA: fitMergeField(details.instagram),
+      REVENUE: fitMergeField(details.currentRevenue),
+      // The lead stores this as "Clients: <answer>"; the audience only wants
+      // the answer.
+      CLIENTS: fitMergeField(details.message).replace(/^Clients:\s*/i, ""),
+      BOTTLENECK: fitMergeField(details.goal),
     },
   };
 

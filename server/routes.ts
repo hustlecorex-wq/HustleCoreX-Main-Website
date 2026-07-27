@@ -63,7 +63,7 @@ export async function registerRoutes(
         });
       }
 
-      const result = await subscribeToMailchimp(data.name, data.email);
+      const result = await subscribeToMailchimp(data);
 
       if (result.ok) {
         await storage.setMailchimpStatus(lead.id, result.status);
