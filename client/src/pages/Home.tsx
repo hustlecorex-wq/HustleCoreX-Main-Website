@@ -1,9 +1,11 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 
-import Nav, { Logo, goTo } from "@/components/site/Nav";
+import Nav, { goTo } from "@/components/site/Nav";
 import { HeroBeam, SiteBackdrop } from "@/components/site/Ambient";
+import Container from "@/components/site/Container";
+import Footer from "@/components/site/Footer";
 import ApplyForm from "@/components/site/ApplyForm";
 import ProofWall from "@/components/site/ProofWall";
 import VideoFrame from "@/components/site/VideoFrame";
@@ -43,20 +45,6 @@ function Reveal({
     >
       {children}
     </motion.div>
-  );
-}
-
-function Container({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={`mx-auto w-full max-w-6xl px-6 md:px-10 ${className}`}>
-      {children}
-    </div>
   );
 }
 
@@ -292,84 +280,34 @@ function Apply() {
   );
 }
 
-/* ═══ FOOTER ═════════════════════════════════════════════════════ */
-
-function Footer() {
-  return (
-    <footer className="relative z-10 border-t border-white/[0.06] py-14">
-      <Container>
-        <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
-          <div className="max-w-[320px]">
-            <Logo />
-            <p className="mt-4 text-[13.5px] leading-[1.7] text-ash-dim">
-              Systems and automation for online fitness coaches.
-            </p>
-          </div>
-
-          <div className="flex gap-16">
-            <div>
-              <p className="mono-label mb-4">Site</p>
-              <ul className="space-y-3">
-                {[
-                  { id: "system", label: "What we do" },
-                  { id: "results", label: "Results" },
-                  { id: "mission", label: "Mission" },
-                  { id: "apply", label: "Apply" },
-                ].map((l) => (
-                  <li key={l.id}>
-                    <button
-                      onClick={() => goTo(l.id)}
-                      className="text-[13.5px] text-ash transition-colors hover:text-chalk"
-                    >
-                      {l.label}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <p className="mono-label mb-4">Contact</p>
-              <ul className="space-y-3">
-                <li>
-                  <a
-                    href="https://instagram.com/hustlecorex"
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    className="text-[13.5px] text-ash transition-colors hover:text-chalk"
-                  >
-                    @hustlecorex
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="mailto:info@hustlecorex.com"
-                    className="text-[13.5px] text-ash transition-colors hover:text-chalk"
-                  >
-                    info@hustlecorex.com
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-14 flex flex-col gap-3 border-t border-white/[0.05] pt-7 sm:flex-row sm:items-center sm:justify-between">
-          <p className="font-mono text-[11px] tracking-[0.1em] text-ash-dim">
-            © {new Date().getFullYear()} HUSTLECOREX
-          </p>
-          <p className="font-mono text-[11px] tracking-[0.1em] text-ash-dim">
-            Built for coaches who'd rather be coaching
-          </p>
-        </div>
-      </Container>
-    </footer>
-  );
-}
-
 /* ═══ PAGE ═══════════════════════════════════════════════════════ */
 
 export default function Home() {
+  /* Arriving from a sub-page as /#apply: the sections don't exist until this
+     component mounts, so the browser can't do the jump itself. It has to be
+     instant - a smooth scroll started this early gets cancelled before it
+     travels, which reads as the link doing nothing. */
+  useEffect(() => {
+    const id = window.location.hash.slice(1);
+    if (!id) return;
+
+    const jump = () => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      window.scrollTo({
+        top: el.getBoundingClientRect().top + window.scrollY,
+        behavior: "instant",
+      });
+    };
+
+    jump();
+    // On a cold load, media above the target can settle after the first
+    // paint - pin it again once everything has its final height.
+    if (document.readyState === "complete") return;
+    window.addEventListener("load", jump);
+    return () => window.removeEventListener("load", jump);
+  }, []);
+
   return (
     <div className="relative min-h-screen bg-void">
       <SiteBackdrop />

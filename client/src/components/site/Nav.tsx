@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import { navigate } from "wouter/use-browser-location";
 import LogoMark from "./LogoMark";
 
 const LINKS = [
@@ -10,7 +11,14 @@ const LINKS = [
 ];
 
 export function goTo(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
+  // The section lives on the home page and we're somewhere else (/privacy),
+  // so route home and let Home scroll to it once it has mounted.
+  navigate(`/#${id}`);
 }
 
 export function Logo({ compact = false }: { compact?: boolean }) {
@@ -78,7 +86,11 @@ export default function Nav() {
         }`}
       >
         <button
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          onClick={() => {
+            // On a sub-page the logo is a way home, not a scroll-to-top.
+            if (window.location.pathname !== "/") return navigate("/");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
           aria-label="HustleCoreX - back to top"
           className="rounded-full"
         >
