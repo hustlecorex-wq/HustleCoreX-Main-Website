@@ -68,19 +68,19 @@ export async function registerRoutes(
         await storage.setMailchimpStatus(lead.id, result.status);
         return res.json({
           success: true,
-          lead,
+          // Echo the status we just wrote, not the one from the insert.
+          lead: { ...lead, mailchimpStatus: result.status },
           newsletter: { subscribed: true, status: result.status },
         });
       }
 
-      await storage.setMailchimpStatus(
-        lead.id,
-        result.reason === "not_configured" ? "skipped" : "failed",
-      );
+      const failedStatus =
+        result.reason === "not_configured" ? "skipped" : "failed";
+      await storage.setMailchimpStatus(lead.id, failedStatus);
 
       return res.json({
         success: true,
-        lead,
+        lead: { ...lead, mailchimpStatus: failedStatus },
         newsletter: {
           subscribed: false,
           message:
