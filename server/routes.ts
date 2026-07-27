@@ -5,6 +5,7 @@ import { storage } from "./storage.js";
 import { insertLeadSchema } from "../shared/schema.js";
 import { subscribeToMailchimp } from "./mailchimp.js";
 import { requireAdmin } from "./adminAuth.js";
+import { checkForSpam } from "./antiSpam.js";
 import { z } from "zod";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -22,6 +23,9 @@ const applicationSchema = insertLeadSchema.extend({
     .regex(EMAIL_PATTERN, "Please enter a valid email address."),
   website: z.string().optional(),
   consent: z.boolean().optional(),
+  // Milliseconds since the epoch, stamped when the form mounted. Used by the
+  // time trap; optional, because an old cached page will not send it.
+  renderedAt: z.number().optional(),
 });
 
 /** Copy shown to the applicant. Anything more specific stays in the log. */
@@ -42,13 +46,29 @@ export async function registerRoutes(
 ): Promise<Server> {
   app.post("/api/leads", async (req, res) => {
     try {
-      const { website, consent, ...data } = applicationSchema.parse(req.body);
+      const { website, consent, renderedAt, ...data } = applicationSchema.parse(
+        req.body,
+      );
 
-      // Honeypot. Answer exactly like a success so the bot learns nothing,
-      // but store nothing and call nobody.
-      if (website && website.trim().length > 0) {
-        console.warn("[Routes] Honeypot triggered, submission discarded.");
-        return res.json({ success: true });
+      const verdict = checkForSpam(req, {
+        website,
+        renderedAt,
+        name: data.name,
+        goal: data.goal,
+        message: data.message,
+        instagram: data.instagram,
+      });
+
+      if (verdict.spam) {
+        console.warn(`[Routes] Submission blocked: ${verdict.reason}`);
+        if (verdict.action === "silent") {
+          // Answer exactly like a success so the bot learns nothing, but store
+          // nothing and call nobody.
+          return res.json({ success: true });
+        }
+        return res
+          .status(verdict.status)
+          .json({ success: false, message: verdict.message });
       }
 
       // The lead is written first and unconditionally. Whatever Mailchimp does
