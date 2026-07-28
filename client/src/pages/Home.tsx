@@ -108,15 +108,12 @@ function Hero() {
                 className="display-light block text-white/[0.72]"
                 delay={0.15}
               />
-              {/* Types on after the first line, and carries the hover wipe.
-                  The gradient lives on this element, so the text can grow
-                  underneath it without the colour restarting per character. */}
-              <Typewriter
-                as="div"
-                text="online coaches run on"
-                className="display wipe-line block cursor-default"
-                delay={0.79}
-              />
+              {/* Not typed: this line is the brand statement and it should be
+                  legible the instant the page paints. It rests white and
+                  wipes to ember under the cursor - see .wipe-line. */}
+              <div className="display wipe-line block cursor-default">
+                online coaches run on
+              </div>
             </h1>
 
             <motion.p

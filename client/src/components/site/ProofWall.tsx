@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 import { motion, useInView } from "framer-motion";
-import { Maximize2, Star, X } from "lucide-react";
+import { ArrowUpRight, Maximize2, Star, X } from "lucide-react";
 
 import VideoFrame from "@/components/site/VideoFrame";
 import { Scramble, Typewriter } from "@/components/site/motion";
@@ -70,6 +70,10 @@ type Tile =
       label: string;
       title: string;
       meta: string;
+      /* The live address, where we have one. Only ever set this to a site
+         that is genuinely reachable there: a dead link on a proof tile is
+         worse than no link, and this section exists to be checked. */
+      url?: string;
       /* Profiles and dashboards put everything that matters down the left
          edge, so they crop from the right rather than from both sides.
          Site heroes are composed centrally and don't. */
@@ -117,6 +121,7 @@ const TILES: Tile[] = [
     label: "Website",
     title: "PB Elite",
     meta: "Patrick Brody · patrickbrody.com",
+    url: "https://patrickbrody.com",
     anchor: "center",
   },
   {
@@ -379,6 +384,35 @@ function QuoteCard({ t }: { t: Quote }) {
 /* ── shot tile ──────────────────────────────────────────────────── */
 
 
+/**
+ * A proof tile is a link when we know where the real thing lives, and a
+ * button that opens the full-size image when we do not. Same markup either
+ * way, so the tile looks and focuses identically.
+ */
+function Frame({
+  url,
+  onClick,
+  children,
+  ...rest
+}: {
+  url?: string;
+  onClick: () => void;
+  children: React.ReactNode;
+} & React.HTMLAttributes<HTMLElement>) {
+  if (url) {
+    return (
+      <a href={url} target="_blank" rel="noopener noreferrer" {...rest}>
+        {children}
+      </a>
+    );
+  }
+  return (
+    <button type="button" onClick={onClick} {...rest}>
+      {children}
+    </button>
+  );
+}
+
 function ShotCard({
   s,
   absent,
@@ -412,10 +446,12 @@ function ShotCard({
   }
 
   return (
-    <button
-      type="button"
+    <Frame
+      url={s.url}
       onClick={() => onOpen(s)}
-      aria-label={`${s.title} - view full size`}
+      aria-label={
+        s.url ? `Visit ${s.title}` : `${s.title} - view full size`
+      }
       /* h-full alongside the aspect so the tile still contributes its own
          height to the row, then fills the row if its neighbour turns out
          to be taller. */
@@ -446,7 +482,7 @@ function ShotCard({
       </span>
 
       <span className="pointer-events-none absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full border border-white/[0.12] bg-void/70 text-chalk/70 opacity-0 backdrop-blur-md transition-opacity duration-300 group-hover:opacity-100">
-        <Maximize2 size={12} />
+        {s.url ? <ArrowUpRight size={12} /> : <Maximize2 size={12} />}
       </span>
 
       {/* Caption sits on the image so the tiles stay flush in the mosaic */}
@@ -466,7 +502,7 @@ function ShotCard({
           <span className="mt-0.5 block truncate text-[11.5px] text-ash">{s.meta}</span>
         </span>
       </span>
-    </button>
+    </Frame>
   );
 }
 
@@ -611,37 +647,66 @@ function WideCard({
   onOpen: (s: Shot) => void;
   onMissing: (src: string) => void;
 }) {
+  /* The card goes to the live site when we have its address, and opens the
+     full-size image when we do not. The magnifier is always there either
+     way - and it sits outside the link rather than inside it, because a
+     button nested in an anchor is invalid and behaves differently across
+     browsers. */
+  const body = (
+    <>
+      <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-black/40 p-3">
+        <img
+          src={shot.src}
+          onError={() => onMissing(shot.src)}
+          loading="lazy"
+          alt={`${shot.title} - ${shot.label.toLowerCase()} built by HustleCoreX`}
+          className="max-h-full max-w-full object-contain"
+        />
+      </div>
+      <span className="block shrink-0 border-t border-white/[0.06] px-6 py-4">
+        <span className="block font-mono text-[9.5px] uppercase tracking-[0.16em] text-ember">
+          {shot.label}
+        </span>
+        <span className="mt-1.5 block text-[15px] font-medium leading-tight text-chalk">
+          {shot.title}
+        </span>
+        <span className="mt-1 block line-clamp-1 text-[12.5px] text-ash-dim">
+          {shot.meta}
+        </span>
+      </span>
+    </>
+  );
+
   return (
-    <figure className="panel h-full w-full overflow-hidden rounded-3xl">
+    <figure className="panel group relative h-full w-full overflow-hidden rounded-3xl">
+      {shot.url ? (
+        <a
+          href={shot.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex h-full w-full flex-col text-left"
+          aria-label={`Visit ${shot.title}`}
+        >
+          {body}
+        </a>
+      ) : (
+        <button
+          type="button"
+          onClick={() => onOpen(shot)}
+          className="flex h-full w-full flex-col text-left"
+          aria-label={`Open ${shot.title} full size`}
+        >
+          {body}
+        </button>
+      )}
+
       <button
         type="button"
         onClick={() => onOpen(shot)}
-        className="group flex h-full w-full flex-col text-left"
-        aria-label={`Open ${shot.title} full size`}
+        aria-label={`${shot.title}, full size`}
+        className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-white/[0.12] bg-void/70 text-chalk/70 opacity-0 backdrop-blur-md transition-opacity duration-300 group-hover:opacity-100"
       >
-        <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-black/40 p-3">
-          <img
-            src={shot.src}
-            onError={() => onMissing(shot.src)}
-            loading="lazy"
-            alt={`${shot.title} - ${shot.label.toLowerCase()} built by HustleCoreX`}
-            className="max-h-full max-w-full object-contain"
-          />
-          <span className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border border-white/[0.12] bg-void/70 text-chalk/70 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-            <Maximize2 size={13} />
-          </span>
-        </div>
-        <span className="block shrink-0 border-t border-white/[0.06] px-6 py-4">
-          <span className="block font-mono text-[9.5px] uppercase tracking-[0.16em] text-ember">
-            {shot.label}
-          </span>
-          <span className="mt-1.5 block text-[15px] font-medium leading-tight text-chalk">
-            {shot.title}
-          </span>
-          <span className="mt-1 block line-clamp-1 text-[12.5px] text-ash-dim">
-            {shot.meta}
-          </span>
-        </span>
+        <Maximize2 size={13} />
       </button>
     </figure>
   );
@@ -956,7 +1021,12 @@ function Collage({
 }) {
   return (
     <div className="mt-14 grid grid-flow-row-dense grid-cols-2 gap-4 md:mt-16 md:grid-cols-6 md:gap-5 lg:grid-cols-12">
-      {TILES.map((t, i) => {
+      {/* Absent shots are dropped rather than rendered empty. A tile whose
+          card returns null still occupies its grid cell, which is what left
+          the hole between the Anthony Grace review and Bela Toth. */}
+      {TILES.filter(
+        (t) => !(t.kind === "shot" && gone.includes(t.src)),
+      ).map((t, i) => {
         const key =
           t.kind === "shot" ? t.src : t.kind === "clip" ? t.slug : t.name;
         return (
@@ -1050,9 +1120,9 @@ export default function ProofWall() {
               <Typewriter as="div" text="Coaches who stopped" />
               <Typewriter as="div" text="doing it by hand" delay={0.42} />
             </h2>
-            <p className="mono-label md:pb-3">
-              {onDesktop ? "Scroll to run the wheel" : "Tap any tile to open it full size"}
-            </p>
+            {onDesktop && (
+              <p className="mono-label md:pb-3">Scroll to run the wheel</p>
+            )}
           </div>
         </Reveal>
       </div>

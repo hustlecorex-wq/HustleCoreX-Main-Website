@@ -305,7 +305,10 @@
     var(--ember) 100%
   );
   background-size: 300% 100%;
-  background-position: 100% 0;
+  /* Rests on the white end of the gradient; hover drags the ember end
+     across. Reversed on 2026-07-29 - it used to rest orange, which read as
+     the hover state being the calm one. */
+  background-position: 0% 0;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -314,7 +317,7 @@
 
 .wipe-line:hover,
 .wipe-line:focus-visible {
-  background-position: 0% 0;
+  background-position: 100% 0;
 }
 
 /* No prefers-reduced-motion block here on purpose. Motion is on for
