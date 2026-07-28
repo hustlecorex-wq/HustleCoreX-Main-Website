@@ -286,6 +286,190 @@ function Reveal({
   );
 }
 
+/* ── the collage, for phones ────────────────────────────────────────
+   Restored verbatim from the layout that is still live on production.
+
+   The wheel is a desktop idea: it takes over vertical scrolling to move
+   sideways, and on a phone that fights the one gesture people have. So
+   small screens get the original dense grid back - the same tiles, the
+   same order, reading top to bottom like the rest of the page.
+
+   A screenshot whose file is missing removes itself here rather than
+   leaving a broken frame, which is why the grid is safe to ship
+   half-populated. In dev it leaves a marker instead, so what is still
+   outstanding stays visible.
+   ─────────────────────────────────────────────────────────────────── */
+
+const SPAN: Record<number, string> = {
+  3: "col-span-1 md:col-span-3 lg:col-span-3",
+  5: "col-span-2 md:col-span-3 lg:col-span-5",
+  6: "col-span-2 md:col-span-6 lg:col-span-6",
+  7: "col-span-2 md:col-span-6 lg:col-span-7",
+  12: "col-span-2 md:col-span-6 lg:col-span-12",
+};
+
+/* Aspect per shot width, tuned so a 7-wide and a 5-wide land on the same
+   height and the row edge stays flush. At 1152px with a 20px gutter that's
+   617x309 next to 435x311 - close enough that the seam disappears. */
+const SHOT_ASPECT: Record<number, string> = {
+  5: "aspect-[3/2] lg:aspect-[7/5]",
+  7: "aspect-[2/1]",
+  12: "aspect-[2/1]",
+};
+
+
+function ClipCard({ c }: { c: Clip }) {
+  return (
+    <figure className="group">
+      <VideoFrame
+        src={`/proof/${c.slug}.mp4`}
+        poster={c.poster}
+        aspect="9 / 16"
+        label={`Play · ${c.length}`}
+      />
+      <figcaption className="mt-4 px-0.5">
+        <p className="text-[14px] font-medium leading-tight text-chalk">{c.name}</p>
+        <p className="mt-1 text-[12.5px] leading-snug text-ash-dim">{c.role}</p>
+        <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-ash-dim/80">
+          {c.handle}
+        </p>
+      </figcaption>
+    </figure>
+  );
+}
+
+/* ── quote tile ─────────────────────────────────────────────────── */
+
+
+function QuoteCard({ t }: { t: Quote }) {
+  return (
+    <figure className="panel flex h-full flex-col justify-between rounded-3xl p-6 transition-colors duration-300 hover:border-white/[0.12] md:p-8">
+      <div>
+        {t.stars > 0 && (
+          <div className="mb-4 flex gap-1">
+            {Array.from({ length: t.stars }).map((_, s) => (
+              <Star key={s} size={12} className="fill-ember text-ember" />
+            ))}
+          </div>
+        )}
+        <blockquote className="text-[14.5px] leading-[1.7] text-chalk/90 md:text-[15px]">
+          {t.quote}
+        </blockquote>
+      </div>
+
+      <figcaption className="mt-7 flex items-center gap-3">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.03] text-[12px] font-semibold text-ash">
+          {t.name
+            .split(" ")
+            .map((w) => w[0])
+            .join("")}
+        </span>
+        <div className="min-w-0">
+          <p className="text-[13.5px] font-medium text-chalk">{t.name}</p>
+          <p className="truncate text-[12px] text-ash-dim">{t.role}</p>
+        </div>
+        <span className="ml-auto shrink-0 rounded-full border border-white/[0.06] px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.14em] text-ash-dim">
+          {t.source}
+        </span>
+      </figcaption>
+    </figure>
+  );
+}
+
+/* ── shot tile ──────────────────────────────────────────────────── */
+
+
+function ShotCard({
+  s,
+  absent,
+  onOpen,
+  onMissing,
+}: {
+  s: Shot;
+  absent: boolean;
+  onOpen: (s: Shot) => void;
+  onMissing: (src: string) => void;
+}) {
+  const [failed, setFailed] = useState(false);
+
+  /* A screenshot that hasn't been dropped in yet shouldn't leave a broken
+     frame on a live page - it just leaves the collage. In dev it stays put,
+     labelled, so it's obvious what's still outstanding. */
+  if (absent || failed) {
+    if (!import.meta.env.DEV) return null;
+    return (
+      <div
+        className={`flex items-center justify-center rounded-2xl border border-dashed border-white/[0.14] bg-white/[0.015] p-6 text-center ${SHOT_ASPECT[s.span]}`}
+      >
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-ember/80">
+            missing file
+          </p>
+          <p className="mt-2 font-mono text-[11px] text-ash">{s.src}</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => onOpen(s)}
+      aria-label={`${s.title} - view full size`}
+      /* h-full alongside the aspect so the tile still contributes its own
+         height to the row, then fills the row if its neighbour turns out
+         to be taller. */
+      className={`group relative block h-full w-full overflow-hidden rounded-2xl border border-white/[0.08] bg-panel text-left transition-all duration-500 hover:border-white/[0.16] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ember/60 ${SHOT_ASPECT[s.span]}`}
+      style={{ boxShadow: "0 24px 60px -34px rgba(0,0,0,0.95)" }}
+    >
+      <img
+        src={s.src}
+        alt={`${s.title} - ${s.label.toLowerCase()} built by HustleCoreX`}
+        loading="lazy"
+        decoding="async"
+        onError={() => {
+          setFailed(true);
+          onMissing(s.src);
+        }}
+        /* Duration and easing are written as arbitrary properties on
+           purpose. Their shorthand forms are ambiguous to Tailwind, which
+           cannot tell a transition from an animation and so emits neither
+           rule - silently dropping this drift back to the default 150ms. */
+        className={`h-full w-full object-cover transition-transform [transition-duration:900ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.035] ${
+          s.anchor === "left" ? "object-left-top" : "object-top"
+        }`}
+      />
+
+      {/* Kind chip, top-left, so the collage reads at a glance */}
+      <span className="pointer-events-none absolute left-3 top-3 rounded-full border border-white/[0.12] bg-void/70 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.16em] text-chalk/85 backdrop-blur-md">
+        {s.label}
+      </span>
+
+      <span className="pointer-events-none absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full border border-white/[0.12] bg-void/70 text-chalk/70 opacity-0 backdrop-blur-md transition-opacity duration-300 group-hover:opacity-100">
+        <Maximize2 size={12} />
+      </span>
+
+      {/* Caption sits on the image so the tiles stay flush in the mosaic */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-24"
+        style={{
+          background:
+            "linear-gradient(to top, rgba(7,7,10,0.92) 0%, rgba(7,7,10,0.55) 50%, transparent 100%)",
+        }}
+      />
+      <span className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4">
+        <span className="min-w-0">
+          <span className="block truncate text-[13.5px] font-medium text-chalk">
+            {s.title}
+          </span>
+          <span className="mt-0.5 block truncate text-[11.5px] text-ash">{s.meta}</span>
+        </span>
+      </span>
+    </button>
+  );
+}
+
 type Clip = Extract<Tile, { kind: "clip" }>;
 type Quote = Extract<Tile, { kind: "quote" }>;
 type Shot = Extract<Tile, { kind: "shot" }>;
@@ -691,27 +875,6 @@ function Wheel({
   );
 }
 
-/* Fallback for anything that cannot run the wheel: the same cards, stacked. */
-function CardList({
-  cards,
-  onOpen,
-  onMissing,
-}: {
-  cards: Card[];
-  onOpen: (s: Shot) => void;
-  onMissing: (src: string) => void;
-}) {
-  return (
-    <div className="mt-14 flex flex-col gap-6">
-      {cards.map((card) => (
-        <div key={card.id} style={{ height: CARD_H }}>
-          <CardBody card={card} onOpen={onOpen} onMissing={onMissing} />
-        </div>
-      ))}
-    </div>
-  );
-}
-
 /* Full-size viewer - a site is unreadable at card size, and an unreadable
    site proves nothing. */
 function Lightbox({ shot, onClose }: { shot: Shot | null; onClose: () => void }) {
@@ -776,12 +939,65 @@ function Lightbox({ shot, onClose }: { shot: Shot | null; onClose: () => void })
 
 /* ── the wall ───────────────────────────────────────────────────── */
 
-const SITE_SHOTS = TILES.filter(
-  (t): t is Shot => t.kind === "shot" && t.label === "Website",
-);
+/* Every shot is probed, not only the ones the wheel uses: the phone
+   collage shows profiles and dashboards too, and a tile whose file is
+   missing has to know to remove itself. */
+const ALL_SHOTS = TILES.filter((t): t is Shot => t.kind === "shot");
+
+/** The phone layout: the original collage, unchanged. */
+function Collage({
+  gone,
+  onOpen,
+  onMissing,
+}: {
+  gone: string[];
+  onOpen: (s: Shot) => void;
+  onMissing: (src: string) => void;
+}) {
+  return (
+    <div className="mt-14 grid grid-flow-row-dense grid-cols-2 gap-4 md:mt-16 md:grid-cols-6 md:gap-5 lg:grid-cols-12">
+      {TILES.map((t, i) => {
+        const key =
+          t.kind === "shot" ? t.src : t.kind === "clip" ? t.slug : t.name;
+        return (
+          <Reveal
+            key={`${t.kind}-${key}`}
+            delay={0.04 * (i % 3)}
+            className={SPAN[t.span]}
+          >
+            {t.kind === "clip" && <ClipCard c={t} />}
+            {t.kind === "quote" && <QuoteCard t={t} />}
+            {t.kind === "shot" && (
+              <ShotCard
+                s={t}
+                absent={gone.includes(t.src)}
+                onOpen={onOpen}
+                onMissing={onMissing}
+              />
+            )}
+          </Reveal>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function ProofWall() {
   const [open, setOpen] = useState<Shot | null>(null);
+
+  /* The wheel is desktop only. It drives sideways movement from vertical
+     scroll, which on a phone competes with the only gesture there is - so
+     phones get the collage instead. Read synchronously so the right one is
+     there on the first paint, and kept in step with rotation. */
+  const [onDesktop, setOnDesktop] = useState(
+    () => window.matchMedia("(min-width: 768px)").matches,
+  );
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const sync = () => setOnDesktop(mq.matches);
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
 
   /* Which site screenshots are actually on the server.
    *
@@ -799,7 +1015,7 @@ export default function ProofWall() {
   useEffect(() => {
     let live = true;
     void Promise.all(
-      SITE_SHOTS.map((s) =>
+      ALL_SHOTS.map((s) =>
         fetch(s.src, { method: "HEAD" })
           /* A 200 is not enough. vercel.json rewrites anything it does not
              recognise to "/", so a screenshot that isn't there comes back as
@@ -834,16 +1050,18 @@ export default function ProofWall() {
               <Typewriter as="div" text="Coaches who stopped" />
               <Typewriter as="div" text="doing it by hand" delay={0.42} />
             </h2>
-            <p className="mono-label md:pb-3">Scroll to run the wheel</p>
+            <p className="mono-label md:pb-3">
+              {onDesktop ? "Scroll to run the wheel" : "Tap any tile to open it full size"}
+            </p>
           </div>
         </Reveal>
       </div>
 
-      {cards.length > 1 ? (
+      {onDesktop && cards.length > 1 ? (
         <Wheel cards={cards} onOpen={setOpen} onMissing={noteMissing} />
       ) : (
         <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
-          <CardList cards={cards} onOpen={setOpen} onMissing={noteMissing} />
+          <Collage gone={gone} onOpen={setOpen} onMissing={noteMissing} />
         </div>
       )}
 
