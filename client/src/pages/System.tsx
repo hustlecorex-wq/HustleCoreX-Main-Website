@@ -39,8 +39,10 @@ export default function System() {
 
   return (
     <main className="relative bg-[color:var(--void)]">
-      <header className="fixed inset-x-0 top-0 z-[200] px-4 pt-4 md:pt-5">
-        <nav className="mx-auto flex max-w-5xl items-center justify-between gap-4 rounded-full border border-white/[0.06] bg-[rgba(10,10,14,0.72)] py-2 pl-4 pr-2 backdrop-blur-xl md:pl-5">
+      {/* Same rule as Nav.tsx: the wrapper must not swallow clicks in the
+          transparent strip either side of the pill. */}
+      <header className="pointer-events-none fixed inset-x-0 top-0 z-[200] px-4 pt-4 md:pt-5">
+        <nav className="pointer-events-auto mx-auto flex max-w-5xl items-center justify-between gap-4 rounded-full border border-white/[0.06] bg-[rgba(10,10,14,0.72)] py-2 pl-4 pr-2 backdrop-blur-xl md:pl-5">
           <a href="/" aria-label="HustleCoreX - back to the home page">
             <Logo />
           </a>

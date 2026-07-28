@@ -480,7 +480,9 @@ function Lightbox({ shot, onClose }: { shot: Shot | null; onClose: () => void })
       aria-modal="true"
       aria-label={shot.title}
       onClick={onClose}
-      className="fixed inset-0 z-[90] flex items-center justify-center bg-void/90 p-4 backdrop-blur-md md:p-10"
+      /* Above the nav (z-200), not below it. At z-90 the fixed header painted
+         on top of this and ate the close button. */
+      className="fixed inset-0 z-[340] flex items-center justify-center bg-void/90 p-4 backdrop-blur-md md:p-10"
     >
       <button
         type="button"

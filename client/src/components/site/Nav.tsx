@@ -69,9 +69,13 @@ export default function Nav() {
   };
 
   return (
-    <header className="fixed inset-x-0 top-0 z-[200] px-4 pt-4 md:pt-5">
+    /* pointer-events-none on the wrapper, auto on the pill. The header spans
+       the full width and the top ~78px of every page; without this it
+       swallowed every click in that strip - including the close button of the
+       full-size viewer, which sits exactly there. */
+    <header className="pointer-events-none fixed inset-x-0 top-0 z-[200] px-4 pt-4 md:pt-5">
       <nav
-        className={`mx-auto flex max-w-5xl items-center justify-between gap-4 rounded-full border py-2 pl-4 pr-2 transition-all duration-500 md:pl-5 ${
+        className={`pointer-events-auto mx-auto flex max-w-5xl items-center justify-between gap-4 rounded-full border py-2 pl-4 pr-2 transition-all duration-500 md:pl-5 ${
           scrolled
             ? "border-white/[0.08] bg-[rgba(10,10,14,0.82)] shadow-[0_10px_40px_rgba(0,0,0,0.5)] backdrop-blur-xl"
             : "border-white/[0.05] bg-[rgba(10,10,14,0.4)] backdrop-blur-md"
@@ -135,7 +139,7 @@ export default function Nav() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="mx-auto mt-2 max-w-5xl overflow-hidden rounded-3xl border border-white/[0.07] bg-[rgba(10,10,14,0.94)] p-2 backdrop-blur-xl md:hidden"
+            className="pointer-events-auto mx-auto mt-2 max-w-5xl overflow-hidden rounded-3xl border border-white/[0.07] bg-[rgba(10,10,14,0.94)] p-2 backdrop-blur-xl md:hidden"
           >
             {LINKS.map((link) => (
               <button
