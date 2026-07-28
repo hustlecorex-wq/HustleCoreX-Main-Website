@@ -1,16 +1,16 @@
-import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  motion,
-  useInView,
-  useScroll,
-  useSpring,
-  useTransform,
-  type MotionValue,
-} from "framer-motion";
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { motion, useInView } from "framer-motion";
 import { Maximize2, Star, X } from "lucide-react";
 
 import VideoFrame from "@/components/site/VideoFrame";
-import { Scramble, Typewriter, useMotionOk } from "@/components/site/motion";
+import { Scramble, Typewriter } from "@/components/site/motion";
 
 /**
  * ProofWall - everything we can actually show, in one collage.
@@ -286,249 +286,358 @@ function Reveal({
   );
 }
 
-/* ── one card, one size ────────────────────────────────────────────
-   Every proof now sits in the same box. Three kinds of evidence at three
-   different shapes is what made the old collage read as a mood board;
-   identical cards let them be compared instead of just looked at.
-
-   Screenshots are fitted, never cropped - a proof with its edge cut off
-   proves less. */
-
 type Clip = Extract<Tile, { kind: "clip" }>;
 type Quote = Extract<Tile, { kind: "quote" }>;
 type Shot = Extract<Tile, { kind: "shot" }>;
 
-const CARD_W = 380;
-const CARD_GAP = 24;
+/* ── what a card is ────────────────────────────────────────────────
+   Two shapes, and only two:
+
+     duo   a coach on camera, with their own written review beside them
+     wide  a site we built, landscape, on its own
+
+   Everything else that used to be in here - Instagram profiles and the two
+   dashboards - is gone. Not by taste: those six screenshots were never
+   added to the repo, so every one of them rendered as a card with a line of
+   text and nothing else. They are excluded by rule below rather than by a
+   hand-written list, so dropping the files in is all it takes to reconsider.
+
+   Cards share a height so the row stays flush; the widths differ because a
+   landscape site and a portrait clip are not the same object. */
+
 const CARD_H = 540;
+const CARD_GAP = 28;
+/** Share of each card's slot spent held still, laid flat, before moving on. */
+const DWELL = 0.55;
+const DUO_W = 640;
+const WIDE_W = 860;
 
-type Absent = (src: string) => boolean;
+type Card =
+  | { id: string; kind: "duo"; clip: Clip; quote: Quote }
+  | { id: string; kind: "wide"; shot: Shot };
 
-function ClipBody({ c }: { c: Clip }) {
+/**
+ * Pairs each clip with a review and mixes the two shapes so the wheel
+ * alternates instead of running four talking heads in a row.
+ *
+ * Reviews are matched to the coach in the clip wherever one exists - a
+ * coach on camera next to their own words is a stronger proof than two
+ * unrelated people sharing a card. One pair is unavoidably mixed; both
+ * halves carry their own name and source, so nobody is credited with words
+ * they did not write.
+ */
+function buildCards(isAbsent: (src: string) => boolean): Card[] {
+  const clips = TILES.filter((t): t is Clip => t.kind === "clip");
+  const quotes = TILES.filter((t): t is Quote => t.kind === "quote");
+  const sites = TILES.filter(
+    (t): t is Shot => t.kind === "shot" && t.label === "Website",
+  ).filter((s) => !isAbsent(s.src));
+
+  const spare = [...quotes];
+  const take = (name: string) => {
+    const own = spare.findIndex((q) => q.name === name);
+    const i = own !== -1 ? own : 0;
+    return spare.splice(i, 1)[0];
+  };
+
+  const duos: Card[] = clips
+    .map((clip) => {
+      const quote = take(clip.name);
+      return quote
+        ? ({ id: `duo-${clip.slug}`, kind: "duo", clip, quote } as Card)
+        : null;
+    })
+    .filter((c): c is Card => c !== null);
+
+  const wides: Card[] = sites.map((shot) => ({
+    id: `wide-${shot.src}`,
+    kind: "wide",
+    shot,
+  }));
+
+  // Ben Ola opens - his clip is the one that lies flat before the wheel
+  // exists - then the two shapes alternate for as long as both last.
+  const mixed: Card[] = [];
+  for (let i = 0; i < Math.max(duos.length, wides.length); i++) {
+    if (duos[i]) mixed.push(duos[i]);
+    if (wides[i]) mixed.push(wides[i]);
+  }
+  return mixed;
+}
+
+const cardWidth = (card: Card, viewportW: number) =>
+  Math.min(card.kind === "wide" ? WIDE_W : DUO_W, Math.max(260, viewportW - 48));
+
+/* ── card bodies ──────────────────────────────────────────────────── */
+
+function DuoCard({ clip, quote }: { clip: Clip; quote: Quote }) {
   return (
-    <>
-      <div className="flex min-h-0 flex-1 items-center justify-center bg-black/40 p-3">
+    <figure className="panel flex h-full w-full overflow-hidden rounded-3xl">
+      <div className="flex w-[42%] shrink-0 items-center justify-center bg-black/40 p-3">
         <div className="h-full" style={{ aspectRatio: "9 / 16" }}>
           <VideoFrame
-            src={`/proof/${c.slug}.mp4`}
-            poster={c.poster}
+            src={`/proof/${clip.slug}.mp4`}
+            poster={clip.poster}
             aspect="9 / 16"
-            label={`Play · ${c.length}`}
+            label={`Play · ${clip.length}`}
           />
         </div>
       </div>
-      <figcaption className="shrink-0 border-t border-white/[0.06] px-5 py-4">
-        <p className="text-[14px] font-medium leading-tight text-chalk">{c.name}</p>
-        <p className="mt-1 line-clamp-1 text-[12.5px] text-ash-dim">{c.role}</p>
-        <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-ash-dim/80">
-          {c.handle}
-        </p>
-      </figcaption>
-    </>
-  );
-}
 
-function QuoteBody({ t }: { t: Quote }) {
-  return (
-    <div className="flex h-full flex-col justify-between p-6 md:p-7">
-      <div className="min-h-0">
-        {t.stars > 0 && (
-          <div className="mb-4 flex gap-1">
-            {Array.from({ length: t.stars }).map((_, s) => (
-              <Star key={s} size={12} className="fill-ember text-ember" />
-            ))}
-          </div>
-        )}
-        <blockquote className="line-clamp-[11] text-[14.5px] leading-[1.7] text-chalk/90">
-          {t.quote}
-        </blockquote>
+      <div className="flex min-w-0 flex-1 flex-col justify-between border-l border-white/[0.06] p-6">
+        <div className="min-h-0">
+          {quote.stars > 0 && (
+            <div className="mb-3 flex gap-1">
+              {Array.from({ length: quote.stars }).map((_, s) => (
+                <Star key={s} size={12} className="fill-ember text-ember" />
+              ))}
+            </div>
+          )}
+          <blockquote className="line-clamp-[9] text-[14px] leading-[1.65] text-chalk/90">
+            {quote.quote}
+          </blockquote>
+          <p className="mt-3 text-[13px] font-medium text-chalk">{quote.name}</p>
+          <p className="font-mono text-[9.5px] uppercase tracking-[0.16em] text-ash-dim">
+            {quote.source}
+          </p>
+        </div>
+
+        <figcaption className="mt-5 shrink-0 border-t border-white/[0.06] pt-4">
+          <p className="text-[14px] font-medium leading-tight text-chalk">
+            {clip.name}
+          </p>
+          <p className="mt-1 line-clamp-1 text-[12.5px] text-ash-dim">
+            {clip.role}
+          </p>
+          <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-ash-dim/80">
+            {clip.handle}
+          </p>
+        </figcaption>
       </div>
-      <figcaption className="mt-6 shrink-0">
-        <p className="text-[14px] font-medium text-chalk">{t.name}</p>
-        <p className="mt-1 line-clamp-1 text-[12.5px] text-ash-dim">{t.role}</p>
-        <p className="mt-2 font-mono text-[9.5px] uppercase tracking-[0.16em] text-ash-dim/80">
-          {t.source}
-        </p>
-      </figcaption>
-    </div>
-  );
-}
-
-function ShotBody({
-  s,
-  onOpen,
-  onMissing,
-}: {
-  s: Shot;
-  onOpen: (s: Shot) => void;
-  onMissing: (src: string) => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={() => onOpen(s)}
-      className="group flex h-full w-full flex-col text-left"
-      aria-label={`Open ${s.title} full size`}
-    >
-      <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-black/40 p-3">
-        <img
-          src={s.src}
-          onError={() => onMissing(s.src)}
-          loading="lazy"
-          alt={`${s.title} - ${s.label.toLowerCase()} built by HustleCoreX`}
-          className="max-h-full max-w-full object-contain"
-        />
-        <span className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border border-white/[0.12] bg-void/70 text-chalk/70 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-          <Maximize2 size={13} />
-        </span>
-      </div>
-      <span className="block shrink-0 border-t border-white/[0.06] px-5 py-4">
-        <span className="block font-mono text-[9.5px] uppercase tracking-[0.16em] text-ember">
-          {s.label}
-        </span>
-        <span className="mt-1.5 block text-[14px] font-medium leading-tight text-chalk">
-          {s.title}
-        </span>
-        <span className="mt-1 block line-clamp-1 text-[12.5px] text-ash-dim">
-          {s.meta}
-        </span>
-      </span>
-    </button>
-  );
-}
-
-function ProofCard({
-  tile,
-  absent,
-  onOpen,
-  onMissing,
-}: {
-  tile: Tile;
-  absent: Absent;
-  onOpen: (s: Shot) => void;
-  onMissing: (src: string) => void;
-}) {
-  const missing = tile.kind === "shot" && absent(tile.src);
-
-  return (
-    <figure className="panel flex h-full w-full flex-col overflow-hidden rounded-3xl">
-      {tile.kind === "clip" && <ClipBody c={tile} />}
-      {tile.kind === "quote" && <QuoteBody t={tile} />}
-      {tile.kind === "shot" &&
-        (missing ? (
-          <div className="flex h-full items-center justify-center p-6 text-center">
-            <p className="font-mono text-[11px] text-ash-dim">{tile.title}</p>
-          </div>
-        ) : (
-          <ShotBody s={tile} onOpen={onOpen} onMissing={onMissing} />
-        ))}
     </figure>
   );
 }
 
-/* ── the carousel ──────────────────────────────────────────────────
-   Vertical scroll drives the track sideways. The cards sit on a shallow
-   arc - further from the middle means lower and slightly turned - so the
-   row reads as the top of a large wheel rather than a filmstrip.
-
-   Card centres are computed from the fixed card width, not measured per
-   frame. Reading offsetLeft inside the transform would force a layout on
-   every card on every frame. */
-
-function ArcCard({
-  index,
-  viewportW,
-  x,
-  intro,
-  children,
-}: {
-  index: number;
-  viewportW: number;
-  x: MotionValue<number>;
-  intro: MotionValue<number>;
-  children: React.ReactNode;
-}) {
-  const centre = index * (CARD_W + CARD_GAP) + CARD_W / 2;
-  const dist = useTransform(x, (v) => centre + v - viewportW / 2);
-
-  // A parabola through the middle of the row. 9000 is the radius in
-  // disguise: large enough that the arc is felt rather than seen.
-  const y = useTransform(dist, (d) => (d * d) / 9000);
-  const rotate = useTransform(dist, (d) => (d / 9000) * 90);
-  const arcScale = useTransform(dist, (d) => 1 - Math.min(0.14, Math.abs(d) / 5200));
-  const near = useTransform(dist, (d) => 1 - Math.min(0.62, Math.abs(d) / 1900));
-
-  // The lead card stands alone and large until the intro beat is over, and
-  // the rest arrive with it. That is the "window pops small, wheel appears".
-  const introScale = useTransform(intro, (p) => (index === 0 ? 1.34 - 0.34 * p : 1));
-  const introFade = useTransform(intro, (p) => (index === 0 ? 1 : p));
-
-  const scale = useTransform([arcScale, introScale], (v) => {
-    const [a, b] = v as number[];
-    return a * b;
-  });
-  const opacity = useTransform([near, introFade], (v) => {
-    const [a, b] = v as number[];
-    return a * b;
-  });
-
-  return (
-    <motion.div
-      className="shrink-0"
-      style={{ width: CARD_W, marginRight: CARD_GAP, y, rotate, scale, opacity }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-function Carousel({
-  absent,
+function WideCard({
+  shot,
   onOpen,
   onMissing,
 }: {
-  absent: Absent;
+  shot: Shot;
+  onOpen: (s: Shot) => void;
+  onMissing: (src: string) => void;
+}) {
+  return (
+    <figure className="panel h-full w-full overflow-hidden rounded-3xl">
+      <button
+        type="button"
+        onClick={() => onOpen(shot)}
+        className="group flex h-full w-full flex-col text-left"
+        aria-label={`Open ${shot.title} full size`}
+      >
+        <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-black/40 p-3">
+          <img
+            src={shot.src}
+            onError={() => onMissing(shot.src)}
+            loading="lazy"
+            alt={`${shot.title} - ${shot.label.toLowerCase()} built by HustleCoreX`}
+            className="max-h-full max-w-full object-contain"
+          />
+          <span className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border border-white/[0.12] bg-void/70 text-chalk/70 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+            <Maximize2 size={13} />
+          </span>
+        </div>
+        <span className="block shrink-0 border-t border-white/[0.06] px-6 py-4">
+          <span className="block font-mono text-[9.5px] uppercase tracking-[0.16em] text-ember">
+            {shot.label}
+          </span>
+          <span className="mt-1.5 block text-[15px] font-medium leading-tight text-chalk">
+            {shot.title}
+          </span>
+          <span className="mt-1 block line-clamp-1 text-[12.5px] text-ash-dim">
+            {shot.meta}
+          </span>
+        </span>
+      </button>
+    </figure>
+  );
+}
+
+function CardBody({
+  card,
+  onOpen,
+  onMissing,
+}: {
+  card: Card;
+  onOpen: (s: Shot) => void;
+  onMissing: (src: string) => void;
+}) {
+  return card.kind === "duo" ? (
+    <DuoCard clip={card.clip} quote={card.quote} />
+  ) : (
+    <WideCard shot={card.shot} onOpen={onOpen} onMissing={onMissing} />
+  );
+}
+
+/* ── the wheel ─────────────────────────────────────────────────────
+   Scroll drives the track sideways, but not evenly. Each card gets a slot
+   with a plateau in the middle of it, so the track arrives, settles, and
+   holds before moving on. That hold is what makes a card read as laid flat
+   rather than as something passing by.
+
+   Flat and in-the-wheel are the two ends of one value, `focus`, measured
+   from how far a card is from the middle of the viewport:
+
+     focus 1   square on, full size, upright, lit
+     focus 0   turned, dropped onto the arc, smaller, dimmed
+
+   So a card rises out of the wheel, lies flat while the track holds, and
+   turns back into the wheel as the next one comes forward. */
+
+/* One frame loop, writing transforms straight onto the elements.
+
+   This deliberately does not use framer motion values. On the machine this
+   was built on, framer's animation loop sat idle - motion values were set
+   and never rendered - and the wheel stayed parked at x=0 no matter where
+   the page was scrolled. Chasing that through three layers of abstraction
+   cost more than owning the ten lines it replaces. A loop that reads the
+   section's rect and writes `transform` has nothing in between to go wrong,
+   and it is trivial to inspect: the track carries data-p with the current
+   progress. */
+
+function Wheel({
+  cards,
+  onOpen,
+  onMissing,
+}: {
+  cards: Card[];
   onOpen: (s: Shot) => void;
   onMissing: (src: string) => void;
 }) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
-  const [geom, setGeom] = useState({ maxX: 0, viewportW: 0 });
+  const trackRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [viewportW, setViewportW] = useState(0);
 
   useEffect(() => {
-    const measure = () => {
-      const vp = viewportRef.current;
-      if (!vp) return;
-      const viewportW = vp.clientWidth;
-      const trackW = TILES.length * (CARD_W + CARD_GAP) - CARD_GAP;
-      setGeom({ maxX: Math.max(0, trackW - viewportW), viewportW });
-    };
+    const measure = () => setViewportW(viewportRef.current?.clientWidth ?? 0);
     measure();
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
   }, []);
 
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start start", "end end"],
-  });
+  // Widths differ per card, so positions are accumulated rather than indexed.
+  const layout = useMemo(() => {
+    let cursor = 0;
+    return cards.map((card) => {
+      const w = cardWidth(card, viewportW);
+      const centre = cursor + w / 2;
+      cursor += w + CARD_GAP;
+      return { centre, width: w };
+    });
+  }, [cards, viewportW]);
 
-  // The first slice of the runway is the intro; the rest moves the track.
-  const intro = useTransform(scrollYProgress, [0, 0.1], [0, 1]);
-  const rawX = useTransform(scrollYProgress, [0, 0.1, 1], [0, 0, -geom.maxX]);
-  const x = useSpring(rawX, { stiffness: 140, damping: 30, mass: 0.4 });
+  const live = useRef({ layout, viewportW, n: cards.length });
+  live.current = { layout, viewportW, n: cards.length };
 
-  /* Keyboard. The track is driven by page scroll, so moving one card along
-     means moving the page by one card's worth of runway. */
+  /* The loop only ever *improves* on the resting state. Cards render
+     visible and unrotated; if no frame ever runs - a browser that is not
+     presenting, a tab that never composites - what is left is a plain row
+     of readable cards, not a blank section. Base visibility must never
+     depend on an animation loop. */
+  useLayoutEffect(() => {
+    let raf = 0;
+    let shown = 0; // eased x, so the track arrives rather than jumps
+    let first = true;
+
+    const apply = () => {
+      const section = sectionRef.current;
+      const track = trackRef.current;
+      const { layout: L, viewportW: vw, n } = live.current;
+
+      if (section && track && n && vw) {
+        const total = section.offsetHeight - window.innerHeight;
+        const p =
+          total > 0
+            ? Math.min(1, Math.max(0, -section.getBoundingClientRect().top / total))
+            : 0;
+
+        const slot = 1 / n;
+        const at = (i: number) => -(L[i].centre - vw / 2);
+        const i = Math.min(n - 1, Math.floor(p / slot));
+        const within = (p - i * slot) / slot;
+
+        let target: number;
+        if (within <= DWELL || i === n - 1) {
+          target = at(i);
+        } else {
+          const t = (within - DWELL) / (1 - DWELL);
+          // Ease the hand-over, so a card leaves and the next arrives.
+          const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+          target = at(i) + (at(i + 1) - at(i)) * e;
+        }
+
+        shown = first ? target : shown + (target - shown) * 0.16;
+        first = false;
+
+        track.style.transform = `translate3d(${shown.toFixed(2)}px,0,0)`;
+        track.dataset.p = p.toFixed(4);
+
+        // Nothing but the lead card is on stage until it starts to give way.
+        const revealed = Math.min(1, p / (slot * DWELL || 1));
+
+        cardRefs.current.forEach((el, idx) => {
+          if (!el || !L[idx]) return;
+          const { centre, width } = L[idx];
+          const dist = centre + shown - vw / 2;
+          const focus = Math.max(0, 1 - Math.abs(dist) / (width * 0.85));
+
+          const y = (1 - focus) * 74;
+          const rot = Math.max(-11, Math.min(11, (dist / (width * 1.1)) * 11));
+          const scale = 0.84 + focus * 0.16;
+          const dim = 0.22 + focus * 0.78;
+
+          el.style.transform = `translate3d(0,${y.toFixed(1)}px,0) rotate(${rot.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
+          el.style.opacity = String(idx === 0 ? dim : dim * revealed);
+          el.style.zIndex = String(Math.round(focus * 100));
+        });
+      }
+
+    };
+
+    const frame = () => {
+      apply();
+      raf = requestAnimationFrame(frame);
+    };
+
+    // One placement straight away, so the wheel is correct before the first
+    // frame ever arrives - and correct even if none does.
+    apply();
+    raf = requestAnimationFrame(frame);
+
+    /* Scroll and resize drive it too, not just the frame loop. Belt and
+       braces on purpose: a browser that throttles rAF but still dispatches
+       scroll gets a working wheel, and one that does the reverse also does.
+       Neither path is required for the cards to be readable. */
+    window.addEventListener("scroll", apply, { passive: true });
+    window.addEventListener("resize", apply);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", apply);
+      window.removeEventListener("resize", apply);
+    };
+  }, [viewportW, cards.length]);
+
   const step = useCallback(
     (dir: 1 | -1) => {
       const section = sectionRef.current;
-      if (!section || geom.maxX <= 0) return;
+      if (!section || !cards.length) return;
       const runway = section.offsetHeight - window.innerHeight;
-      const perCard = (runway * (CARD_W + CARD_GAP)) / geom.maxX;
-      window.scrollBy({ top: dir * perCard, behavior: "smooth" });
+      window.scrollBy({ top: (dir * runway) / cards.length, behavior: "smooth" });
     },
-    [geom.maxX],
+    [cards.length],
   );
 
   useEffect(() => {
@@ -536,8 +645,7 @@ function Carousel({
       const section = sectionRef.current;
       if (!section) return;
       const r = section.getBoundingClientRect();
-      const pinned = r.top <= 0 && r.bottom >= window.innerHeight;
-      if (!pinned) return;
+      if (r.top > 0 || r.bottom < window.innerHeight) return;
       if (e.key === "ArrowRight") {
         e.preventDefault();
         step(1);
@@ -551,72 +659,61 @@ function Carousel({
     return () => window.removeEventListener("keydown", onKey);
   }, [step]);
 
+  /* Just under a viewport of scroll per card, so each gets the same share of
+     the runway - and the section ends and hands scrolling straight back. */
+  const runway = cards.length * 90;
+
   return (
-    <div
-      ref={sectionRef}
-      /* One pixel of page scroll per pixel of sideways travel, plus one
-         viewport for the intro. The runway ends and hands scrolling back -
-         nobody gets held in here. */
-      style={{ height: `calc(100vh + ${Math.round(geom.maxX)}px)` }}
-    >
+    <div ref={sectionRef} style={{ height: `calc(100vh + ${runway}vh)` }}>
       <div className="sticky top-0 flex h-screen items-center overflow-hidden">
         <div ref={viewportRef} className="w-full overflow-hidden px-6 md:px-10">
-          <motion.div className="flex items-stretch" style={{ x }}>
-            {TILES.map((tile, i) => (
-              <ArcCard
-                key={`${tile.kind}-${i}`}
-                index={i}
-                viewportW={geom.viewportW}
-                x={x}
-                intro={intro}
+          <div ref={trackRef} className="flex items-center will-change-transform">
+            {cards.map((card, i) => (
+              <div
+                key={card.id}
+                ref={(el) => {
+                  cardRefs.current[i] = el;
+                }}
+                className="shrink-0 will-change-transform"
+                style={{
+                  width: layout[i]?.width ?? DUO_W,
+                  marginRight: CARD_GAP,
+                  height: CARD_H,
+                }}
               >
-                <div style={{ height: CARD_H }}>
-                  <ProofCard
-                    tile={tile}
-                    absent={absent}
-                    onOpen={onOpen}
-                    onMissing={onMissing}
-                  />
-                </div>
-              </ArcCard>
+                <CardBody card={card} onOpen={onOpen} onMissing={onMissing} />
+              </div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-/* Reduced motion: the same cards, stacked, scrolling like any other page.
-   Driving the page sideways is exactly the kind of movement that setting is
-   asking us not to do. */
-function ProofList({
-  absent,
+/* Fallback for anything that cannot run the wheel: the same cards, stacked. */
+function CardList({
+  cards,
   onOpen,
   onMissing,
 }: {
-  absent: Absent;
+  cards: Card[];
   onOpen: (s: Shot) => void;
   onMissing: (src: string) => void;
 }) {
   return (
-    <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {TILES.map((tile, i) => (
-        <div key={`${tile.kind}-${i}`} style={{ height: CARD_H }}>
-          <ProofCard
-            tile={tile}
-            absent={absent}
-            onOpen={onOpen}
-            onMissing={onMissing}
-          />
+    <div className="mt-14 flex flex-col gap-6">
+      {cards.map((card) => (
+        <div key={card.id} style={{ height: CARD_H }}>
+          <CardBody card={card} onOpen={onOpen} onMissing={onMissing} />
         </div>
       ))}
     </div>
   );
 }
 
-/* Full-size viewer - a card is unreadable at carousel size, and an
-   unreadable dashboard proves nothing. */
+/* Full-size viewer - a site is unreadable at card size, and an unreadable
+   site proves nothing. */
 function Lightbox({ shot, onClose }: { shot: Shot | null; onClose: () => void }) {
   useEffect(() => {
     if (!shot) return;
@@ -679,34 +776,34 @@ function Lightbox({ shot, onClose }: { shot: Shot | null; onClose: () => void })
 
 /* ── the wall ───────────────────────────────────────────────────── */
 
-const SHOTS = TILES.filter((t): t is Shot => t.kind === "shot");
+const SITE_SHOTS = TILES.filter(
+  (t): t is Shot => t.kind === "shot" && t.label === "Website",
+);
 
 export default function ProofWall() {
   const [open, setOpen] = useState<Shot | null>(null);
-  const motionOk = useMotionOk();
 
-  /* Which screenshots are actually on the server.
+  /* Which site screenshots are actually on the server.
    *
-   * The per-card onError would settle this on its own, but the images are
-   * lazy - so a missing one wouldn't drop out until someone scrolled level
-   * with it, re-flowing the row under their eyes. A HEAD sweep on mount
-   * settles it before anyone gets there and costs nothing: no image bytes
-   * move. onError stays as a backstop for anything that dies after. */
+   * onError alone would settle this, but the images are lazy - a missing one
+   * would not drop out until someone scrolled level with it, re-flowing the
+   * wheel under their eyes. A HEAD sweep on mount settles it first and costs
+   * nothing: no image bytes move. onError stays as a backstop. */
   const [gone, setGone] = useState<string[]>([]);
   const noteMissing = useCallback(
     (src: string) => setGone((g) => (g.includes(src) ? g : [...g, src])),
     [],
   );
-  const absent = useCallback((src: string) => gone.includes(src), [gone]);
+  const isAbsent = useCallback((src: string) => gone.includes(src), [gone]);
 
   useEffect(() => {
     let live = true;
     void Promise.all(
-      SHOTS.map((s) =>
+      SITE_SHOTS.map((s) =>
         fetch(s.src, { method: "HEAD" })
-          /* A 200 is not enough. vercel.json rewrites everything it doesn't
+          /* A 200 is not enough. vercel.json rewrites anything it does not
              recognise to "/", so a screenshot that isn't there comes back as
-             the index page with a cheerful 200 - it's the content type that
+             the index page with a cheerful 200 - the content type is what
              tells you whether an actual image arrived. */
           .then((r) =>
             r.ok && r.headers.get("content-type")?.startsWith("image/")
@@ -725,6 +822,8 @@ export default function ProofWall() {
     };
   }, []);
 
+  const cards = useMemo(() => buildCards(isAbsent), [isAbsent]);
+
   return (
     <section id="results" className="relative z-10 py-20 md:py-28">
       <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
@@ -735,20 +834,16 @@ export default function ProofWall() {
               <Typewriter as="div" text="Coaches who stopped" />
               <Typewriter as="div" text="doing it by hand" delay={0.42} />
             </h2>
-            <p className="mono-label md:pb-3">
-              {motionOk
-                ? "Scroll to run the wheel"
-                : "Tap any card to open it full size"}
-            </p>
+            <p className="mono-label md:pb-3">Scroll to run the wheel</p>
           </div>
         </Reveal>
       </div>
 
-      {motionOk ? (
-        <Carousel absent={absent} onOpen={setOpen} onMissing={noteMissing} />
+      {cards.length > 1 ? (
+        <Wheel cards={cards} onOpen={setOpen} onMissing={noteMissing} />
       ) : (
         <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
-          <ProofList absent={absent} onOpen={setOpen} onMissing={noteMissing} />
+          <CardList cards={cards} onOpen={setOpen} onMissing={noteMissing} />
         </div>
       )}
 
