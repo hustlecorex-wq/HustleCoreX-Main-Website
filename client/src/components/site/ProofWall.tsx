@@ -806,10 +806,10 @@ function Wheel({
       const { layout: L, viewportW: vw, n } = live.current;
 
       if (section && track && n && vw) {
-        /* Both numbers come from the same rect. offsetHeight is in layout
-           pixels and innerHeight is in device pixels, and the page renders
-           at zoom 1.1 - mixing the two made the wheel run 10% fast and
-           finish before the section did. */
+        /* Both numbers come from the same rect on purpose. offsetHeight is
+           in layout pixels while innerHeight is in device pixels, so the two
+           disagree the moment any page zoom is applied - that briefly made
+           the wheel run 10% fast and finish before the section did. */
         const rect = section.getBoundingClientRect();
         const total = rect.height - window.innerHeight;
         const p = total > 0 ? Math.min(1, Math.max(0, -rect.top / total)) : 0;

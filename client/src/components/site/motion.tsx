@@ -81,7 +81,7 @@ export function ScrollProgress() {
     <motion.div
       aria-hidden
       style={{ scaleX }}
-      className="unzoom fixed inset-x-0 top-0 z-[300] h-[2px] origin-left"
+      className="fixed inset-x-0 top-0 z-[300] h-[2px] origin-left"
     >
       <div
         className="h-full w-full"
@@ -129,7 +129,7 @@ export function CursorGlow() {
   return (
     <motion.div
       aria-hidden
-      className="unzoom pointer-events-none fixed inset-0 z-0 hidden md:block"
+      className="pointer-events-none fixed inset-0 z-0 hidden md:block"
       style={{ background }}
     />
   );

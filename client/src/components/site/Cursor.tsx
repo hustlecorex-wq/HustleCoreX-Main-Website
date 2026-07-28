@@ -56,7 +56,7 @@ export default function Cursor() {
   if (!ok) return null;
 
   return (
-    <div aria-hidden className="unzoom pointer-events-none fixed inset-0 z-[400] hidden md:block">
+    <div aria-hidden className="pointer-events-none fixed inset-0 z-[400] hidden md:block">
       <motion.div
         className="absolute left-0 top-0 rounded-full"
         style={{ x: ringX, y: ringY }}

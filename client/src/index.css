@@ -67,15 +67,7 @@
     scroll-padding-top: 110px;
   }
 
-  /* The whole page renders 10% larger.
-     zoom rather than a font-size bump because the ask was every element, not
-     just type - zoom scales padding, gaps, borders and images with it.
-
-     Full-screen fixed layers must opt out: they are sized from
-     window.innerWidth in real pixels, and inside a zoomed body a
-     `fixed inset-0` box comes out 10% too big and overflows. See .unzoom. */
   body {
-    zoom: 1.1;
     @apply antialiased;
     font-family: var(--font-sans);
     font-feature-settings: "ss01" 1, "cv01" 1;
@@ -520,14 +512,6 @@ html.video-playing .site-grain {
    now on for every visitor; the decision and how to undo it are documented
    on useMotionOk in components/site/motion.tsx. Restore this block at the
    same time as that gate, or the two will disagree. */
-
-/* ── Opts out of the page zoom ─────────────────────────────────────
-   For fixed, full-viewport layers only - the shader canvas, the cursor and
-   the scroll bar. They are positioned from real viewport pixels, so they must
-   render at 1:1 or they overhang the window. */
-.unzoom {
-  zoom: 0.909090909;
-}
 
 /* Nudges the "keep scrolling" chevron under the wheel. */
 @keyframes nudge {
