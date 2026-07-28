@@ -81,7 +81,7 @@ export function ScrollProgress() {
     <motion.div
       aria-hidden
       style={{ scaleX }}
-      className="fixed inset-x-0 top-0 z-[300] h-[2px] origin-left"
+      className="unzoom fixed inset-x-0 top-0 z-[300] h-[2px] origin-left"
     >
       <div
         className="h-full w-full"
@@ -129,7 +129,7 @@ export function CursorGlow() {
   return (
     <motion.div
       aria-hidden
-      className="pointer-events-none fixed inset-0 z-0 hidden md:block"
+      className="unzoom pointer-events-none fixed inset-0 z-0 hidden md:block"
       style={{ background }}
     />
   );
@@ -535,104 +535,6 @@ export function Typewriter({
       })}
       {!finished && typed >= text.length && caret}
     </Tag>
-  );
-}
-
-/**
- * Counts down from a price to the word "free", cooling from chalk to ember
- * as it falls. Replaces the last word of the apply heading.
- *
- * The countdown is decoration over a claim, so the claim is what gets
- * exposed: aria-label carries the final wording from the first paint and the
- * ticking digits are hidden from assistive tech. Nobody should have to sit
- * through four thousand steps to hear the offer.
- */
-export function CountdownToFree({
-  from = 4000,
-  word = "free",
-  className = "",
-  durationMs = 2200,
-}: {
-  from?: number;
-  word?: string;
-  className?: string;
-  durationMs?: number;
-}) {
-  const ok = useMotionOk();
-  const [value, setValue] = useState(from);
-  const [landed, setLanded] = useState(false);
-
-  const ref = useOnceInView<HTMLSpanElement>(() => {
-    let raf = 0;
-    const started = performance.now();
-    const tick = (now: number) => {
-      const p = Math.min(1, (now - started) / durationMs);
-      // Ease-out on the count, so it tears through the thousands and slows
-      // enough at the end that the last figures are actually readable.
-      const eased = 1 - Math.pow(1 - p, 3);
-      setValue(Math.max(1, Math.round(from - (from - 1) * eased)));
-      if (p < 1) raf = requestAnimationFrame(tick);
-      else setLanded(true);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, ok);
-
-  const label = `for ${word}`;
-
-  if (!ok) {
-    return (
-      <span className={className} style={{ color: "var(--ember)" }}>
-        {label}
-      </span>
-    );
-  }
-
-  // Chalk at the top of the count, ember by the time it lands. Interpolated
-  // by hand rather than with color-mix, which is newer than this needs to be.
-  const t = 1 - (value - 1) / Math.max(1, from - 1);
-  const CHALK = [245, 243, 241];
-  const EMBER = [255, 74, 23];
-  const rgb = CHALK.map((c, i) => Math.round(c + (EMBER[i] - c) * t)).join(", ");
-
-  const widest = `${from.toLocaleString("de-DE")} €`;
-
-  return (
-    <span ref={ref} className={className} aria-label={label}>
-      <span aria-hidden>for </span>
-      {landed ? (
-        <span
-          aria-hidden
-          style={{
-            color: "var(--ember)",
-            textShadow: "0 0 26px rgba(255,74,23,0.55)",
-            transition: "text-shadow 600ms ease-out",
-          }}
-        >
-          {word}
-        </span>
-      ) : (
-        /* While counting, the box is held at the width of the largest figure
-           and the digits are drawn over it. Tabular numerals alone would not
-           do it - the string itself gets shorter as the number falls, and a
-           heading that reflows on every frame is unreadable. One controlled
-           change of width at the end, none during. */
-        <span
-          aria-hidden
-          className="relative inline-block"
-          style={{
-            color: `rgb(${rgb})`,
-            fontFamily: "var(--font-mono)",
-            fontVariantNumeric: "tabular-nums",
-          }}
-        >
-          <span className="invisible">{widest}</span>
-          <span className="absolute inset-0 whitespace-nowrap">
-            {value.toLocaleString("de-DE")} €
-          </span>
-        </span>
-      )}
-    </span>
   );
 }
 

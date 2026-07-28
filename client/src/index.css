@@ -67,7 +67,15 @@
     scroll-padding-top: 110px;
   }
 
+  /* The whole page renders 10% larger.
+     zoom rather than a font-size bump because the ask was every element, not
+     just type - zoom scales padding, gaps, borders and images with it.
+
+     Full-screen fixed layers must opt out: they are sized from
+     window.innerWidth in real pixels, and inside a zoomed body a
+     `fixed inset-0` box comes out 10% too big and overflows. See .unzoom. */
   body {
+    zoom: 1.1;
     @apply antialiased;
     font-family: var(--font-sans);
     font-feature-settings: "ss01" 1, "cv01" 1;
@@ -135,18 +143,18 @@
    are a bonus rather than the point (ember 7.07 -> 8.27:1, ash 5.58 -> 7.40:1). */
 .mono-label {
   font-family: var(--font-mono);
-  font-size: 12.5px;
+  font-size: 15px;
   font-weight: 600;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #9C9CA6;
 }
 
 .mono-label-ember {
   font-family: var(--font-mono);
-  font-size: 12.5px;
+  font-size: 15px;
   font-weight: 600;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #FF8355;
 }
@@ -512,3 +520,17 @@ html.video-playing .site-grain {
    now on for every visitor; the decision and how to undo it are documented
    on useMotionOk in components/site/motion.tsx. Restore this block at the
    same time as that gate, or the two will disagree. */
+
+/* ── Opts out of the page zoom ─────────────────────────────────────
+   For fixed, full-viewport layers only - the shader canvas, the cursor and
+   the scroll bar. They are positioned from real viewport pixels, so they must
+   render at 1:1 or they overhang the window. */
+.unzoom {
+  zoom: 0.909090909;
+}
+
+/* Nudges the "keep scrolling" chevron under the wheel. */
+@keyframes nudge {
+  0%, 100% { transform: translateY(0); opacity: 0.75; }
+  50%      { transform: translateY(5px); opacity: 1; }
+}

@@ -487,7 +487,7 @@ export default function VideoFrame({
                   wider gap makes the column taller, and the column is
                   centred - so the play button drifts up by half of whatever
                   the caption gains. A transform costs no layout at all. */}
-              <span className="mono-label translate-y-4">{label}</span>
+              <span className="mono-label translate-y-10">{label}</span>
             </span>
           </button>
         )}

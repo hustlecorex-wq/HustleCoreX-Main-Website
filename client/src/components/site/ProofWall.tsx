@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 import { motion, useInView } from "framer-motion";
-import { ArrowUpRight, Maximize2, Star, X } from "lucide-react";
+import { ArrowUpRight, ChevronDown, Maximize2, Star, X } from "lucide-react";
 
 import VideoFrame from "@/components/site/VideoFrame";
 import { Scramble, Typewriter } from "@/components/site/motion";
@@ -806,11 +806,13 @@ function Wheel({
       const { layout: L, viewportW: vw, n } = live.current;
 
       if (section && track && n && vw) {
-        const total = section.offsetHeight - window.innerHeight;
-        const p =
-          total > 0
-            ? Math.min(1, Math.max(0, -section.getBoundingClientRect().top / total))
-            : 0;
+        /* Both numbers come from the same rect. offsetHeight is in layout
+           pixels and innerHeight is in device pixels, and the page renders
+           at zoom 1.1 - mixing the two made the wheel run 10% fast and
+           finish before the section did. */
+        const rect = section.getBoundingClientRect();
+        const total = rect.height - window.innerHeight;
+        const p = total > 0 ? Math.min(1, Math.max(0, -rect.top / total)) : 0;
 
         const slot = 1 / n;
         const at = (i: number) => -(L[i].centre - vw / 2);
@@ -883,7 +885,7 @@ function Wheel({
     (dir: 1 | -1) => {
       const section = sectionRef.current;
       if (!section || !cards.length) return;
-      const runway = section.offsetHeight - window.innerHeight;
+      const runway = section.getBoundingClientRect().height - window.innerHeight;
       window.scrollBy({ top: (dir * runway) / cards.length, behavior: "smooth" });
     },
     [cards.length],
@@ -914,7 +916,9 @@ function Wheel({
 
   return (
     <div ref={sectionRef} style={{ height: `calc(100vh + ${runway}vh)` }}>
-      <div className="sticky top-0 flex h-screen items-center overflow-hidden">
+      {/* pt clears the floating nav: the cards used to start level with it, so
+          scrolling the wheel ran them straight under the bar. */}
+      <div className="sticky top-0 flex h-screen items-center overflow-hidden pt-24">
         <div ref={viewportRef} className="w-full overflow-hidden px-6 md:px-10">
           <div ref={trackRef} className="flex items-center will-change-transform">
             {cards.map((card, i) => (
@@ -1111,7 +1115,10 @@ export default function ProofWall() {
   const cards = useMemo(() => buildCards(isAbsent), [isAbsent]);
 
   return (
-    <section id="results" className="relative z-10 py-20 md:py-28">
+    /* Extra room above the wheel so it does not crowd the heading, and less
+     below it so "Why we do it" is already in view while you are still in
+     the wheel. */
+    <section id="results" className="relative z-10 pb-10 pt-20 md:pb-12 md:pt-28">
       <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
         <Reveal>
           <Scramble className="mono-label-ember mb-6 block" text="Results" />
@@ -1120,15 +1127,26 @@ export default function ProofWall() {
               <Typewriter as="div" text="Coaches who stopped" />
               <Typewriter as="div" text="doing it by hand" delay={0.42} />
             </h2>
-            {onDesktop && (
-              <p className="mono-label md:pb-3">Scroll to run the wheel</p>
-            )}
+            {/* The caption that used to sit here has moved under the wheel,
+                where it can say what happens next instead of what to do. */}
           </div>
         </Reveal>
       </div>
 
       {onDesktop && cards.length > 1 ? (
-        <Wheel cards={cards} onOpen={setOpen} onMissing={noteMissing} />
+        <>
+          <Wheel cards={cards} onOpen={setOpen} onMissing={noteMissing} />
+          {/* Desktop only. The wheel holds the page for several viewports, so
+              it has to say plainly that there is more underneath - otherwise
+              the end of the wheel reads as the end of the site. */}
+          <div className="mt-6 flex flex-col items-center gap-2">
+            <span className="mono-label">Keep scrolling</span>
+            <ChevronDown
+              size={20}
+              className="text-[color:var(--ember)] [animation:nudge_2.2s_ease-in-out_infinite]"
+            />
+          </div>
+        </>
       ) : (
         <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
           <Collage gone={gone} onOpen={setOpen} onMissing={noteMissing} />

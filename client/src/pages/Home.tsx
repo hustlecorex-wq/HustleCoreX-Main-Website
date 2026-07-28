@@ -10,8 +10,8 @@ import VideoFrame from "@/components/site/VideoFrame";
 import AdminAccess from "@/components/site/AdminAccess";
 import Cursor from "@/components/site/Cursor";
 import Ignition from "@/components/site/Ignition";
+import PriceToFree from "@/components/site/PriceToFree";
 import {
-  CountdownToFree,
   CursorGlow,
   Magnetic,
   Reveal,
@@ -228,7 +228,7 @@ function WhatWeBuild() {
 
 function Mission() {
   return (
-    <section id="mission" className="relative z-10 py-20 md:py-28">
+    <section id="mission" className="relative z-10 pb-20 pt-10 md:pb-28 md:pt-12">
       <Container>
         {/* The rule draws itself out as the section arrives, rather than
             having been sitting there the whole time. */}
@@ -301,11 +301,11 @@ function Apply() {
 
             <h2 className="heading text-[clamp(2rem,4.2vw,3.1rem)]">
               <Typewriter as="div" text="We'll build you" />
-              {/* The price counts itself down to the word. */}
-              <span className="block">
-                <Typewriter as="span" text="one system." delay={0.24} />{" "}
-                <CountdownToFree from={4000} />
-              </span>
+              {/* The price gets its own line. Sharing one with "one system."
+                  meant the line re-wrapped the moment the figure became the
+                  shorter word, and the whole heading jumped up. */}
+              <Typewriter as="div" text="one system." delay={0.24} />
+              <PriceToFree />
             </h2>
 
             <p className="mt-7 max-w-[420px] text-[16px] leading-[1.8] text-ash">

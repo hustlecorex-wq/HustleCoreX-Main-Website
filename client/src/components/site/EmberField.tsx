@@ -325,7 +325,7 @@ export default function EmberField({ still = false }: { still?: boolean }) {
     <canvas
       ref={canvasRef}
       aria-hidden
-      className="pointer-events-none fixed inset-0 z-0 h-full w-full"
+      className="unzoom pointer-events-none fixed inset-0 z-0 h-full w-full"
     />
   );
 }
