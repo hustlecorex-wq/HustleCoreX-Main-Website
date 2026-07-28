@@ -298,6 +298,79 @@ export function MaskLine({
   );
 }
 
+/**
+ * Mono labels decode into place, character by character, the way an
+ * instrument resolves a reading. Only for the mono voice - run it on body
+ * copy and it reads as a broken font.
+ */
+const GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/\\<>-_=*";
+
+export function Scramble({
+  text,
+  className = "",
+  speed = 42,
+}: {
+  text: string;
+  className?: string;
+  /** ms per settled character */
+  speed?: number;
+}) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const started = useRef(false);
+  const ok = useMotionOk();
+
+  useEffect(() => {
+    if (!ok) return;
+    const el = ref.current;
+    if (!el) return;
+
+    let stopTicking = () => {};
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting) || started.current) return;
+        started.current = true;
+        observer.disconnect();
+
+        let settled = 0;
+        const id = window.setInterval(() => {
+          settled += 1;
+          if (settled > text.length) {
+            el.textContent = text;
+            window.clearInterval(id);
+            return;
+          }
+          const scrambled = text
+            .slice(settled)
+            .split("")
+            .map((c) =>
+              c === " " ? " " : GLYPHS[Math.floor(Math.random() * GLYPHS.length)],
+            )
+            .join("");
+          el.textContent = text.slice(0, settled) + scrambled;
+        }, speed);
+
+        stopTicking = () => window.clearInterval(id);
+      },
+      { threshold: 0.4 },
+    );
+
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+      stopTicking();
+    };
+  }, [ok, text, speed]);
+
+  // Renders the real text first: if the effect never runs, the label is
+  // still correct and still readable by a screen reader.
+  return (
+    <span ref={ref} className={className}>
+      {text}
+    </span>
+  );
+}
+
 /* ═══ pointer-reactive surfaces ═══════════════════════════════════ */
 
 /**

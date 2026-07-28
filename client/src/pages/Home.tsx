@@ -1,3 +1,4 @@
+import { Suspense, lazy, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 
@@ -7,8 +8,11 @@ import ApplyForm from "@/components/site/ApplyForm";
 import ProofWall from "@/components/site/ProofWall";
 import VideoFrame from "@/components/site/VideoFrame";
 import AdminAccess from "@/components/site/AdminAccess";
+import Cursor from "@/components/site/Cursor";
+import Ignition from "@/components/site/Ignition";
 import {
   CursorGlow,
+  Scramble,
   Magnetic,
   MaskLine,
   Reveal,
@@ -33,6 +37,28 @@ const BUILD_POSTER = "/what-we-build-poster.jpg";
 const BUILD_ASPECT = "16 / 9";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
+
+/* The shader field is the heaviest thing on the page, so it is fetched
+   after first paint and only where it will actually be seen. */
+const EmberField = lazy(() => import("@/components/site/EmberField"));
+
+/** True once we know this is a pointer device with motion allowed. */
+function useHeavyVisuals() {
+  const motionOk = useMotionOk();
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    if (!motionOk) return;
+    // Runs after the first paint, which is also what defers the chunk.
+    // `any-hover` rather than a width query: the question is whether there
+    // is a cursor to react to, not how wide the screen is.
+    const pointer = window.matchMedia("(any-hover: hover)").matches;
+    const wide = window.matchMedia("(min-width: 768px)").matches;
+    if (pointer && wide) setReady(true);
+  }, [motionOk]);
+
+  return ready;
+}
 
 /* Reveal, Stagger and the pointer-reactive wrappers all live in
    components/site/motion.tsx - see the note at the top of that file for
@@ -198,7 +224,7 @@ function WhatWeBuild() {
     <section id="system" className="relative z-10 py-20 md:py-28">
       <Container>
         <Reveal>
-          <p className="mono-label-ember mb-6">What we build</p>
+          <Scramble className="mono-label-ember mb-6 block" text="What we build" />
           {/* Two blocks rather than one string with a max-width: the line
               break here is a design decision, not a wrapping accident. */}
           <h2 className="heading text-[clamp(2rem,4.2vw,3.1rem)]">
@@ -247,7 +273,7 @@ function Mission() {
         />
         <div className="mx-auto max-w-3xl text-center">
           <Reveal>
-            <p className="mono-label-ember mb-8">Why we do it</p>
+            <Scramble className="mono-label-ember mb-8 block" text="Why we do it" />
             <RiseWords
               as="div"
               text="A coach with their week back can take on more people - and be better for the ones they already have."
@@ -298,7 +324,7 @@ function Apply() {
         <div className="grid gap-14 lg:grid-cols-[0.9fr_1fr] lg:gap-20">
           <Reveal>
             <div className="mb-6 flex flex-wrap items-center gap-3">
-              <p className="mono-label-ember">The offer</p>
+              <Scramble className="mono-label-ember" text="The offer" />
               <span className="inline-flex items-center gap-2 rounded-full border border-ember/25 bg-ember/[0.08] px-2.5 py-1 font-mono text-[9.5px] uppercase tracking-[0.16em] text-ember">
                 <span className="live-dot h-1.5 w-1.5 rounded-full bg-ember" />
                 2 spaces left
@@ -433,13 +459,23 @@ function Footer() {
 /* ═══ PAGE ═══════════════════════════════════════════════════════ */
 
 export default function Home() {
+  const heavy = useHeavyVisuals();
+
   return (
     <div className="relative min-h-screen bg-void">
+      {/* Light, from the bottom up: the shader bed, then the grain and the
+          fixed wash over it, then the pointer glow. Content sits above all
+          three on z-10. */}
+      {heavy && (
+        <Suspense fallback={null}>
+          <EmberField />
+        </Suspense>
+      )}
       <SiteBackdrop />
-      {/* The one light source, following the pointer. Sits above the
-          backdrop and below everything that has to stay readable. */}
       <CursorGlow />
       <ScrollProgress />
+      <Ignition />
+      <Cursor />
       <Nav />
       <main className="relative z-10">
         <Hero />
