@@ -42,22 +42,28 @@ const EASE = [0.22, 1, 0.36, 1] as const;
    after first paint and only where it will actually be seen. */
 const EmberField = lazy(() => import("@/components/site/EmberField"));
 
-/** True once we know this is a pointer device with motion allowed. */
+/**
+ * Whether to draw the shader field, and whether it is allowed to move.
+ *
+ * Note the split: reduced motion does NOT turn the field off, it freezes
+ * it. A visitor who asked not to be moved still gets the brand; they just
+ * get it as a still. Turning it off entirely left them looking at a page
+ * that seemed unfinished.
+ */
 function useHeavyVisuals() {
   const motionOk = useMotionOk();
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (!motionOk) return;
     // Runs after the first paint, which is also what defers the chunk.
-    // `any-hover` rather than a width query: the question is whether there
+    // `any-hover` rather than width alone: the question is whether there
     // is a cursor to react to, not how wide the screen is.
     const pointer = window.matchMedia("(any-hover: hover)").matches;
     const wide = window.matchMedia("(min-width: 768px)").matches;
     if (pointer && wide) setReady(true);
-  }, [motionOk]);
+  }, []);
 
-  return ready;
+  return { field: ready, still: !motionOk };
 }
 
 /* Reveal, Stagger and the pointer-reactive wrappers all live in
@@ -459,16 +465,16 @@ function Footer() {
 /* ═══ PAGE ═══════════════════════════════════════════════════════ */
 
 export default function Home() {
-  const heavy = useHeavyVisuals();
+  const { field, still } = useHeavyVisuals();
 
   return (
     <div className="relative min-h-screen bg-void">
       {/* Light, from the bottom up: the shader bed, then the grain and the
           fixed wash over it, then the pointer glow. Content sits above all
           three on z-10. */}
-      {heavy && (
+      {field && (
         <Suspense fallback={null}>
-          <EmberField />
+          <EmberField still={still} />
         </Suspense>
       )}
       <SiteBackdrop />

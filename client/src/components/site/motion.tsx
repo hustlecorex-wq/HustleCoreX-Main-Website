@@ -41,13 +41,17 @@ export function ScrollProgress() {
   const { scrollYProgress } = useScroll();
   // Spring, not the raw value: a wheel tick moves scrollYProgress in a
   // single jump, and the bar should catch up rather than teleport.
-  const scaleX = useSpring(scrollYProgress, {
+  const smooth = useSpring(scrollYProgress, {
     stiffness: 140,
     damping: 26,
     restDelta: 0.001,
   });
 
-  if (!useMotionOk()) return null;
+  // This one survives reduced motion. It only ever reflects the scroll the
+  // visitor is doing themselves, which is not the kind of movement that
+  // setting is asking us to stop - so drop the easing and keep the bar.
+  const ok = useMotionOk();
+  const scaleX = ok ? smooth : scrollYProgress;
 
   return (
     <motion.div

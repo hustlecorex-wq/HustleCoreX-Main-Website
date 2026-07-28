@@ -18,8 +18,14 @@ import { useEffect, useRef } from "react";
  * shader: routing it through a scene graph would have cost 824 kB of
  * JavaScript to draw two triangles.
  *
+ * Under prefers-reduced-motion it draws exactly one frame and stops: no
+ * loop, no listeners, nothing that moves. Reduced motion is a request not
+ * to be moved, not a request for a plainer brand - killing the field
+ * outright left those visitors on a page that looked unfinished, and on
+ * Windows the animation setting is off far more often than you would
+ * guess.
+ *
  * The caller decides when this renders - see useHeavyVisuals in Home.tsx.
- * It assumes a pointer, a wide viewport and no reduced-motion preference.
  */
 
 const VERT = `
@@ -120,7 +126,7 @@ function compile(gl: WebGLRenderingContext, type: number, src: string) {
   return shader;
 }
 
-export default function EmberField() {
+export default function EmberField({ still = false }: { still?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -187,6 +193,31 @@ export default function EmberField() {
       aspect = window.innerWidth / Math.max(1, window.innerHeight);
     };
     resize();
+
+    // ── still path ────────────────────────────────────────────────
+    // One frame at a hand-picked moment in the noise, then nothing. No
+    // loop, no listeners, no work after this returns.
+    if (still) {
+      const draw = () => {
+        resize();
+        gl.uniform1f(uTime, 14.0);
+        gl.uniform2f(uMouse, 0.5, 0.18);
+        gl.uniform1f(uScroll, 0);
+        gl.uniform1f(uVel, 0);
+        gl.uniform1f(uAspect, aspect);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+      };
+      draw();
+      window.addEventListener("resize", draw);
+      return () => {
+        window.removeEventListener("resize", draw);
+        gl.deleteBuffer(buffer);
+        gl.deleteProgram(program);
+        gl.deleteShader(vs);
+        gl.deleteShader(fs);
+        gl.getExtension("WEBGL_lose_context")?.loseContext();
+      };
+    }
 
     const onMove = (e: PointerEvent) => {
       if (e.pointerType !== "mouse") return;
@@ -263,7 +294,7 @@ export default function EmberField() {
       gl.deleteShader(fs);
       gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
-  }, []);
+  }, [still]);
 
   return (
     <canvas
