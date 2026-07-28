@@ -483,7 +483,11 @@ export default function VideoFrame({
                 />
                 <Play size={20} className="ml-0.5 fill-ember text-ember" />
               </span>
-              <span className="mono-label">{label}</span>
+              {/* Dropped by a transform rather than by spacing. Margin or a
+                  wider gap makes the column taller, and the column is
+                  centred - so the play button drifts up by half of whatever
+                  the caption gains. A transform costs no layout at all. */}
+              <span className="mono-label translate-y-4">{label}</span>
             </span>
           </button>
         )}
