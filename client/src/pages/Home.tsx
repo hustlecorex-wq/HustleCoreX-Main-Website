@@ -11,18 +11,18 @@ import AdminAccess from "@/components/site/AdminAccess";
 import Cursor from "@/components/site/Cursor";
 import Ignition from "@/components/site/Ignition";
 import {
+  CountdownToFree,
   CursorGlow,
-  Scramble,
   Magnetic,
-  MaskLine,
   Reveal,
   RiseIntoView,
-  RiseWords,
+  Scramble,
   ScrollProgress,
   Spotlight,
   Stagger,
   StaggerItem,
   Tilt,
+  Typewriter,
   useMotionOk,
 } from "@/components/site/motion";
 
@@ -87,23 +87,11 @@ function Container({
 /* ═══ HERO ═══════════════════════════════════════════════════════ */
 
 function Hero() {
-  const motionOk = useMotionOk();
-
   const rise = (delay: number) => ({
     initial: { opacity: 0, y: 22 },
     animate: { opacity: 1, y: 0 },
     transition: { duration: 0.85, ease: EASE, delay },
   });
-
-  /* The headline is the one place that animates on load rather than on
-     scroll - it is already in view, so whileInView would never fire. */
-  const word = (i: number) => ({
-    initial: { y: "108%" },
-    animate: { y: "0%" },
-    transition: { duration: 0.95, ease: EASE, delay: 0.18 + i * 0.055 },
-  });
-
-  const LINE_ONE = "We build the systems".split(" ");
 
   return (
     <section className="relative pt-[128px] md:pt-[150px]">
@@ -113,45 +101,22 @@ function Hero() {
           <HeroBeam />
 
           <div className="relative z-10 mx-auto max-w-3xl text-center">
-            <h1
-              className="text-[clamp(1.95rem,7.4vw,4.6rem)]"
-              aria-label="We build the systems online coaches run on"
-            >
-              {/* Line one is uncovered word by word. Line two is a single
-                  clip: it carries a background-clip gradient (.text-lit),
-                  and splitting it would restart that gradient per word. */}
-              <span
-                aria-hidden
+            <h1 className="text-[clamp(1.95rem,7.4vw,4.6rem)]">
+              <Typewriter
+                as="div"
+                text="We build the systems"
                 className="display-light block text-white/[0.72]"
-              >
-                {motionOk
-                  ? LINE_ONE.map((w, i) => (
-                      <span
-                        key={w + i}
-                        className="inline-block overflow-hidden pb-[0.14em] align-bottom"
-                        style={{ marginBottom: "-0.14em" }}
-                      >
-                        <motion.span className="inline-block" {...word(i)}>
-                          {w}
-                          {i < LINE_ONE.length - 1 ? " " : ""}
-                        </motion.span>
-                      </span>
-                    ))
-                  : "We build the systems"}
-              </span>
-
-              <span aria-hidden className="block overflow-hidden">
-                <motion.span
-                  className="display text-lit block"
-                  initial={
-                    motionOk ? { clipPath: "inset(0 0 108% 0)", y: 12 } : false
-                  }
-                  animate={{ clipPath: "inset(0 0 -14% 0)", y: 0 }}
-                  transition={{ duration: 1.15, ease: EASE, delay: 0.34 }}
-                >
-                  online coaches run on
-                </motion.span>
-              </span>
+                delay={0.15}
+              />
+              {/* Types on after the first line, and carries the hover wipe.
+                  The gradient lives on this element, so the text can grow
+                  underneath it without the colour restarting per character. */}
+              <Typewriter
+                as="div"
+                text="online coaches run on"
+                className="display wipe-line block cursor-default"
+                delay={0.79}
+              />
             </h1>
 
             <motion.p
@@ -234,8 +199,8 @@ function WhatWeBuild() {
           {/* Two blocks rather than one string with a max-width: the line
               break here is a design decision, not a wrapping accident. */}
           <h2 className="heading text-[clamp(2rem,4.2vw,3.1rem)]">
-            <RiseWords as="div" text="Kyle's" delay={0.08} />
-            <RiseWords as="div" text="Lead Gen System" delay={0.135} />
+            <Typewriter as="div" text="Kyle's" />
+            <Typewriter as="div" text="Lead Gen System" delay={0.22} />
           </h2>
         </Reveal>
 
@@ -280,11 +245,11 @@ function Mission() {
         <div className="mx-auto max-w-3xl text-center">
           <Reveal>
             <Scramble className="mono-label-ember mb-8 block" text="Why we do it" />
-            <RiseWords
+            <Typewriter
               as="div"
               text="A coach with their week back can take on more people - and be better for the ones they already have."
               className="display-light text-[clamp(1.75rem,4vw,2.9rem)] leading-[1.22]"
-              step={0.035}
+              speed={22}
             />
           </Reveal>
           <Reveal delay={0.12}>
@@ -338,8 +303,12 @@ function Apply() {
             </div>
 
             <h2 className="heading text-[clamp(2rem,4.2vw,3.1rem)]">
-              <RiseWords as="div" text="We'll build you" />
-              <RiseWords as="div" text="one system. Free." delay={0.165} />
+              <Typewriter as="div" text="We'll build you" />
+              {/* The price counts itself down to the word. */}
+              <span className="block">
+                <Typewriter as="span" text="one system." delay={0.24} />{" "}
+                <CountdownToFree from={4000} />
+              </span>
             </h2>
 
             <p className="mt-7 max-w-[420px] text-[16px] leading-[1.8] text-ash">

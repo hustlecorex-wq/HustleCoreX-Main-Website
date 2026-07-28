@@ -44,9 +44,15 @@ varying vec2 vUv;
 
 uniform float uTime;
 uniform vec2  uMouse;   // 0..1, y up
-uniform float uScroll;  // page progress, 0..1
 uniform float uVel;     // scroll speed, roughly 0..1
 uniform float uAspect;
+
+// Document geometry. The field is anchored to the page, not the window:
+// without these it banks to the bottom of the viewport and therefore
+// follows you down the whole site instead of pooling at the end of it.
+uniform float uScrollPx;
+uniform float uViewH;
+uniform float uDocH;
 
 float hash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
@@ -79,24 +85,29 @@ void main() {
   vec2 p = vec2(uv.x * uAspect, uv.y);
   vec2 m = vec2(uMouse.x * uAspect, uMouse.y);
 
+  // Where this pixel sits in the DOCUMENT: 0 at the top of the page, 1 at
+  // the very bottom. uv.y is 0 at the bottom of the viewport, hence the flip.
+  float docY = (uScrollPx + (1.0 - uv.y) * uViewH) / max(1.0, uDocH);
+
   // Domain-warped noise: fbm fed into itself is what turns an even cloud
   // into something that curls the way heat does.
   float t = uTime * 0.055;
   vec2 q = p * 2.3;
-  q.y -= t * 1.5 + uScroll * 2.4;
+  q.y -= t * 1.5 + docY * 2.4;
   float n = fbm(q + fbm(q * 1.7 + t) * 0.65);
 
   // The cursor is a heat source.
   float d = distance(p, m);
   float heat = exp(-d * 3.4);
 
-  // Keep the centre column dark - that is where every headline is.
-  float lowBank  = smoothstep(0.58, 0.0, uv.y);
+  // Banked to the foot of the page and out along the margins. Nothing at the
+  // top, a long climb rather than an edge, strongest at the very end.
+  float pageBank = smoothstep(0.45, 1.0, docY);
   float sideBank = 0.34 + 0.66 * smoothstep(0.1, 0.46, abs(uv.x - 0.5));
-  float mask = clamp(lowBank * sideBank + heat * 0.5, 0.0, 1.0);
+  float mask = clamp(pageBank * sideBank + heat * 0.16, 0.0, 1.0);
 
   float burn  = n + uVel * 0.28;
-  float glow  = smoothstep(0.34, 0.88, burn) * 0.5 + heat * 0.45;
+  float glow  = smoothstep(0.34, 0.88, burn) * 0.5 + heat * 0.22;
   float crest = smoothstep(0.58, 0.98, burn);
 
   vec3 VOIDC = vec3(0.027, 0.027, 0.039);
@@ -104,8 +115,8 @@ void main() {
   vec3 FLARE = vec3(1.000, 0.635, 0.302);
 
   vec3 col = VOIDC;
-  col = mix(col, EMBER, glow * 0.62);
-  col = mix(col, FLARE, crest * 0.34);
+  col = mix(col, EMBER, glow * 0.28);
+  col = mix(col, FLARE, crest * 0.14);
   col = mix(VOIDC, col, mask);
 
   gl_FragColor = vec4(col, 1.0);
@@ -168,14 +179,17 @@ export default function EmberField({ still = false }: { still?: boolean }) {
 
     const uTime = gl.getUniformLocation(program, "uTime");
     const uMouse = gl.getUniformLocation(program, "uMouse");
-    const uScroll = gl.getUniformLocation(program, "uScroll");
     const uVel = gl.getUniformLocation(program, "uVel");
     const uAspect = gl.getUniformLocation(program, "uAspect");
+    const uScrollPx = gl.getUniformLocation(program, "uScrollPx");
+    const uViewH = gl.getUniformLocation(program, "uViewH");
+    const uDocH = gl.getUniformLocation(program, "uDocH");
 
     // Targets are written by the listeners; the uniforms chase them. The
     // easing is what stops the field snapping on every wheel tick.
-    const target = { mx: 0.5, my: 0.32, scroll: 0, vel: 0 };
-    const current = { mx: 0.5, my: 0.32, scroll: 0, vel: 0 };
+    const target = { mx: 0.5, my: 0.32, scrollPx: 0, vel: 0 };
+    const current = { mx: 0.5, my: 0.32, scrollPx: 0, vel: 0 };
+    let docH = 1;
     let lastScroll = window.scrollY;
     let aspect = 1;
 
@@ -191,26 +205,36 @@ export default function EmberField({ still = false }: { still?: boolean }) {
         gl.viewport(0, 0, w, h);
       }
       aspect = window.innerWidth / Math.max(1, window.innerHeight);
+      docH = Math.max(1, document.documentElement.scrollHeight);
     };
     resize();
 
     // ── still path ────────────────────────────────────────────────
-    // One frame at a hand-picked moment in the noise, then nothing. No
-    // loop, no listeners, no work after this returns.
+    // One frame at a hand-picked moment in the noise. No animation loop and
+    // no pointer tracking - the only thing that redraws is scrolling, and
+    // that is not the field moving, it is the field staying where it is.
     if (still) {
+      // Still, but still page-anchored: it has to redraw on scroll, or the
+      // frozen field would slide with the viewport instead of staying put
+      // at the foot of the page. Drawing one frame is far cheaper than the
+      // animation it replaces.
       const draw = () => {
         resize();
         gl.uniform1f(uTime, 14.0);
         gl.uniform2f(uMouse, 0.5, 0.18);
-        gl.uniform1f(uScroll, 0);
         gl.uniform1f(uVel, 0);
         gl.uniform1f(uAspect, aspect);
+        gl.uniform1f(uScrollPx, window.scrollY);
+        gl.uniform1f(uViewH, window.innerHeight);
+        gl.uniform1f(uDocH, docH);
         gl.drawArrays(gl.TRIANGLES, 0, 3);
       };
       draw();
       window.addEventListener("resize", draw);
+      window.addEventListener("scroll", draw, { passive: true });
       return () => {
         window.removeEventListener("resize", draw);
+        window.removeEventListener("scroll", draw);
         gl.deleteBuffer(buffer);
         gl.deleteProgram(program);
         gl.deleteShader(vs);
@@ -226,10 +250,9 @@ export default function EmberField({ still = false }: { still?: boolean }) {
     };
 
     const onScroll = () => {
-      const doc = document.documentElement;
-      const max = doc.scrollHeight - window.innerHeight;
       const y = window.scrollY;
-      target.scroll = max > 0 ? y / max : 0;
+      target.scrollPx = y;
+      docH = Math.max(1, document.documentElement.scrollHeight);
       // Velocity decays on its own, so a flick flares and then settles.
       target.vel = Math.min(1, target.vel + Math.abs(y - lastScroll) * 0.012);
       lastScroll = y;
@@ -266,14 +289,18 @@ export default function EmberField({ still = false }: { still?: boolean }) {
 
       current.mx += (target.mx - current.mx) * 0.06;
       current.my += (target.my - current.my) * 0.06;
-      current.scroll += (target.scroll - current.scroll) * 0.08;
+      // Scroll position is NOT eased - the field is pinned to the page, and
+      // easing it would let the whole bank drift behind the content.
+      current.scrollPx = target.scrollPx;
       current.vel += (target.vel - current.vel) * 0.12;
 
       gl!.uniform1f(uTime, elapsed);
       gl!.uniform2f(uMouse, current.mx, current.my);
-      gl!.uniform1f(uScroll, current.scroll);
       gl!.uniform1f(uVel, current.vel);
       gl!.uniform1f(uAspect, aspect);
+      gl!.uniform1f(uScrollPx, current.scrollPx);
+      gl!.uniform1f(uViewH, window.innerHeight);
+      gl!.uniform1f(uDocH, docH);
       gl!.drawArrays(gl!.TRIANGLES, 0, 3);
 
       raf = requestAnimationFrame(frame);

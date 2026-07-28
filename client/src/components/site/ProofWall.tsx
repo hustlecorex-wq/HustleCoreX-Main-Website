@@ -1,8 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import {
+  motion,
+  useInView,
+  useScroll,
+  useSpring,
+  useTransform,
+  type MotionValue,
+} from "framer-motion";
 import { Maximize2, Star, X } from "lucide-react";
 
 import VideoFrame from "@/components/site/VideoFrame";
+import { Scramble, Typewriter, useMotionOk } from "@/components/site/motion";
 
 /**
  * ProofWall - everything we can actually show, in one collage.
@@ -246,28 +254,9 @@ const TILES: Tile[] = [
   },
 ];
 
-/* Column spans, written out in full because Tailwind reads these as literal
-   strings - a template like `lg:col-span-${n}` compiles to nothing.
 
-   Desktop is a 12-column bed. Tablet drops to 6, where a screenshot or a
-   quote goes full width and clips and profiles pair up; phones get 2, where
-   only the clips still sit side by side. */
-const SPAN: Record<number, string> = {
-  3: "col-span-1 md:col-span-3 lg:col-span-3",
-  5: "col-span-2 md:col-span-3 lg:col-span-5",
-  6: "col-span-2 md:col-span-6 lg:col-span-6",
-  7: "col-span-2 md:col-span-6 lg:col-span-7",
-  12: "col-span-2 md:col-span-6 lg:col-span-12",
-};
 
-/* Aspect per shot width, tuned so a 7-wide and a 5-wide land on the same
-   height and the row edge stays flush. At 1152px with a 20px gutter that's
-   617x309 next to 435x311 - close enough that the seam disappears. */
-const SHOT_ASPECT: Record<number, string> = {
-  5: "aspect-[3/2] lg:aspect-[7/5]",
-  7: "aspect-[2/1]",
-  12: "aspect-[2/1]",
-};
+
 
 /* ── shared bits ────────────────────────────────────────────────── */
 
@@ -297,38 +286,52 @@ function Reveal({
   );
 }
 
-/* ── clip tile ──────────────────────────────────────────────────── */
+/* ── one card, one size ────────────────────────────────────────────
+   Every proof now sits in the same box. Three kinds of evidence at three
+   different shapes is what made the old collage read as a mood board;
+   identical cards let them be compared instead of just looked at.
+
+   Screenshots are fitted, never cropped - a proof with its edge cut off
+   proves less. */
 
 type Clip = Extract<Tile, { kind: "clip" }>;
+type Quote = Extract<Tile, { kind: "quote" }>;
+type Shot = Extract<Tile, { kind: "shot" }>;
 
-function ClipCard({ c }: { c: Clip }) {
+const CARD_W = 380;
+const CARD_GAP = 24;
+const CARD_H = 540;
+
+type Absent = (src: string) => boolean;
+
+function ClipBody({ c }: { c: Clip }) {
   return (
-    <figure className="group">
-      <VideoFrame
-        src={`/proof/${c.slug}.mp4`}
-        poster={c.poster}
-        aspect="9 / 16"
-        label={`Play · ${c.length}`}
-      />
-      <figcaption className="mt-4 px-0.5">
+    <>
+      <div className="flex min-h-0 flex-1 items-center justify-center bg-black/40 p-3">
+        <div className="h-full" style={{ aspectRatio: "9 / 16" }}>
+          <VideoFrame
+            src={`/proof/${c.slug}.mp4`}
+            poster={c.poster}
+            aspect="9 / 16"
+            label={`Play · ${c.length}`}
+          />
+        </div>
+      </div>
+      <figcaption className="shrink-0 border-t border-white/[0.06] px-5 py-4">
         <p className="text-[14px] font-medium leading-tight text-chalk">{c.name}</p>
-        <p className="mt-1 text-[12.5px] leading-snug text-ash-dim">{c.role}</p>
-        <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-ash-dim/80">
+        <p className="mt-1 line-clamp-1 text-[12.5px] text-ash-dim">{c.role}</p>
+        <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-ash-dim/80">
           {c.handle}
         </p>
       </figcaption>
-    </figure>
+    </>
   );
 }
 
-/* ── quote tile ─────────────────────────────────────────────────── */
-
-type Quote = Extract<Tile, { kind: "quote" }>;
-
-function QuoteCard({ t }: { t: Quote }) {
+function QuoteBody({ t }: { t: Quote }) {
   return (
-    <figure className="panel flex h-full flex-col justify-between rounded-3xl p-6 transition-colors duration-300 hover:border-white/[0.12] md:p-8">
-      <div>
+    <div className="flex h-full flex-col justify-between p-6 md:p-7">
+      <div className="min-h-0">
         {t.stars > 0 && (
           <div className="mb-4 flex gap-1">
             {Array.from({ length: t.stars }).map((_, s) => (
@@ -336,127 +339,284 @@ function QuoteCard({ t }: { t: Quote }) {
             ))}
           </div>
         )}
-        <blockquote className="text-[14.5px] leading-[1.7] text-chalk/90 md:text-[15px]">
+        <blockquote className="line-clamp-[11] text-[14.5px] leading-[1.7] text-chalk/90">
           {t.quote}
         </blockquote>
       </div>
-
-      <figcaption className="mt-7 flex items-center gap-3">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.03] text-[12px] font-semibold text-ash">
-          {t.name
-            .split(" ")
-            .map((w) => w[0])
-            .join("")}
-        </span>
-        <div className="min-w-0">
-          <p className="text-[13.5px] font-medium text-chalk">{t.name}</p>
-          <p className="truncate text-[12px] text-ash-dim">{t.role}</p>
-        </div>
-        <span className="ml-auto shrink-0 rounded-full border border-white/[0.06] px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.14em] text-ash-dim">
+      <figcaption className="mt-6 shrink-0">
+        <p className="text-[14px] font-medium text-chalk">{t.name}</p>
+        <p className="mt-1 line-clamp-1 text-[12.5px] text-ash-dim">{t.role}</p>
+        <p className="mt-2 font-mono text-[9.5px] uppercase tracking-[0.16em] text-ash-dim/80">
           {t.source}
-        </span>
+        </p>
       </figcaption>
-    </figure>
+    </div>
   );
 }
 
-/* ── shot tile ──────────────────────────────────────────────────── */
-
-type Shot = Extract<Tile, { kind: "shot" }>;
-
-function ShotCard({
+function ShotBody({
   s,
-  absent,
   onOpen,
   onMissing,
 }: {
   s: Shot;
-  absent: boolean;
   onOpen: (s: Shot) => void;
   onMissing: (src: string) => void;
 }) {
-  const [failed, setFailed] = useState(false);
-
-  /* A screenshot that hasn't been dropped in yet shouldn't leave a broken
-     frame on a live page - it just leaves the collage. In dev it stays put,
-     labelled, so it's obvious what's still outstanding. */
-  if (absent || failed) {
-    if (!import.meta.env.DEV) return null;
-    return (
-      <div
-        className={`flex items-center justify-center rounded-2xl border border-dashed border-white/[0.14] bg-white/[0.015] p-6 text-center ${SHOT_ASPECT[s.span]}`}
-      >
-        <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-ember/80">
-            missing file
-          </p>
-          <p className="mt-2 font-mono text-[11px] text-ash">{s.src}</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <button
       type="button"
       onClick={() => onOpen(s)}
-      aria-label={`${s.title} - view full size`}
-      /* h-full alongside the aspect so the tile still contributes its own
-         height to the row, then fills the row if its neighbour turns out
-         to be taller. */
-      className={`group relative block h-full w-full overflow-hidden rounded-2xl border border-white/[0.08] bg-panel text-left transition-all duration-500 hover:border-white/[0.16] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ember/60 ${SHOT_ASPECT[s.span]}`}
-      style={{ boxShadow: "0 24px 60px -34px rgba(0,0,0,0.95)" }}
+      className="group flex h-full w-full flex-col text-left"
+      aria-label={`Open ${s.title} full size`}
     >
-      <img
-        src={s.src}
-        alt={`${s.title} - ${s.label.toLowerCase()} built by HustleCoreX`}
-        loading="lazy"
-        decoding="async"
-        onError={() => {
-          setFailed(true);
-          onMissing(s.src);
-        }}
-        /* Duration and easing are written as arbitrary properties on
-           purpose. Their shorthand forms are ambiguous to Tailwind, which
-           cannot tell a transition from an animation and so emits neither
-           rule - silently dropping this drift back to the default 150ms. */
-        className={`h-full w-full object-cover transition-transform [transition-duration:900ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.035] ${
-          s.anchor === "left" ? "object-left-top" : "object-top"
-        }`}
-      />
-
-      {/* Kind chip, top-left, so the collage reads at a glance */}
-      <span className="pointer-events-none absolute left-3 top-3 rounded-full border border-white/[0.12] bg-void/70 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.16em] text-chalk/85 backdrop-blur-md">
-        {s.label}
-      </span>
-
-      <span className="pointer-events-none absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full border border-white/[0.12] bg-void/70 text-chalk/70 opacity-0 backdrop-blur-md transition-opacity duration-300 group-hover:opacity-100">
-        <Maximize2 size={12} />
-      </span>
-
-      {/* Caption sits on the image so the tiles stay flush in the mosaic */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-24"
-        style={{
-          background:
-            "linear-gradient(to top, rgba(7,7,10,0.92) 0%, rgba(7,7,10,0.55) 50%, transparent 100%)",
-        }}
-      />
-      <span className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4">
-        <span className="min-w-0">
-          <span className="block truncate text-[13.5px] font-medium text-chalk">
-            {s.title}
-          </span>
-          <span className="mt-0.5 block truncate text-[11.5px] text-ash">{s.meta}</span>
+      <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-black/40 p-3">
+        <img
+          src={s.src}
+          onError={() => onMissing(s.src)}
+          loading="lazy"
+          alt={`${s.title} - ${s.label.toLowerCase()} built by HustleCoreX`}
+          className="max-h-full max-w-full object-contain"
+        />
+        <span className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border border-white/[0.12] bg-void/70 text-chalk/70 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+          <Maximize2 size={13} />
+        </span>
+      </div>
+      <span className="block shrink-0 border-t border-white/[0.06] px-5 py-4">
+        <span className="block font-mono text-[9.5px] uppercase tracking-[0.16em] text-ember">
+          {s.label}
+        </span>
+        <span className="mt-1.5 block text-[14px] font-medium leading-tight text-chalk">
+          {s.title}
+        </span>
+        <span className="mt-1 block line-clamp-1 text-[12.5px] text-ash-dim">
+          {s.meta}
         </span>
       </span>
     </button>
   );
 }
 
-/* Full-size viewer - a tile is unreadable at collage size, and an unreadable
-   dashboard proves nothing. */
+function ProofCard({
+  tile,
+  absent,
+  onOpen,
+  onMissing,
+}: {
+  tile: Tile;
+  absent: Absent;
+  onOpen: (s: Shot) => void;
+  onMissing: (src: string) => void;
+}) {
+  const missing = tile.kind === "shot" && absent(tile.src);
+
+  return (
+    <figure className="panel flex h-full w-full flex-col overflow-hidden rounded-3xl">
+      {tile.kind === "clip" && <ClipBody c={tile} />}
+      {tile.kind === "quote" && <QuoteBody t={tile} />}
+      {tile.kind === "shot" &&
+        (missing ? (
+          <div className="flex h-full items-center justify-center p-6 text-center">
+            <p className="font-mono text-[11px] text-ash-dim">{tile.title}</p>
+          </div>
+        ) : (
+          <ShotBody s={tile} onOpen={onOpen} onMissing={onMissing} />
+        ))}
+    </figure>
+  );
+}
+
+/* ── the carousel ──────────────────────────────────────────────────
+   Vertical scroll drives the track sideways. The cards sit on a shallow
+   arc - further from the middle means lower and slightly turned - so the
+   row reads as the top of a large wheel rather than a filmstrip.
+
+   Card centres are computed from the fixed card width, not measured per
+   frame. Reading offsetLeft inside the transform would force a layout on
+   every card on every frame. */
+
+function ArcCard({
+  index,
+  viewportW,
+  x,
+  intro,
+  children,
+}: {
+  index: number;
+  viewportW: number;
+  x: MotionValue<number>;
+  intro: MotionValue<number>;
+  children: React.ReactNode;
+}) {
+  const centre = index * (CARD_W + CARD_GAP) + CARD_W / 2;
+  const dist = useTransform(x, (v) => centre + v - viewportW / 2);
+
+  // A parabola through the middle of the row. 9000 is the radius in
+  // disguise: large enough that the arc is felt rather than seen.
+  const y = useTransform(dist, (d) => (d * d) / 9000);
+  const rotate = useTransform(dist, (d) => (d / 9000) * 90);
+  const arcScale = useTransform(dist, (d) => 1 - Math.min(0.14, Math.abs(d) / 5200));
+  const near = useTransform(dist, (d) => 1 - Math.min(0.62, Math.abs(d) / 1900));
+
+  // The lead card stands alone and large until the intro beat is over, and
+  // the rest arrive with it. That is the "window pops small, wheel appears".
+  const introScale = useTransform(intro, (p) => (index === 0 ? 1.34 - 0.34 * p : 1));
+  const introFade = useTransform(intro, (p) => (index === 0 ? 1 : p));
+
+  const scale = useTransform([arcScale, introScale], (v) => {
+    const [a, b] = v as number[];
+    return a * b;
+  });
+  const opacity = useTransform([near, introFade], (v) => {
+    const [a, b] = v as number[];
+    return a * b;
+  });
+
+  return (
+    <motion.div
+      className="shrink-0"
+      style={{ width: CARD_W, marginRight: CARD_GAP, y, rotate, scale, opacity }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function Carousel({
+  absent,
+  onOpen,
+  onMissing,
+}: {
+  absent: Absent;
+  onOpen: (s: Shot) => void;
+  onMissing: (src: string) => void;
+}) {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const [geom, setGeom] = useState({ maxX: 0, viewportW: 0 });
+
+  useEffect(() => {
+    const measure = () => {
+      const vp = viewportRef.current;
+      if (!vp) return;
+      const viewportW = vp.clientWidth;
+      const trackW = TILES.length * (CARD_W + CARD_GAP) - CARD_GAP;
+      setGeom({ maxX: Math.max(0, trackW - viewportW), viewportW });
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end end"],
+  });
+
+  // The first slice of the runway is the intro; the rest moves the track.
+  const intro = useTransform(scrollYProgress, [0, 0.1], [0, 1]);
+  const rawX = useTransform(scrollYProgress, [0, 0.1, 1], [0, 0, -geom.maxX]);
+  const x = useSpring(rawX, { stiffness: 140, damping: 30, mass: 0.4 });
+
+  /* Keyboard. The track is driven by page scroll, so moving one card along
+     means moving the page by one card's worth of runway. */
+  const step = useCallback(
+    (dir: 1 | -1) => {
+      const section = sectionRef.current;
+      if (!section || geom.maxX <= 0) return;
+      const runway = section.offsetHeight - window.innerHeight;
+      const perCard = (runway * (CARD_W + CARD_GAP)) / geom.maxX;
+      window.scrollBy({ top: dir * perCard, behavior: "smooth" });
+    },
+    [geom.maxX],
+  );
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const section = sectionRef.current;
+      if (!section) return;
+      const r = section.getBoundingClientRect();
+      const pinned = r.top <= 0 && r.bottom >= window.innerHeight;
+      if (!pinned) return;
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        step(1);
+      }
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        step(-1);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [step]);
+
+  return (
+    <div
+      ref={sectionRef}
+      /* One pixel of page scroll per pixel of sideways travel, plus one
+         viewport for the intro. The runway ends and hands scrolling back -
+         nobody gets held in here. */
+      style={{ height: `calc(100vh + ${Math.round(geom.maxX)}px)` }}
+    >
+      <div className="sticky top-0 flex h-screen items-center overflow-hidden">
+        <div ref={viewportRef} className="w-full overflow-hidden px-6 md:px-10">
+          <motion.div className="flex items-stretch" style={{ x }}>
+            {TILES.map((tile, i) => (
+              <ArcCard
+                key={`${tile.kind}-${i}`}
+                index={i}
+                viewportW={geom.viewportW}
+                x={x}
+                intro={intro}
+              >
+                <div style={{ height: CARD_H }}>
+                  <ProofCard
+                    tile={tile}
+                    absent={absent}
+                    onOpen={onOpen}
+                    onMissing={onMissing}
+                  />
+                </div>
+              </ArcCard>
+            ))}
+          </motion.div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* Reduced motion: the same cards, stacked, scrolling like any other page.
+   Driving the page sideways is exactly the kind of movement that setting is
+   asking us not to do. */
+function ProofList({
+  absent,
+  onOpen,
+  onMissing,
+}: {
+  absent: Absent;
+  onOpen: (s: Shot) => void;
+  onMissing: (src: string) => void;
+}) {
+  return (
+    <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {TILES.map((tile, i) => (
+        <div key={`${tile.kind}-${i}`} style={{ height: CARD_H }}>
+          <ProofCard
+            tile={tile}
+            absent={absent}
+            onOpen={onOpen}
+            onMissing={onMissing}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* Full-size viewer - a card is unreadable at carousel size, and an
+   unreadable dashboard proves nothing. */
 function Lightbox({ shot, onClose }: { shot: Shot | null; onClose: () => void }) {
   useEffect(() => {
     if (!shot) return;
@@ -480,8 +640,8 @@ function Lightbox({ shot, onClose }: { shot: Shot | null; onClose: () => void })
       aria-modal="true"
       aria-label={shot.title}
       onClick={onClose}
-      /* Above the nav (z-200), not below it. At z-90 the fixed header painted
-         on top of this and ate the close button. */
+      /* Above the nav (z-200), not below it. At z-90 the fixed header
+         painted over this and ate the close button. */
       className="fixed inset-0 z-[340] flex items-center justify-center bg-void/90 p-4 backdrop-blur-md md:p-10"
     >
       <button
@@ -523,20 +683,21 @@ const SHOTS = TILES.filter((t): t is Shot => t.kind === "shot");
 
 export default function ProofWall() {
   const [open, setOpen] = useState<Shot | null>(null);
+  const motionOk = useMotionOk();
 
   /* Which screenshots are actually on the server.
    *
-   * The per-tile onError would settle this on its own, but the images are
-   * lazy - so a missing one wouldn't drop out of the collage until someone
-   * scrolled level with it, re-flowing the rows under their eyes. A HEAD
-   * sweep on mount settles it before anyone gets there and costs nothing:
-   * no image bytes move. onError stays as a backstop for anything that
-   * dies after the probe. */
+   * The per-card onError would settle this on its own, but the images are
+   * lazy - so a missing one wouldn't drop out until someone scrolled level
+   * with it, re-flowing the row under their eyes. A HEAD sweep on mount
+   * settles it before anyone gets there and costs nothing: no image bytes
+   * move. onError stays as a backstop for anything that dies after. */
   const [gone, setGone] = useState<string[]>([]);
   const noteMissing = useCallback(
     (src: string) => setGone((g) => (g.includes(src) ? g : [...g, src])),
     [],
   );
+  const absent = useCallback((src: string) => gone.includes(src), [gone]);
 
   useEffect(() => {
     let live = true;
@@ -555,9 +716,9 @@ export default function ProofWall() {
           .catch(() => s.src),
       ),
     ).then((res) => {
-      const absent = res.filter((x): x is string => x !== null);
-      if (live && absent.length)
-        setGone((g) => g.concat(absent.filter((s) => !g.includes(s))));
+      const missing = res.filter((x): x is string => x !== null);
+      if (live && missing.length)
+        setGone((g) => g.concat(missing.filter((s) => !g.includes(s))));
     });
     return () => {
       live = false;
@@ -568,46 +729,28 @@ export default function ProofWall() {
     <section id="results" className="relative z-10 py-20 md:py-28">
       <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
         <Reveal>
-          <p className="mono-label-ember mb-6">Results</p>
+          <Scramble className="mono-label-ember mb-6 block" text="Results" />
           <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-end">
             <h2 className="heading max-w-xl text-[clamp(2rem,4.2vw,3.1rem)]">
-              Coaches who stopped
-              <br />
-              doing it by hand
+              <Typewriter as="div" text="Coaches who stopped" />
+              <Typewriter as="div" text="doing it by hand" delay={0.42} />
             </h2>
-            <p className="font-mono text-[10.5px] uppercase tracking-[0.16em] text-ash-dim md:pb-3">
-              Tap any tile to open it full size
+            <p className="mono-label md:pb-3">
+              {motionOk
+                ? "Scroll to run the wheel"
+                : "Tap any card to open it full size"}
             </p>
           </div>
         </Reveal>
-
-        {/* The collage. Dense flow so that if a screenshot hasn't been
-            dropped in yet, the tiles behind it close the hole instead of
-            leaving one. */}
-        <div className="mt-14 grid grid-cols-2 grid-flow-row-dense gap-4 md:mt-16 md:grid-cols-6 md:gap-5 lg:grid-cols-12">
-          {TILES.map((t, i) => {
-            const key = t.kind === "shot" ? t.src : t.kind === "clip" ? t.slug : t.name;
-            return (
-              <Reveal
-                key={`${t.kind}-${key}`}
-                delay={0.04 * (i % 3)}
-                className={SPAN[t.span]}
-              >
-                {t.kind === "clip" && <ClipCard c={t} />}
-                {t.kind === "quote" && <QuoteCard t={t} />}
-                {t.kind === "shot" && (
-                  <ShotCard
-                    s={t}
-                    absent={gone.includes(t.src)}
-                    onOpen={setOpen}
-                    onMissing={noteMissing}
-                  />
-                )}
-              </Reveal>
-            );
-          })}
-        </div>
       </div>
+
+      {motionOk ? (
+        <Carousel absent={absent} onOpen={setOpen} onMissing={noteMissing} />
+      ) : (
+        <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
+          <ProofList absent={absent} onOpen={setOpen} onMissing={noteMissing} />
+        </div>
+      )}
 
       <Lightbox shot={open} onClose={() => setOpen(null)} />
     </section>
