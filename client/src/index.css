@@ -317,14 +317,9 @@
   background-position: 0% 0;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .wipe-line {
-    transition: none;
-  }
-  .tw-caret {
-    animation: none;
-  }
-}
+/* No prefers-reduced-motion block here on purpose. Motion is on for
+   everybody site-wide - see the note on useMotionOk in
+   components/site/motion.tsx, which is where that decision lives. */
 
 /* ── Live dot ──────────────────────────────────────────────────── */
 @keyframes live-dot {
@@ -504,20 +499,13 @@ html.video-playing .site-grain {
   opacity: 0;
 }
 
-/* ── Reduced motion ────────────────────────────────────────────── */
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-  }
-  .spark,
-  .sheen::after {
-    display: none;
-  }
-}
+/* ── Reduced motion ──────────────────────────────────────────────
+   There used to be a blanket override here that flattened every animation
+   and transition on the site with !important, and hid the embers and the
+   sheen outright. It was the reason the whole page went still on any
+   machine with the Windows animation setting off - which is most of them.
+
+   Removed deliberately on 2026-07-28, together with the JS gate. Motion is
+   now on for every visitor; the decision and how to undo it are documented
+   on useMotionOk in components/site/motion.tsx. Restore this block at the
+   same time as that gate, or the two will disagree. */

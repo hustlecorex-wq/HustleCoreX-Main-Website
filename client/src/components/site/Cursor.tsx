@@ -11,7 +11,8 @@ import { useMotionOk } from "./motion";
  * bad one: the moment a frame drops, the visitor has no pointer at all.
  * This rides alongside it instead, so the page can only ever gain.
  *
- * Mouse only, desktop only, never under prefers-reduced-motion.
+ * Mouse only, desktop only. Motion is no longer gated on the visitor's
+ * reduced-motion preference anywhere on the site - see useMotionOk.
  */
 
 const HOT_SELECTOR = 'a, button, input, textarea, select, [data-cursor="hot"]';

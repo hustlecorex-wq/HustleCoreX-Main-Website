@@ -18,12 +18,10 @@ import { useEffect, useRef } from "react";
  * shader: routing it through a scene graph would have cost 824 kB of
  * JavaScript to draw two triangles.
  *
- * Under prefers-reduced-motion it draws exactly one frame and stops: no
- * loop, no listeners, nothing that moves. Reduced motion is a request not
- * to be moved, not a request for a plainer brand - killing the field
- * outright left those visitors on a page that looked unfinished, and on
- * Windows the animation setting is off far more often than you would
- * guess.
+ * The `still` prop draws exactly one frame and stops - no loop, no pointer
+ * tracking. Nothing passes it any more now that motion runs for every
+ * visitor, but it is kept because it is the cheap path back if that
+ * decision is ever reversed. See useMotionOk in ./motion.
  *
  * The caller decides when this renders - see useHeavyVisuals in Home.tsx.
  */

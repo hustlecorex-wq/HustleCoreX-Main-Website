@@ -6,13 +6,15 @@ import { useMotionOk } from "./motion";
 /**
  * Ignition - the beam striking, once, before the page opens.
  *
- * Three constraints kept this honest, because an intro screen on a
+ * Two constraints keep this honest, because an intro screen on a
  * lead-generation page is a conversion tax if you get it wrong:
  *
  *  - It runs once per browser session, not once per navigation.
- *  - It is skipped entirely under prefers-reduced-motion.
  *  - It is short, and it cannot trap anyone: any key or click ends it, and
  *    a hard timer removes it even if an animation callback never fires.
+ *
+ * It used to be skipped under prefers-reduced-motion. That gate is gone
+ * site-wide - see useMotionOk in ./motion.
  */
 
 const DURATION = 1150;

@@ -30,11 +30,12 @@ export default function System() {
 
   useEffect(() => {
     // Runs after the first paint, which is also what defers the chunk.
-    const reducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    // Width only - prefers-reduced-motion is no longer consulted anywhere on
+    // the site; see the note on useMotionOk in components/site/motion.tsx.
+    // The narrow-viewport fallback stays: that one is about WebGL cost on a
+    // phone, not about motion.
     const narrow = window.matchMedia("(max-width: 767px)").matches;
-    if (!reducedMotion && !narrow) setUseCanvas(true);
+    if (!narrow) setUseCanvas(true);
   }, []);
 
   return (

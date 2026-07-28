@@ -9,8 +9,10 @@
  *
  * 1. Nothing re-renders React on pointer or scroll. Every value below is a
  *    MotionValue driven straight onto a transform or a gradient string.
- * 2. Every component checks `useMotionOk()`. With prefers-reduced-motion the
- *    effect degrades to static markup - not to a shorter animation.
+ * 2. Every component asks `useMotionOk()` and carries a static fallback for
+ *    when it says no. That gate currently always says yes - see the note on
+ *    it below - but the fallbacks are kept, so the whole site can be put
+ *    back to still by changing one return value.
  */
 
 import {
@@ -24,7 +26,6 @@ import {
   motion,
   useMotionTemplate,
   useMotionValue,
-  useReducedMotion,
   useScroll,
   useSpring,
   useTransform,
@@ -34,9 +35,26 @@ import {
 /** Matches --ease-out-quint in index.css. */
 export const EASE = [0.22, 1, 0.36, 1] as const;
 
-/** False when the visitor asked for reduced motion. */
+/**
+ * The single gate every animation on the site asks. It is deliberately the
+ * only place this is decided - flipping it changes the whole page.
+ *
+ * It returns true unconditionally: motion is on for everybody, and
+ * `prefers-reduced-motion` is not consulted.
+ *
+ * That is a decision, not an oversight, and it was taken knowingly on
+ * 2026-07-28. The trade is real and worth writing down: visitors who set
+ * that preference have a reason for it - usually vestibular - and this site
+ * now gives them no way to quiet it. On Windows the setting is also off far
+ * more often than people expect, which is what made the old behaviour look
+ * like a broken page to its own owner.
+ *
+ * To honour the preference again, return `!useReducedMotion()` here and
+ * re-add the import. Every component already carries its static fallback;
+ * none of them were deleted, so nothing else has to change.
+ */
 export function useMotionOk() {
-  return !useReducedMotion();
+  return true;
 }
 
 /* ═══ scroll progress ═════════════════════════════════════════════
