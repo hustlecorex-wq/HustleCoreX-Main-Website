@@ -469,29 +469,53 @@ export function Typewriter({
 
   if (!ok) return <Tag className={className}>{text}</Tag>;
 
+  /* Every character is always in the DOM; the untyped ones are just
+     transparent. That is what reserves the box - including how the line
+     wraps - without a second copy of the text underneath.
+
+     An overlay would have been simpler and was wrong twice over: crawlers
+     and copy-paste would see the heading twice, and the accessible name
+     would have rested on aria-label on a plain div, which is not reliably
+     exposed. This way the real text is present exactly once. */
+  const caret = (
+    /* Zero-width host, so the caret cannot nudge a single glyph as it
+       travels along the line. */
+    <span
+      key="caret"
+      aria-hidden
+      style={{ position: "relative", display: "inline-block", width: 0 }}
+    >
+      <span
+        className="tw-caret"
+        style={{
+          position: "absolute",
+          left: "0.05em",
+          bottom: "0.1em",
+          width: "0.06em",
+          height: "0.78em",
+          background: "var(--ember)",
+          boxShadow: "0 0 12px rgba(255,90,30,0.7)",
+        }}
+      />
+    </span>
+  );
+
   return (
-    <Tag className={`relative ${className}`} aria-label={text}>
-      {/* Reserves the exact box, including how the full line wraps. */}
-      <span aria-hidden className="invisible">
-        {text}
-      </span>
-      <span ref={ref} aria-hidden className="absolute inset-0">
-        {text.slice(0, typed)}
-        {!finished && (
+    <Tag ref={ref as never} className={className}>
+      {Array.from(text).flatMap((ch, i) => {
+        const glyph = (
           <span
-            className="tw-caret"
-            style={{
-              display: "inline-block",
-              width: "0.06em",
-              height: "0.82em",
-              marginLeft: "0.06em",
-              verticalAlign: "-0.08em",
-              background: "var(--ember)",
-              boxShadow: "0 0 12px rgba(255,90,30,0.7)",
-            }}
-          />
-        )}
-      </span>
+            key={i}
+            style={{ opacity: i < typed ? 1 : 0 }}
+            className="[transition:opacity_90ms_linear]"
+          >
+            {ch}
+          </span>
+        );
+        // The caret rides between what has been typed and what has not.
+        return !finished && i === typed ? [caret, glyph] : [glyph];
+      })}
+      {!finished && typed >= text.length && caret}
     </Tag>
   );
 }
