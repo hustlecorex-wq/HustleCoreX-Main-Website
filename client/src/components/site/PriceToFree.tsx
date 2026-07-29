@@ -13,13 +13,25 @@ import { useEffect, useRef, useState } from "react";
  * Three things differ from the audit, all asked for:
  *
  *  - it starts at EUR 4,000 rather than the audit's $5,500,
- *  - it starts later, once the heading is properly on screen,
- *  - it replays. The audit fires once; here scrolling away and coming back
- *    runs it again, so nobody has to reload to see it.
+ *  - it starts as soon as the heading comes into view, not halfway up
+ *    the screen,
+ *  - it replays. The audit fires once; here every return runs it again.
  *
- * GSAP is loaded on demand rather than imported at the top. It is already a
- * dependency but it lives in the /system chunk, and pulling it into the shared
- * bundle to animate one heading would cost every visitor about 70 kB.
+ * ── Why an IntersectionObserver and not ScrollTrigger ──────────────────
+ * The audit uses GSAP's ScrollTrigger, and the first version here did too.
+ * It replayed unreliably, and the reason is this page rather than the plugin:
+ * ScrollTrigger measures the document when it is created, and this document
+ * keeps growing afterwards. The proof wheel sizes its runway from the number
+ * of cards, which is only known once a HEAD sweep has established which
+ * screenshots exist - so the heading's real position lands well below where
+ * the trigger thinks it is, and the crossings it is waiting for never happen
+ * where it expects. An IntersectionObserver holds no cached geometry and is
+ * immune to all of that.
+ *
+ * GSAP still drives the timeline itself, so the motion is the audit's, down
+ * to the easing. It is loaded on demand rather than imported at the top: it
+ * is already a dependency but it lives in the /system chunk, and pulling it
+ * into the shared bundle for one heading would cost every visitor ~70 kB.
  */
 
 const START = 4000;
@@ -56,12 +68,11 @@ export default function PriceToFree() {
     let cleanup = () => {};
 
     void (async () => {
-      const [{ gsap }, { ScrollTrigger }] = await Promise.all([
-        import("gsap"),
-        import("gsap/ScrollTrigger"),
-      ]);
+      const { gsap } = await import("gsap");
       if (cancelled) return;
-      gsap.registerPlugin(ScrollTrigger);
+
+      let play = () => {};
+      let stop = () => {};
 
       const ctx = gsap.context(() => {
         const counter = { v: START };
@@ -95,8 +106,8 @@ export default function PriceToFree() {
           tl.call(() => setShaking(false));
         };
 
-        STOPS.forEach((stop, i) => {
-          fallTo(stop, i === 0 ? T.firstFall : T.laterFalls[i - 1]);
+        STOPS.forEach((stop_, i) => {
+          fallTo(stop_, i === 0 ? T.firstFall : T.laterFalls[i - 1]);
           shake();
         });
 
@@ -106,30 +117,38 @@ export default function PriceToFree() {
           setDone(true);
         });
 
-        ScrollTrigger.create({
-          trigger: el,
-          /* Deliberately late - later than the audit's 62%. The heading has
-             to be properly on screen before a three second sequence is worth
-             starting, and it was firing while still half below the fold. */
-          start: "top 55%",
-          // Runs again every time it is scrolled back into view.
-          onEnter: () => {
-            reset();
-            tl.restart(true);
-          },
-          onEnterBack: () => {
-            reset();
-            tl.restart(true);
-          },
-          onLeave: () => tl.pause(),
-          onLeaveBack: () => {
-            tl.pause();
-            reset();
-          },
-        });
+        play = () => {
+          reset();
+          // `true` replays the leading delay too, so every run is identical.
+          tl.restart(true);
+        };
+        stop = () => {
+          tl.pause();
+          reset();
+        };
       }, el);
 
-      cleanup = () => ctx.revert();
+      if (cancelled) {
+        ctx.revert();
+        return;
+      }
+
+      /* Fires as the heading comes up from the bottom of the screen - the
+         small negative margin only asks it to be properly in, not centred.
+         Leaving resets it, so coming back always starts from 4,000 again. */
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) play();
+          else stop();
+        },
+        { rootMargin: "0px 0px -12% 0px", threshold: 0 },
+      );
+      io.observe(el);
+
+      cleanup = () => {
+        io.disconnect();
+        ctx.revert();
+      };
     })();
 
     return () => {
