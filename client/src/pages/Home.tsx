@@ -11,15 +11,33 @@ import ProofWall from "@/components/site/ProofWall";
 import VideoFrame from "@/components/site/VideoFrame";
 import AdminAccess from "@/components/site/AdminAccess";
 
-/* The two self-hosted videos. Files live in client/public/; see
-   VideoFrame for how to encode a replacement. */
+/* The self-hosted videos. Files live in client/public/; see VideoFrame
+   for how to encode a replacement. */
 const HERO_VIDEO = "/walkthrough.mp4";
 const HERO_POSTER = "/walkthrough-poster.jpg";
 const HERO_ASPECT = "1900 / 948";
 
-const BUILD_VIDEO = "/what-we-build.mp4";
-const BUILD_POSTER = "/what-we-build-poster.jpg";
-const BUILD_ASPECT = "16 / 9";
+/* The builds in the "what we build" section, newest first. Each one is a
+   different client's finished system, so the section grows by adding to
+   this list rather than by editing the markup. */
+const BUILDS = [
+  {
+    name: "Katie's",
+    system: "Check-In Dashboard",
+    src: "/katie-dashboard.mp4",
+    poster: "/katie-dashboard-poster.jpg",
+    aspect: "16 / 9",
+    label: "Watch the dashboard · 6 min",
+  },
+  {
+    name: "Kyle's",
+    system: "Lead Gen System",
+    src: "/what-we-build.mp4",
+    poster: "/what-we-build-poster.jpg",
+    aspect: "16 / 9",
+    label: "Watch a full system · 7 min",
+  },
+];
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -133,32 +151,40 @@ function Hero() {
 
 /* ═══ WHAT WE BUILD ══════════════════════════════════════════════
    The section the hero's "See what we build" button points at, so it
-   shows one rather than describing four. A walkthrough of a finished
+   shows them rather than describing four. A walkthrough of a finished
    system answers the same questions the capability cards used to, and
    answers them in the client's own dashboard instead of in copy.
+
+   The eyebrow is printed once and each build carries its own name, so
+   the section reads as a list of real systems rather than a repeated
+   pitch. Only the first video gets the eyebrow above it.
    ═══════════════════════════════════════════════════════════════ */
 
 function WhatWeBuild() {
   return (
     <section id="system" className="relative z-10 py-20 md:py-28">
       <Container>
-        <Reveal>
-          <p className="mono-label-ember mb-6">What we build</p>
-          <h2 className="heading text-[clamp(2rem,4.2vw,3.1rem)]">
-            Kyle's
-            <br />
-            Lead Gen System
-          </h2>
-        </Reveal>
+        {BUILDS.map((b, i) => (
+          <div key={b.src} className={i ? "mt-24 md:mt-32" : ""}>
+            <Reveal>
+              {i === 0 && <p className="mono-label-ember mb-6">What we build</p>}
+              <h2 className="heading text-[clamp(2rem,4.2vw,3.1rem)]">
+                {b.name}
+                <br />
+                {b.system}
+              </h2>
+            </Reveal>
 
-        <Reveal delay={0.12} className="mt-12 md:mt-14">
-          <VideoFrame
-            src={BUILD_VIDEO}
-            poster={BUILD_POSTER}
-            aspect={BUILD_ASPECT}
-            label="Watch a full system · 7 min"
-          />
-        </Reveal>
+            <Reveal delay={0.12} className="mt-12 md:mt-14">
+              <VideoFrame
+                src={b.src}
+                poster={b.poster}
+                aspect={b.aspect}
+                label={b.label}
+              />
+            </Reveal>
+          </div>
+        ))}
       </Container>
     </section>
   );
