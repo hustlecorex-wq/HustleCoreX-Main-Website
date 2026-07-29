@@ -124,23 +124,31 @@
   color: var(--chalk);
 }
 
-/* Instrument labels - mono, the voice of the system itself */
+/* Instrument labels - mono, the voice of the system itself.
+
+   These were reported as hard to read, and the cause was size, not colour:
+   10.5px of uppercase mono at 0.2em tracking. #FF6A3D already measured
+   7.07:1 against --void, so contrast was never the problem.
+
+   Fixed the actual cause - 12.5px, weight 600, tracking pulled back to 0.16em
+   so the extra size doesn't pull the line apart. The slightly brighter tones
+   are a bonus rather than the point (ember 7.07 -> 8.27:1, ash 5.58 -> 7.40:1). */
 .mono-label {
   font-family: var(--font-mono);
-  font-size: 10.5px;
-  font-weight: 500;
-  letter-spacing: 0.2em;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #86868F;
+  color: #9C9CA6;
 }
 
 .mono-label-ember {
   font-family: var(--font-mono);
-  font-size: 10.5px;
-  font-weight: 500;
-  letter-spacing: 0.2em;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #FF6A3D;
+  color: #FF8355;
 }
 
 .text-ember-grad {
@@ -271,6 +279,50 @@
   animation: hx-breathe 5s ease-in-out infinite;
   transform-origin: center;
 }
+
+/* ── Typewriter caret ──────────────────────────────────────────── */
+@keyframes tw-blink {
+  0%, 46%   { opacity: 1; }
+  50%, 96%  { opacity: 0.12; }
+  100%      { opacity: 1; }
+}
+
+.tw-caret {
+  animation: tw-blink 1.05s steps(1, end) infinite;
+}
+
+/* ── Hero line: ember that wipes to white on hover ─────────────────
+   One gradient three times the width of the line. At rest only the ember
+   end is over the text; moving the background position drags the white end
+   across, so the colour sweeps rather than switching. */
+.wipe-line {
+  background-image: linear-gradient(
+    100deg,
+    #FFFFFF 0%,
+    #FFF3E8 18%,
+    var(--flare) 42%,
+    var(--ember) 62%,
+    var(--ember) 100%
+  );
+  background-size: 300% 100%;
+  /* Rests on the white end of the gradient; hover drags the ember end
+     across. Reversed on 2026-07-29 - it used to rest orange, which read as
+     the hover state being the calm one. */
+  background-position: 0% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: background-position 900ms var(--ease-out-quint);
+}
+
+.wipe-line:hover,
+.wipe-line:focus-visible {
+  background-position: 100% 0;
+}
+
+/* No prefers-reduced-motion block here on purpose. Motion is on for
+   everybody site-wide - see the note on useMotionOk in
+   components/site/motion.tsx, which is where that decision lives. */
 
 /* ── Live dot ──────────────────────────────────────────────────── */
 @keyframes live-dot {
@@ -450,20 +502,19 @@ html.video-playing .site-grain {
   opacity: 0;
 }
 
-/* ── Reduced motion ────────────────────────────────────────────── */
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-  }
-  .spark,
-  .sheen::after {
-    display: none;
-  }
+/* ── Reduced motion ──────────────────────────────────────────────
+   There used to be a blanket override here that flattened every animation
+   and transition on the site with !important, and hid the embers and the
+   sheen outright. It was the reason the whole page went still on any
+   machine with the Windows animation setting off - which is most of them.
+
+   Removed deliberately on 2026-07-28, together with the JS gate. Motion is
+   now on for every visitor; the decision and how to undo it are documented
+   on useMotionOk in components/site/motion.tsx. Restore this block at the
+   same time as that gate, or the two will disagree. */
+
+/* Nudges the "keep scrolling" chevron under the wheel. */
+@keyframes nudge {
+  0%, 100% { transform: translateY(0); opacity: 0.75; }
+  50%      { transform: translateY(5px); opacity: 1; }
 }

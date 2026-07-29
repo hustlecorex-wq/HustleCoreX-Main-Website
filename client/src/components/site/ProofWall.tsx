@@ -1,8 +1,16 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { motion, useInView } from "framer-motion";
-import { Maximize2, Star, X } from "lucide-react";
+import { ArrowUpRight, ChevronDown, Maximize2, Star, X } from "lucide-react";
 
 import VideoFrame from "@/components/site/VideoFrame";
+import { Scramble, Typewriter } from "@/components/site/motion";
 
 /**
  * ProofWall - everything we can actually show, in one collage.
@@ -62,6 +70,10 @@ type Tile =
       label: string;
       title: string;
       meta: string;
+      /* The live address, where we have one. Only ever set this to a site
+         that is genuinely reachable there: a dead link on a proof tile is
+         worse than no link, and this section exists to be checked. */
+      url?: string;
       /* Profiles and dashboards put everything that matters down the left
          edge, so they crop from the right rather than from both sides.
          Site heroes are composed centrally and don't. */
@@ -109,6 +121,7 @@ const TILES: Tile[] = [
     label: "Website",
     title: "PB Elite",
     meta: "Patrick Brody · patrickbrody.com",
+    url: "https://patrickbrody.com",
     anchor: "center",
   },
   {
@@ -246,28 +259,9 @@ const TILES: Tile[] = [
   },
 ];
 
-/* Column spans, written out in full because Tailwind reads these as literal
-   strings - a template like `lg:col-span-${n}` compiles to nothing.
 
-   Desktop is a 12-column bed. Tablet drops to 6, where a screenshot or a
-   quote goes full width and clips and profiles pair up; phones get 2, where
-   only the clips still sit side by side. */
-const SPAN: Record<number, string> = {
-  3: "col-span-1 md:col-span-3 lg:col-span-3",
-  5: "col-span-2 md:col-span-3 lg:col-span-5",
-  6: "col-span-2 md:col-span-6 lg:col-span-6",
-  7: "col-span-2 md:col-span-6 lg:col-span-7",
-  12: "col-span-2 md:col-span-6 lg:col-span-12",
-};
 
-/* Aspect per shot width, tuned so a 7-wide and a 5-wide land on the same
-   height and the row edge stays flush. At 1152px with a 20px gutter that's
-   617x309 next to 435x311 - close enough that the seam disappears. */
-const SHOT_ASPECT: Record<number, string> = {
-  5: "aspect-[3/2] lg:aspect-[7/5]",
-  7: "aspect-[2/1]",
-  12: "aspect-[2/1]",
-};
+
 
 /* ── shared bits ────────────────────────────────────────────────── */
 
@@ -297,9 +291,37 @@ function Reveal({
   );
 }
 
-/* ── clip tile ──────────────────────────────────────────────────── */
+/* ── the collage, for phones ────────────────────────────────────────
+   Restored verbatim from the layout that is still live on production.
 
-type Clip = Extract<Tile, { kind: "clip" }>;
+   The wheel is a desktop idea: it takes over vertical scrolling to move
+   sideways, and on a phone that fights the one gesture people have. So
+   small screens get the original dense grid back - the same tiles, the
+   same order, reading top to bottom like the rest of the page.
+
+   A screenshot whose file is missing removes itself here rather than
+   leaving a broken frame, which is why the grid is safe to ship
+   half-populated. In dev it leaves a marker instead, so what is still
+   outstanding stays visible.
+   ─────────────────────────────────────────────────────────────────── */
+
+const SPAN: Record<number, string> = {
+  3: "col-span-1 md:col-span-3 lg:col-span-3",
+  5: "col-span-2 md:col-span-3 lg:col-span-5",
+  6: "col-span-2 md:col-span-6 lg:col-span-6",
+  7: "col-span-2 md:col-span-6 lg:col-span-7",
+  12: "col-span-2 md:col-span-6 lg:col-span-12",
+};
+
+/* Aspect per shot width, tuned so a 7-wide and a 5-wide land on the same
+   height and the row edge stays flush. At 1152px with a 20px gutter that's
+   617x309 next to 435x311 - close enough that the seam disappears. */
+const SHOT_ASPECT: Record<number, string> = {
+  5: "aspect-[3/2] lg:aspect-[7/5]",
+  7: "aspect-[2/1]",
+  12: "aspect-[2/1]",
+};
+
 
 function ClipCard({ c }: { c: Clip }) {
   return (
@@ -323,7 +345,6 @@ function ClipCard({ c }: { c: Clip }) {
 
 /* ── quote tile ─────────────────────────────────────────────────── */
 
-type Quote = Extract<Tile, { kind: "quote" }>;
 
 function QuoteCard({ t }: { t: Quote }) {
   return (
@@ -362,7 +383,35 @@ function QuoteCard({ t }: { t: Quote }) {
 
 /* ── shot tile ──────────────────────────────────────────────────── */
 
-type Shot = Extract<Tile, { kind: "shot" }>;
+
+/**
+ * A proof tile is a link when we know where the real thing lives, and a
+ * button that opens the full-size image when we do not. Same markup either
+ * way, so the tile looks and focuses identically.
+ */
+function Frame({
+  url,
+  onClick,
+  children,
+  ...rest
+}: {
+  url?: string;
+  onClick: () => void;
+  children: React.ReactNode;
+} & React.HTMLAttributes<HTMLElement>) {
+  if (url) {
+    return (
+      <a href={url} target="_blank" rel="noopener noreferrer" {...rest}>
+        {children}
+      </a>
+    );
+  }
+  return (
+    <button type="button" onClick={onClick} {...rest}>
+      {children}
+    </button>
+  );
+}
 
 function ShotCard({
   s,
@@ -397,10 +446,12 @@ function ShotCard({
   }
 
   return (
-    <button
-      type="button"
+    <Frame
+      url={s.url}
       onClick={() => onOpen(s)}
-      aria-label={`${s.title} - view full size`}
+      aria-label={
+        s.url ? `Visit ${s.title}` : `${s.title} - view full size`
+      }
       /* h-full alongside the aspect so the tile still contributes its own
          height to the row, then fills the row if its neighbour turns out
          to be taller. */
@@ -431,7 +482,7 @@ function ShotCard({
       </span>
 
       <span className="pointer-events-none absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full border border-white/[0.12] bg-void/70 text-chalk/70 opacity-0 backdrop-blur-md transition-opacity duration-300 group-hover:opacity-100">
-        <Maximize2 size={12} />
+        {s.url ? <ArrowUpRight size={12} /> : <Maximize2 size={12} />}
       </span>
 
       {/* Caption sits on the image so the tiles stay flush in the mosaic */}
@@ -451,12 +502,450 @@ function ShotCard({
           <span className="mt-0.5 block truncate text-[11.5px] text-ash">{s.meta}</span>
         </span>
       </span>
-    </button>
+    </Frame>
   );
 }
 
-/* Full-size viewer - a tile is unreadable at collage size, and an unreadable
-   dashboard proves nothing. */
+type Clip = Extract<Tile, { kind: "clip" }>;
+type Quote = Extract<Tile, { kind: "quote" }>;
+type Shot = Extract<Tile, { kind: "shot" }>;
+
+/* ── what a card is ────────────────────────────────────────────────
+   Two shapes, and only two:
+
+     duo   a coach on camera, with their own written review beside them
+     wide  a site we built, landscape, on its own
+
+   Everything else that used to be in here - Instagram profiles and the two
+   dashboards - is gone. Not by taste: those six screenshots were never
+   added to the repo, so every one of them rendered as a card with a line of
+   text and nothing else. They are excluded by rule below rather than by a
+   hand-written list, so dropping the files in is all it takes to reconsider.
+
+   Cards share a height so the row stays flush; the widths differ because a
+   landscape site and a portrait clip are not the same object. */
+
+const CARD_H = 540;
+const CARD_GAP = 28;
+/** Share of each card's slot spent held still, laid flat, before moving on. */
+const DWELL = 0.55;
+const DUO_W = 640;
+const WIDE_W = 860;
+
+type Card =
+  | { id: string; kind: "duo"; clip: Clip; quote: Quote }
+  | { id: string; kind: "wide"; shot: Shot };
+
+/**
+ * Pairs each clip with a review and mixes the two shapes so the wheel
+ * alternates instead of running four talking heads in a row.
+ *
+ * Reviews are matched to the coach in the clip wherever one exists - a
+ * coach on camera next to their own words is a stronger proof than two
+ * unrelated people sharing a card. One pair is unavoidably mixed; both
+ * halves carry their own name and source, so nobody is credited with words
+ * they did not write.
+ */
+function buildCards(isAbsent: (src: string) => boolean): Card[] {
+  const clips = TILES.filter((t): t is Clip => t.kind === "clip");
+  const quotes = TILES.filter((t): t is Quote => t.kind === "quote");
+  const sites = TILES.filter(
+    (t): t is Shot => t.kind === "shot" && t.label === "Website",
+  ).filter((s) => !isAbsent(s.src));
+
+  const spare = [...quotes];
+  const take = (name: string) => {
+    const own = spare.findIndex((q) => q.name === name);
+    const i = own !== -1 ? own : 0;
+    return spare.splice(i, 1)[0];
+  };
+
+  const duos: Card[] = clips
+    .map((clip) => {
+      const quote = take(clip.name);
+      return quote
+        ? ({ id: `duo-${clip.slug}`, kind: "duo", clip, quote } as Card)
+        : null;
+    })
+    .filter((c): c is Card => c !== null);
+
+  const wides: Card[] = sites.map((shot) => ({
+    id: `wide-${shot.src}`,
+    kind: "wide",
+    shot,
+  }));
+
+  // Ben Ola opens - his clip is the one that lies flat before the wheel
+  // exists - then the two shapes alternate for as long as both last.
+  const mixed: Card[] = [];
+  for (let i = 0; i < Math.max(duos.length, wides.length); i++) {
+    if (duos[i]) mixed.push(duos[i]);
+    if (wides[i]) mixed.push(wides[i]);
+  }
+  return mixed;
+}
+
+const cardWidth = (card: Card, viewportW: number) =>
+  Math.min(card.kind === "wide" ? WIDE_W : DUO_W, Math.max(260, viewportW - 48));
+
+/* ── card bodies ──────────────────────────────────────────────────── */
+
+function DuoCard({ clip, quote }: { clip: Clip; quote: Quote }) {
+  return (
+    <figure className="panel flex h-full w-full overflow-hidden rounded-3xl">
+      <div className="flex w-[42%] shrink-0 items-center justify-center bg-black/40 p-3">
+        <div className="h-full" style={{ aspectRatio: "9 / 16" }}>
+          <VideoFrame
+            src={`/proof/${clip.slug}.mp4`}
+            poster={clip.poster}
+            aspect="9 / 16"
+            label={`Play · ${clip.length}`}
+          />
+        </div>
+      </div>
+
+      <div className="flex min-w-0 flex-1 flex-col justify-between border-l border-white/[0.06] p-6">
+        <div className="min-h-0">
+          {quote.stars > 0 && (
+            <div className="mb-3 flex gap-1">
+              {Array.from({ length: quote.stars }).map((_, s) => (
+                <Star key={s} size={12} className="fill-ember text-ember" />
+              ))}
+            </div>
+          )}
+          <blockquote className="line-clamp-[9] text-[14px] leading-[1.65] text-chalk/90">
+            {quote.quote}
+          </blockquote>
+          <p className="mt-3 text-[13px] font-medium text-chalk">{quote.name}</p>
+          <p className="font-mono text-[9.5px] uppercase tracking-[0.16em] text-ash-dim">
+            {quote.source}
+          </p>
+        </div>
+
+        <figcaption className="mt-5 shrink-0 border-t border-white/[0.06] pt-4">
+          <p className="text-[14px] font-medium leading-tight text-chalk">
+            {clip.name}
+          </p>
+          <p className="mt-1 line-clamp-1 text-[12.5px] text-ash-dim">
+            {clip.role}
+          </p>
+          <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-ash-dim/80">
+            {clip.handle}
+          </p>
+        </figcaption>
+      </div>
+    </figure>
+  );
+}
+
+function WideCard({
+  shot,
+  onOpen,
+  onMissing,
+}: {
+  shot: Shot;
+  onOpen: (s: Shot) => void;
+  onMissing: (src: string) => void;
+}) {
+  /* The card goes to the live site when we have its address, and opens the
+     full-size image when we do not. The magnifier is always there either
+     way - and it sits outside the link rather than inside it, because a
+     button nested in an anchor is invalid and behaves differently across
+     browsers. */
+  const body = (
+    <>
+      <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-black/40 p-3">
+        <img
+          src={shot.src}
+          onError={() => onMissing(shot.src)}
+          loading="lazy"
+          alt={`${shot.title} - ${shot.label.toLowerCase()} built by HustleCoreX`}
+          className="max-h-full max-w-full object-contain"
+        />
+      </div>
+      <span className="block shrink-0 border-t border-white/[0.06] px-6 py-4">
+        <span className="block font-mono text-[9.5px] uppercase tracking-[0.16em] text-ember">
+          {shot.label}
+        </span>
+        <span className="mt-1.5 block text-[15px] font-medium leading-tight text-chalk">
+          {shot.title}
+        </span>
+        <span className="mt-1 block line-clamp-1 text-[12.5px] text-ash-dim">
+          {shot.meta}
+        </span>
+      </span>
+    </>
+  );
+
+  return (
+    <figure className="panel group relative h-full w-full overflow-hidden rounded-3xl">
+      {shot.url ? (
+        <a
+          href={shot.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex h-full w-full flex-col text-left"
+          aria-label={`Visit ${shot.title}`}
+        >
+          {body}
+        </a>
+      ) : (
+        <button
+          type="button"
+          onClick={() => onOpen(shot)}
+          className="flex h-full w-full flex-col text-left"
+          aria-label={`Open ${shot.title} full size`}
+        >
+          {body}
+        </button>
+      )}
+
+      <button
+        type="button"
+        onClick={() => onOpen(shot)}
+        aria-label={`${shot.title}, full size`}
+        className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-white/[0.12] bg-void/70 text-chalk/70 opacity-0 backdrop-blur-md transition-opacity duration-300 group-hover:opacity-100"
+      >
+        <Maximize2 size={13} />
+      </button>
+    </figure>
+  );
+}
+
+function CardBody({
+  card,
+  onOpen,
+  onMissing,
+}: {
+  card: Card;
+  onOpen: (s: Shot) => void;
+  onMissing: (src: string) => void;
+}) {
+  return card.kind === "duo" ? (
+    <DuoCard clip={card.clip} quote={card.quote} />
+  ) : (
+    <WideCard shot={card.shot} onOpen={onOpen} onMissing={onMissing} />
+  );
+}
+
+/* ── the wheel ─────────────────────────────────────────────────────
+   Scroll drives the track sideways, but not evenly. Each card gets a slot
+   with a plateau in the middle of it, so the track arrives, settles, and
+   holds before moving on. That hold is what makes a card read as laid flat
+   rather than as something passing by.
+
+   Flat and in-the-wheel are the two ends of one value, `focus`, measured
+   from how far a card is from the middle of the viewport:
+
+     focus 1   square on, full size, upright, lit
+     focus 0   turned, dropped onto the arc, smaller, dimmed
+
+   So a card rises out of the wheel, lies flat while the track holds, and
+   turns back into the wheel as the next one comes forward. */
+
+/* One frame loop, writing transforms straight onto the elements.
+
+   This deliberately does not use framer motion values. On the machine this
+   was built on, framer's animation loop sat idle - motion values were set
+   and never rendered - and the wheel stayed parked at x=0 no matter where
+   the page was scrolled. Chasing that through three layers of abstraction
+   cost more than owning the ten lines it replaces. A loop that reads the
+   section's rect and writes `transform` has nothing in between to go wrong,
+   and it is trivial to inspect: the track carries data-p with the current
+   progress. */
+
+function Wheel({
+  cards,
+  onOpen,
+  onMissing,
+}: {
+  cards: Card[];
+  onOpen: (s: Shot) => void;
+  onMissing: (src: string) => void;
+}) {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [viewportW, setViewportW] = useState(0);
+
+  useEffect(() => {
+    const measure = () => setViewportW(viewportRef.current?.clientWidth ?? 0);
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
+  // Widths differ per card, so positions are accumulated rather than indexed.
+  const layout = useMemo(() => {
+    let cursor = 0;
+    return cards.map((card) => {
+      const w = cardWidth(card, viewportW);
+      const centre = cursor + w / 2;
+      cursor += w + CARD_GAP;
+      return { centre, width: w };
+    });
+  }, [cards, viewportW]);
+
+  const live = useRef({ layout, viewportW, n: cards.length });
+  live.current = { layout, viewportW, n: cards.length };
+
+  /* The loop only ever *improves* on the resting state. Cards render
+     visible and unrotated; if no frame ever runs - a browser that is not
+     presenting, a tab that never composites - what is left is a plain row
+     of readable cards, not a blank section. Base visibility must never
+     depend on an animation loop. */
+  useLayoutEffect(() => {
+    let raf = 0;
+    let shown = 0; // eased x, so the track arrives rather than jumps
+    let first = true;
+
+    const apply = () => {
+      const section = sectionRef.current;
+      const track = trackRef.current;
+      const { layout: L, viewportW: vw, n } = live.current;
+
+      if (section && track && n && vw) {
+        /* Both numbers come from the same rect on purpose. offsetHeight is
+           in layout pixels while innerHeight is in device pixels, so the two
+           disagree the moment any page zoom is applied - that briefly made
+           the wheel run 10% fast and finish before the section did. */
+        const rect = section.getBoundingClientRect();
+        const total = rect.height - window.innerHeight;
+        const p = total > 0 ? Math.min(1, Math.max(0, -rect.top / total)) : 0;
+
+        const slot = 1 / n;
+        const at = (i: number) => -(L[i].centre - vw / 2);
+        const i = Math.min(n - 1, Math.floor(p / slot));
+        const within = (p - i * slot) / slot;
+
+        let target: number;
+        if (within <= DWELL || i === n - 1) {
+          target = at(i);
+        } else {
+          const t = (within - DWELL) / (1 - DWELL);
+          // Ease the hand-over, so a card leaves and the next arrives.
+          const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+          target = at(i) + (at(i + 1) - at(i)) * e;
+        }
+
+        shown = first ? target : shown + (target - shown) * 0.16;
+        first = false;
+
+        track.style.transform = `translate3d(${shown.toFixed(2)}px,0,0)`;
+        track.dataset.p = p.toFixed(4);
+
+        // Nothing but the lead card is on stage until it starts to give way.
+        const revealed = Math.min(1, p / (slot * DWELL || 1));
+
+        cardRefs.current.forEach((el, idx) => {
+          if (!el || !L[idx]) return;
+          const { centre, width } = L[idx];
+          const dist = centre + shown - vw / 2;
+          const focus = Math.max(0, 1 - Math.abs(dist) / (width * 0.85));
+
+          const y = (1 - focus) * 74;
+          const rot = Math.max(-11, Math.min(11, (dist / (width * 1.1)) * 11));
+          const scale = 0.84 + focus * 0.16;
+          const dim = 0.22 + focus * 0.78;
+
+          el.style.transform = `translate3d(0,${y.toFixed(1)}px,0) rotate(${rot.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
+          el.style.opacity = String(idx === 0 ? dim : dim * revealed);
+          el.style.zIndex = String(Math.round(focus * 100));
+        });
+      }
+
+    };
+
+    const frame = () => {
+      apply();
+      raf = requestAnimationFrame(frame);
+    };
+
+    // One placement straight away, so the wheel is correct before the first
+    // frame ever arrives - and correct even if none does.
+    apply();
+    raf = requestAnimationFrame(frame);
+
+    /* Scroll and resize drive it too, not just the frame loop. Belt and
+       braces on purpose: a browser that throttles rAF but still dispatches
+       scroll gets a working wheel, and one that does the reverse also does.
+       Neither path is required for the cards to be readable. */
+    window.addEventListener("scroll", apply, { passive: true });
+    window.addEventListener("resize", apply);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", apply);
+      window.removeEventListener("resize", apply);
+    };
+  }, [viewportW, cards.length]);
+
+  const step = useCallback(
+    (dir: 1 | -1) => {
+      const section = sectionRef.current;
+      if (!section || !cards.length) return;
+      const runway = section.getBoundingClientRect().height - window.innerHeight;
+      window.scrollBy({ top: (dir * runway) / cards.length, behavior: "smooth" });
+    },
+    [cards.length],
+  );
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const section = sectionRef.current;
+      if (!section) return;
+      const r = section.getBoundingClientRect();
+      if (r.top > 0 || r.bottom < window.innerHeight) return;
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        step(1);
+      }
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        step(-1);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [step]);
+
+  /* Just under a viewport of scroll per card, so each gets the same share of
+     the runway - and the section ends and hands scrolling straight back. */
+  const runway = cards.length * 90;
+
+  return (
+    <div ref={sectionRef} style={{ height: `calc(100vh + ${runway}vh)` }}>
+      {/* pt clears the floating nav: the cards used to start level with it, so
+          scrolling the wheel ran them straight under the bar. */}
+      <div className="sticky top-0 flex h-screen items-center overflow-hidden pt-24">
+        <div ref={viewportRef} className="w-full overflow-hidden px-6 md:px-10">
+          <div ref={trackRef} className="flex items-center will-change-transform">
+            {cards.map((card, i) => (
+              <div
+                key={card.id}
+                ref={(el) => {
+                  cardRefs.current[i] = el;
+                }}
+                className="shrink-0 will-change-transform"
+                style={{
+                  width: layout[i]?.width ?? DUO_W,
+                  marginRight: CARD_GAP,
+                  height: CARD_H,
+                }}
+              >
+                <CardBody card={card} onOpen={onOpen} onMissing={onMissing} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* Full-size viewer - a site is unreadable at card size, and an unreadable
+   site proves nothing. */
 function Lightbox({ shot, onClose }: { shot: Shot | null; onClose: () => void }) {
   useEffect(() => {
     if (!shot) return;
@@ -480,7 +969,9 @@ function Lightbox({ shot, onClose }: { shot: Shot | null; onClose: () => void })
       aria-modal="true"
       aria-label={shot.title}
       onClick={onClose}
-      className="fixed inset-0 z-[90] flex items-center justify-center bg-void/90 p-4 backdrop-blur-md md:p-10"
+      /* Above the nav (z-200), not below it. At z-90 the fixed header
+         painted over this and ate the close button. */
+      className="fixed inset-0 z-[340] flex items-center justify-center bg-void/90 p-4 backdrop-blur-md md:p-10"
     >
       <button
         type="button"
@@ -517,33 +1008,92 @@ function Lightbox({ shot, onClose }: { shot: Shot | null; onClose: () => void })
 
 /* ── the wall ───────────────────────────────────────────────────── */
 
-const SHOTS = TILES.filter((t): t is Shot => t.kind === "shot");
+/* Every shot is probed, not only the ones the wheel uses: the phone
+   collage shows profiles and dashboards too, and a tile whose file is
+   missing has to know to remove itself. */
+const ALL_SHOTS = TILES.filter((t): t is Shot => t.kind === "shot");
+
+/** The phone layout: the original collage, unchanged. */
+function Collage({
+  gone,
+  onOpen,
+  onMissing,
+}: {
+  gone: string[];
+  onOpen: (s: Shot) => void;
+  onMissing: (src: string) => void;
+}) {
+  return (
+    <div className="mt-14 grid grid-flow-row-dense grid-cols-2 gap-4 md:mt-16 md:grid-cols-6 md:gap-5 lg:grid-cols-12">
+      {/* Absent shots are dropped rather than rendered empty. A tile whose
+          card returns null still occupies its grid cell, which is what left
+          the hole between the Anthony Grace review and Bela Toth. */}
+      {TILES.filter(
+        (t) => !(t.kind === "shot" && gone.includes(t.src)),
+      ).map((t, i) => {
+        const key =
+          t.kind === "shot" ? t.src : t.kind === "clip" ? t.slug : t.name;
+        return (
+          <Reveal
+            key={`${t.kind}-${key}`}
+            delay={0.04 * (i % 3)}
+            className={SPAN[t.span]}
+          >
+            {t.kind === "clip" && <ClipCard c={t} />}
+            {t.kind === "quote" && <QuoteCard t={t} />}
+            {t.kind === "shot" && (
+              <ShotCard
+                s={t}
+                absent={gone.includes(t.src)}
+                onOpen={onOpen}
+                onMissing={onMissing}
+              />
+            )}
+          </Reveal>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function ProofWall() {
   const [open, setOpen] = useState<Shot | null>(null);
 
-  /* Which screenshots are actually on the server.
+  /* The wheel is desktop only. It drives sideways movement from vertical
+     scroll, which on a phone competes with the only gesture there is - so
+     phones get the collage instead. Read synchronously so the right one is
+     there on the first paint, and kept in step with rotation. */
+  const [onDesktop, setOnDesktop] = useState(
+    () => window.matchMedia("(min-width: 768px)").matches,
+  );
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const sync = () => setOnDesktop(mq.matches);
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  /* Which site screenshots are actually on the server.
    *
-   * The per-tile onError would settle this on its own, but the images are
-   * lazy - so a missing one wouldn't drop out of the collage until someone
-   * scrolled level with it, re-flowing the rows under their eyes. A HEAD
-   * sweep on mount settles it before anyone gets there and costs nothing:
-   * no image bytes move. onError stays as a backstop for anything that
-   * dies after the probe. */
+   * onError alone would settle this, but the images are lazy - a missing one
+   * would not drop out until someone scrolled level with it, re-flowing the
+   * wheel under their eyes. A HEAD sweep on mount settles it first and costs
+   * nothing: no image bytes move. onError stays as a backstop. */
   const [gone, setGone] = useState<string[]>([]);
   const noteMissing = useCallback(
     (src: string) => setGone((g) => (g.includes(src) ? g : [...g, src])),
     [],
   );
+  const isAbsent = useCallback((src: string) => gone.includes(src), [gone]);
 
   useEffect(() => {
     let live = true;
     void Promise.all(
-      SHOTS.map((s) =>
+      ALL_SHOTS.map((s) =>
         fetch(s.src, { method: "HEAD" })
-          /* A 200 is not enough. vercel.json rewrites everything it doesn't
+          /* A 200 is not enough. vercel.json rewrites anything it does not
              recognise to "/", so a screenshot that isn't there comes back as
-             the index page with a cheerful 200 - it's the content type that
+             the index page with a cheerful 200 - the content type is what
              tells you whether an actual image arrived. */
           .then((r) =>
             r.ok && r.headers.get("content-type")?.startsWith("image/")
@@ -553,59 +1103,55 @@ export default function ProofWall() {
           .catch(() => s.src),
       ),
     ).then((res) => {
-      const absent = res.filter((x): x is string => x !== null);
-      if (live && absent.length)
-        setGone((g) => g.concat(absent.filter((s) => !g.includes(s))));
+      const missing = res.filter((x): x is string => x !== null);
+      if (live && missing.length)
+        setGone((g) => g.concat(missing.filter((s) => !g.includes(s))));
     });
     return () => {
       live = false;
     };
   }, []);
 
+  const cards = useMemo(() => buildCards(isAbsent), [isAbsent]);
+
   return (
-    <section id="results" className="relative z-10 py-20 md:py-28">
+    /* Extra room above the wheel so it does not crowd the heading, and less
+     below it so "Why we do it" is already in view while you are still in
+     the wheel. */
+    <section id="results" className="relative z-10 pb-10 pt-20 md:pb-12 md:pt-28">
       <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
         <Reveal>
-          <p className="mono-label-ember mb-6">Results</p>
+          <Scramble className="mono-label-ember mb-6 block" text="Results" />
           <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-end">
             <h2 className="heading max-w-xl text-[clamp(2rem,4.2vw,3.1rem)]">
-              Coaches who stopped
-              <br />
-              doing it by hand
+              <Typewriter as="div" text="Coaches who stopped" />
+              <Typewriter as="div" text="doing it by hand" delay={0.42} />
             </h2>
-            <p className="font-mono text-[10.5px] uppercase tracking-[0.16em] text-ash-dim md:pb-3">
-              Tap any tile to open it full size
-            </p>
+            {/* The caption that used to sit here has moved under the wheel,
+                where it can say what happens next instead of what to do. */}
           </div>
         </Reveal>
-
-        {/* The collage. Dense flow so that if a screenshot hasn't been
-            dropped in yet, the tiles behind it close the hole instead of
-            leaving one. */}
-        <div className="mt-14 grid grid-cols-2 grid-flow-row-dense gap-4 md:mt-16 md:grid-cols-6 md:gap-5 lg:grid-cols-12">
-          {TILES.map((t, i) => {
-            const key = t.kind === "shot" ? t.src : t.kind === "clip" ? t.slug : t.name;
-            return (
-              <Reveal
-                key={`${t.kind}-${key}`}
-                delay={0.04 * (i % 3)}
-                className={SPAN[t.span]}
-              >
-                {t.kind === "clip" && <ClipCard c={t} />}
-                {t.kind === "quote" && <QuoteCard t={t} />}
-                {t.kind === "shot" && (
-                  <ShotCard
-                    s={t}
-                    absent={gone.includes(t.src)}
-                    onOpen={setOpen}
-                    onMissing={noteMissing}
-                  />
-                )}
-              </Reveal>
-            );
-          })}
-        </div>
       </div>
+
+      {onDesktop && cards.length > 1 ? (
+        <>
+          <Wheel cards={cards} onOpen={setOpen} onMissing={noteMissing} />
+          {/* Desktop only. The wheel holds the page for several viewports, so
+              it has to say plainly that there is more underneath - otherwise
+              the end of the wheel reads as the end of the site. */}
+          <div className="mt-6 flex flex-col items-center gap-2">
+            <span className="mono-label">Keep scrolling</span>
+            <ChevronDown
+              size={20}
+              className="text-[color:var(--ember)] [animation:nudge_2.2s_ease-in-out_infinite]"
+            />
+          </div>
+        </>
+      ) : (
+        <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
+          <Collage gone={gone} onOpen={setOpen} onMissing={noteMissing} />
+        </div>
+      )}
 
       <Lightbox shot={open} onClose={() => setOpen(null)} />
     </section>
