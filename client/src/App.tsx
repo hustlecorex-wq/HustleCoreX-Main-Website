@@ -12,6 +12,9 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      {/* A shareable link for the form itself - same page, opened straight
+          at the application section. */}
+      <Route path="/apply" component={Home} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/developer" component={Developer} />
       <Route component={NotFound} />

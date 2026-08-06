@@ -308,13 +308,20 @@ function Apply() {
 
 /* ═══ PAGE ═══════════════════════════════════════════════════════ */
 
+/* Bare paths that are really a section of this page. /apply is the link we
+   hand out on its own, so it has to land on the form without a hash. */
+const PATH_SECTIONS: Record<string, string> = {
+  "/apply": "apply",
+};
+
 export default function Home() {
-  /* Arriving from a sub-page as /#apply: the sections don't exist until this
+  /* Arriving as /#apply or /apply: the sections don't exist until this
      component mounts, so the browser can't do the jump itself. It has to be
      instant - a smooth scroll started this early gets cancelled before it
      travels, which reads as the link doing nothing. */
   useEffect(() => {
-    const id = window.location.hash.slice(1);
+    const path = window.location.pathname.replace(/\/+$/, "").toLowerCase();
+    const id = window.location.hash.slice(1) || PATH_SECTIONS[path] || "";
     if (!id) return;
 
     const jump = () => {
