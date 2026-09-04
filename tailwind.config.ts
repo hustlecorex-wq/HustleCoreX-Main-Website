@@ -80,15 +80,16 @@ export default {
           "400": "#FF6622",
         },
         // HustleCoreX palette
-        void: "#07070A",
+        void: "#08080B",
         panel: {
           DEFAULT: "#0E0E13",
           raised: "#14141A",
         },
-        chalk: "#F5F3F1",
+        chalk: "#F7F5F3",
         ash: {
-          DEFAULT: "#8C8C97",
-          dim: "#5A5A64",
+          DEFAULT: "#A3A1AB",
+          dim: "#706E7A",
+          faint: "#5F5D69",
         },
         ember: {
           DEFAULT: "#FF4A17",
@@ -103,6 +104,7 @@ export default {
         },
       },
       fontFamily: {
+        display: ["var(--font-display)"],
         sans: ["var(--font-sans)"],
         serif: ["var(--font-serif)"],
         mono: ["var(--font-mono)"],

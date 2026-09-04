@@ -8,38 +8,25 @@ import Container from "@/components/site/Container";
 import Footer from "@/components/site/Footer";
 import ApplyForm from "@/components/site/ApplyForm";
 import ProofWall from "@/components/site/ProofWall";
-import VideoFrame from "@/components/site/VideoFrame";
+import SectionRule from "@/components/site/SectionRule";
+import Showcase from "@/components/site/Showcase";
 import AdminAccess from "@/components/site/AdminAccess";
-
-/* The self-hosted videos. Files live in client/public/; see VideoFrame
-   for how to encode a replacement. */
-const HERO_VIDEO = "/walkthrough.mp4";
-const HERO_POSTER = "/walkthrough-poster.jpg";
-const HERO_ASPECT = "1900 / 948";
-
-/* The builds in the "what we build" section, newest first. Each one is a
-   different client's finished system, so the section grows by adding to
-   this list rather than by editing the markup. */
-const BUILDS = [
-  {
-    name: "Katie's",
-    system: "Check-In Dashboard",
-    src: "/katie-dashboard.mp4",
-    poster: "/katie-dashboard-poster.jpg",
-    aspect: "16 / 9",
-    label: "Watch the dashboard · 6 min",
-  },
-  {
-    name: "Kyle's",
-    system: "Lead Gen System",
-    src: "/what-we-build.mp4",
-    poster: "/what-we-build-poster.jpg",
-    aspect: "16 / 9",
-    label: "Watch a full system · 7 min",
-  },
-];
+import CostOfAdmin from "@/components/site/CostOfAdmin";
+import Founder from "@/components/site/Founder";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
+
+/* Coaches whose work is on this page, in the order their proof appears.
+   Names only - a follower count nobody can check is the kind of number
+   that makes the checkable ones worth less. */
+const ROSTER = [
+  "Patrick Brody",
+  "Kyle Shayler",
+  "Bela Toth",
+  "Ben Ola",
+  "Anthony Grace",
+  "Kyle Swinburn",
+];
 
 /* ─── reveal on scroll ─────────────────────────────────────────── */
 function Reveal({
@@ -66,46 +53,60 @@ function Reveal({
   );
 }
 
-/* ═══ HERO ═══════════════════════════════════════════════════════ */
+/* ═══ HERO ═══════════════════════════════════════════════════════
+   No video and no product shot. The headline is the thesis, the beam
+   is the page's one light source, and the work itself starts one
+   scroll-inch below where the beam lands - so the light is pointing
+   at the thing we want looked at.
+   ═══════════════════════════════════════════════════════════════ */
 
 function Hero() {
-  const rise = (delay: number) => ({
-    initial: { opacity: 0, y: 22 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.85, ease: EASE, delay },
-  });
-
   return (
-    <section className="relative pt-[128px] md:pt-[150px]">
+    <section className="relative pt-[124px] md:pt-[152px]">
       <Container>
-        {/* Beam anchor: the light strikes the bottom edge of this block */}
-        <div className="relative pb-14 md:pb-16">
+        {/* Beam anchor: the light strikes the bottom edge of this block,
+            which is the line the showcase sits on. */}
+        <div className="relative pb-16 md:pb-24">
           <HeroBeam />
 
           <div className="relative z-10 mx-auto max-w-3xl text-center">
-            <motion.h1
-              {...rise(0.14)}
-              className="text-[clamp(1.95rem,7.4vw,4.6rem)]"
-            >
-              <span className="display-light block text-white/[0.72]">
-                We build the systems
+            <h1 className="text-[clamp(2.05rem,7.6vw,4.7rem)]">
+              <span className="line-mask">
+                <span
+                  className="line-rise display-soft text-white/[0.68]"
+                  style={{ "--rise-delay": "0.12s" } as React.CSSProperties}
+                >
+                  We help coaches build
+                </span>
               </span>
-              <span className="display text-lit block">
-                online coaches run on
+              <span className="line-mask">
+                <span
+                  className="line-rise display text-lit"
+                  style={{ "--rise-delay": "0.24s" } as React.CSSProperties}
+                >
+                  a healthier, happier world.
+                </span>
               </span>
-            </motion.h1>
+            </h1>
 
-            <motion.p
-              {...rise(0.24)}
-              className="mx-auto mt-7 max-w-[520px] text-[16px] leading-[1.7] text-white/[0.58] md:text-[16.5px]"
+            <p
+              style={{ "--rise-delay": "0.46s" } as React.CSSProperties}
+              className="rise-in mx-auto mt-8 max-w-[520px] text-[16px] leading-[1.75] text-white/[0.6] md:text-[16.5px]"
             >
-              Check-ins, lead follow-up and onboarding, handled automatically -
-              so your hours go to coaching instead of admin.
-            </motion.p>
+              Every hour a coach spends on admin is an hour nobody gets
+              coached.
+            </p>
 
-            <motion.div
-              {...rise(0.34)}
-              className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row"
+            <div
+              style={{ "--rise-delay": "0.6s" } as React.CSSProperties}
+              className="rise-in mx-auto mt-10 max-w-[560px] md:mt-12"
+            >
+              <CostOfAdmin />
+            </div>
+
+            <div
+              style={{ "--rise-delay": "0.78s" } as React.CSSProperties}
+              className="rise-in mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row"
             >
               <button
                 onClick={() => goTo("apply")}
@@ -117,82 +118,97 @@ function Hero() {
                 onClick={() => goTo("system")}
                 className="btn-ghost group flex w-full items-center justify-center gap-2 rounded-full px-7 py-3.5 text-[14.5px] font-medium sm:w-auto"
               >
-                See what we build
+                See the work
                 <ArrowRight
                   size={15}
                   className="transition-transform duration-300 group-hover:translate-x-0.5"
                 />
               </button>
-            </motion.div>
+            </div>
+          </div>
+
+          {/* The roster, lit from below by the strike point. */}
+          <div
+            style={{ "--rise-delay": "0.98s" } as React.CSSProperties}
+            className="rise-in relative z-10 mt-14 md:mt-16"
+          >
+            <p className="mono-label mb-5 text-center text-ash-faint">
+              Coaches we build for
+            </p>
+            {/* Spacing separates the names rather than bullets. A wrapped
+                list with separators starts its second line on a stray
+                bullet, and there is no way to spot the wrap in CSS. */}
+            <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2.5 md:gap-x-9">
+              {ROSTER.map((name) => (
+                <li
+                  key={name}
+                  className="text-[13px] font-medium tracking-[-0.01em] text-white/[0.44] md:text-[13.5px]"
+                >
+                  {name}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </Container>
-
-      {/* The video breaks out of the copy container - it's the thing the
-          page is actually asking people to do, so it shouldn't be the
-          narrowest element on the screen. */}
-      <motion.div
-        initial={{ opacity: 0, y: 34, scale: 0.985 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 1.05, ease: EASE, delay: 0.44 }}
-        className="relative z-10 mx-auto w-full max-w-[1240px] px-6 md:px-10"
-      >
-        <VideoFrame
-          src={HERO_VIDEO}
-          poster={HERO_POSTER}
-          aspect={HERO_ASPECT}
-          label="Watch the walkthrough · 4 min"
-          className="max-w-[1160px]"
-        />
-      </motion.div>
     </section>
   );
 }
 
 /* ═══ WHAT WE BUILD ══════════════════════════════════════════════
-   The section the hero's "See what we build" button points at, so it
-   shows them rather than describing four. A walkthrough of a finished
-   system answers the same questions the capability cards used to, and
-   answers them in the client's own dashboard instead of in copy.
-
-   The eyebrow is printed once and each build carries its own name, so
-   the section reads as a list of real systems rather than a repeated
-   pitch. Only the first video gets the eyebrow above it.
+   Four sentences, no cards. The showcase above has already shown
+   what these turn into, so this only has to name them.
    ═══════════════════════════════════════════════════════════════ */
 
-function WhatWeBuild() {
-  return (
-    <section id="system" className="relative z-10 py-20 md:py-28">
-      <Container>
-        {BUILDS.map((b, i) => (
-          <div key={b.src} className={i ? "mt-24 md:mt-32" : ""}>
-            <Reveal>
-              {i === 0 && <p className="mono-label-ember mb-6">What we build</p>}
-              <h2 className="heading text-[clamp(2rem,4.2vw,3.1rem)]">
-                {b.name}
-                <br />
-                {b.system}
-              </h2>
-            </Reveal>
+const CAPABILITIES = [
+  {
+    name: "Check-ins",
+    body: "Clients answer once. It arrives scored, ranked by who needs you, and ready to reply to.",
+  },
+  {
+    name: "Lead follow-up",
+    body: "DMs, enquiries and booked calls in one pipeline, with the next message already written.",
+  },
+  {
+    name: "Onboarding",
+    body: "Someone pays and everything they need is waiting for them, without you sending any of it.",
+  },
+  {
+    name: "Site and profile",
+    body: "The page people land on once they have decided to check whether you are the real thing.",
+  },
+];
 
-            <Reveal delay={0.12} className="mt-12 md:mt-14">
-              <VideoFrame
-                src={b.src}
-                poster={b.poster}
-                aspect={b.aspect}
-                label={b.label}
-              />
+function Capabilities() {
+  return (
+    /* The showcase's Skip lands here, so this section needs a name to
+       land on. */
+    <section id="build" className="relative z-10 py-20 md:py-28">
+      <Container>
+        <Reveal>
+          <SectionRule label="What we build" />
+        </Reveal>
+
+        <div className="mt-12 grid gap-px md:mt-14 md:grid-cols-2 lg:grid-cols-4">
+          {CAPABILITIES.map((c, i) => (
+            <Reveal key={c.name} delay={0.06 * i}>
+              <div className="h-full border-t border-white/[0.07] pr-6 pt-6 md:pt-7">
+                <h3 className="heading text-[16.5px]">{c.name}</h3>
+                <p className="mt-3 max-w-[34ch] text-[14px] leading-[1.75] text-ash-dim">
+                  {c.body}
+                </p>
+              </div>
             </Reveal>
-          </div>
-        ))}
+          ))}
+        </div>
       </Container>
     </section>
   );
 }
 
 /* ═══ RESULTS ═══════════════════════════════════════════════════
-   Lives in components/site/ProofWall.tsx - filmed reviews, written
-   reviews and screenshots of the work, mixed into one collage.
+   Lives in components/site/ProofWall.tsx - the filmed reviews and
+   the written ones, in one collage.
    ═══════════════════════════════════════════════════════════════ */
 
 /* ═══ MISSION ════════════════════════════════════════════════════ */
@@ -201,17 +217,17 @@ function Mission() {
   return (
     <section id="mission" className="relative z-10 py-20 md:py-28">
       <Container>
-        <div className="hairline-rule mb-14 md:mb-16" />
+        <div className="hairline-rule mb-16 md:mb-20" />
         <div className="mx-auto max-w-3xl text-center">
           <Reveal>
             <p className="mono-label-ember mb-8">Why we do it</p>
-            <p className="display-light text-[clamp(1.75rem,4vw,2.9rem)] leading-[1.22]">
+            <p className="heading-soft text-[clamp(1.7rem,3.9vw,2.8rem)]">
               A coach with their week back can take on more people - and be
               better for the ones they already have.
             </p>
           </Reveal>
           <Reveal delay={0.12}>
-            <p className="mx-auto mt-10 max-w-[600px] text-[16px] leading-[1.85] text-ash md:text-[17px]">
+            <p className="mx-auto mt-10 max-w-[600px] text-[16px] leading-[1.85] text-ash md:text-[16.5px]">
               For most people, an online coach is the closest thing they have to
               a health professional who actually knows them. The ceiling on that
               isn't ambition - it's capacity. Every hour spent copying data
@@ -226,7 +242,10 @@ function Mission() {
   );
 }
 
-/* ═══ APPLY ══════════════════════════════════════════════════════ */
+/* ═══ APPLY ══════════════════════════════════════════════════════
+   Numbered, because this one really is a sequence - each step only
+   happens if the one before it did.
+   ═══════════════════════════════════════════════════════════════ */
 
 const STEPS = [
   {
@@ -275,7 +294,7 @@ function Apply() {
             <ol className="mt-12 space-y-8">
               {STEPS.map((s) => (
                 <li key={s.n} className="flex gap-5">
-                  <span className="font-mono text-[11px] leading-[1.6] tracking-[0.12em] text-ember">
+                  <span className="tabular font-mono text-[11px] leading-[1.6] tracking-[0.12em] text-ember">
                     {s.n}
                   </span>
                   <div>
@@ -347,9 +366,11 @@ export default function Home() {
       <Nav />
       <main className="relative z-10">
         <Hero />
-        <WhatWeBuild />
+        <Showcase />
+        <Capabilities />
         <ProofWall />
         <Mission />
+        <Founder />
         <Apply />
       </main>
       <Footer />
