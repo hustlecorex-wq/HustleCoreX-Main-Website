@@ -89,7 +89,7 @@ export default {
         ash: {
           DEFAULT: "#A3A1AB",
           dim: "#706E7A",
-          faint: "#4C4B56",
+          faint: "#5F5D69",
         },
         ember: {
           DEFAULT: "#FF4A17",

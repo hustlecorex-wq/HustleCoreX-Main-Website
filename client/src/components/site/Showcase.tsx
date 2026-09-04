@@ -268,7 +268,10 @@ export default function Showcase() {
   const build = BUILDS[index];
   const inView = useInView(sectionRef, { margin: "-25% 0px -25% 0px" });
   const reduced = useReducedMotion();
-  const auto = inView && !hovering && !taken && !reduced;
+  /* Whether a build's turn is being timed at all. Hovering is deliberately
+     not in here: it pauses the fill in place (see .rail-mark) rather than
+     cancelling it, so the marker holds where the visitor stopped it. */
+  const timed = inView && !taken && !reduced;
 
   const show = useCallback((i: number, s: number) => {
     setIndex(i);
@@ -276,15 +279,6 @@ export default function Showcase() {
     const src = BUILDS[i].screens[s].src;
     setSeen((prev) => (prev.includes(src) ? prev : [...prev, src]));
   }, []);
-
-  useEffect(() => {
-    if (!auto) return;
-    const t = window.setTimeout(
-      () => show((index + 1) % BUILDS.length, 0),
-      DWELL,
-    );
-    return () => window.clearTimeout(t);
-  }, [auto, index, show]);
 
   /* On a phone the rail is wider than the screen, so the active cell has
      to be brought to it. scrollLeft rather than scrollIntoView, which
@@ -403,7 +397,7 @@ export default function Showcase() {
                 >
                   {build.kind === "system" ? "System" : "Website"}
                 </span>
-                <span className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-ash-faint">
+                <span className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-ash-dim">
                   {build.client} · {build.role}
                 </span>
               </div>
@@ -452,16 +446,20 @@ export default function Showcase() {
                       object: it fills while the build holds the stage, and
                       simply sits full-width once nobody is advancing. */}
                   {on && (
-                    <motion.span
-                      key={`${b.id}-${auto ? "timing" : "held"}`}
+                    <span
                       aria-hidden
                       className="rail-mark"
-                      initial={{ width: auto ? "0%" : "100%" }}
-                      animate={{ width: "100%" }}
-                      transition={
-                        auto
-                          ? { duration: DWELL / 1000, ease: "linear" }
-                          : { duration: 0.45, ease: EASE }
+                      /* Keyed on the build alone, so hovering only pauses
+                         the fill - it does not remount the element and
+                         start it over. */
+                      data-timing={timed ? "true" : undefined}
+                      data-paused={hovering ? "true" : undefined}
+                      style={{ "--dwell": `${DWELL}ms` } as React.CSSProperties}
+                      /* The bar reaching the end IS the cue to advance, so
+                         there is no second clock that can drift out of step
+                         with what the visitor can see. */
+                      onAnimationEnd={() =>
+                        show((index + 1) % BUILDS.length, 0)
                       }
                     />
                   )}

@@ -261,7 +261,12 @@ export default function ProofWall() {
           </h2>
         </Reveal>
 
-        <div className="mt-14 grid grid-cols-2 gap-4 md:mt-16 md:grid-cols-6 md:gap-5 lg:grid-cols-12">
+        {/* Dense flow, because the rows only add up to twelve on desktop.
+            Narrower than that a full-width quote cannot sit beside a clip,
+            and sparse placement abandons the cell next to it - two visible
+            holes down the collage on a phone. Dense backfills them with
+            the next clip instead. */}
+        <div className="mt-14 grid grid-flow-row-dense grid-cols-2 gap-4 md:mt-16 md:grid-cols-6 md:gap-5 lg:grid-cols-12">
           {TILES.map((t, i) => {
             const key = t.kind === "clip" ? t.slug : t.name;
             return (
