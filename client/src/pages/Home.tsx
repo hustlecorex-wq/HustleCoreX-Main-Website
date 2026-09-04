@@ -12,6 +12,7 @@ import SectionRule from "@/components/site/SectionRule";
 import Showcase from "@/components/site/Showcase";
 import AdminAccess from "@/components/site/AdminAccess";
 import CostOfAdmin from "@/components/site/CostOfAdmin";
+import Founder from "@/components/site/Founder";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -369,6 +370,7 @@ export default function Home() {
         <Capabilities />
         <ProofWall />
         <Mission />
+        <Founder />
         <Apply />
       </main>
       <Footer />

@@ -8,6 +8,7 @@ const LINKS = [
   { id: "system", label: "Work" },
   { id: "results", label: "Results" },
   { id: "mission", label: "Mission" },
+  { id: "founder", label: "Founder" },
 ];
 
 export function goTo(id: string) {
