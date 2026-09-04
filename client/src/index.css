@@ -502,13 +502,101 @@
   border-color: var(--hairline-lit);
 }
 
-/* ═══ THE WINDOW ═════════════════════════════════════════════════
-   The showcase frames each build in a window whose chrome matches
-   what is inside it: a browser bar carrying a real URL for a site, an
-   app bar carrying the product's own section tabs for a system. The
-   chrome is how both kinds of work live in one showcase without being
-   sorted into two.
+/* ═══ THE SHOWCASE ═══════════════════════════════════════════════
+   Every finished build in one pinned screen that pans sideways as the
+   page is scrolled down.
+
+   The card is sized from the height a pinned screen has left over
+   rather than from its width. That is what keeps the eyebrow, the card
+   and the controls on one screen at any window height, and it is why
+   the frame's aspect is 1440x900 - the size every build is actually
+   rendered at inside it.
+
+   Under the query below - which has to stay in step with PAN_QUERY in
+   Showcase.tsx - the pinning is dropped and the same track becomes an
+   ordinary swipeable rail. Nothing about a card changes between the
+   two; only what moves it does.
    ═══════════════════════════════════════════════════════════════ */
+
+.showcase {
+  /* Both written by the measure effect in Showcase.tsx: --fit scales a
+     1440x900 render down to whatever the frame ended up being, and
+     --gutter carries the page's own margin into a full-bleed track, so
+     the first card still lines up with the paragraph above it. */
+  --fit: 1;
+  --gutter: 1.5rem;
+  --gap: 1.5rem;
+  --card-w: min(86vw, 30rem);
+}
+
+@media (min-width: 768px) {
+  .showcase {
+    --gap: 2rem;
+  }
+}
+
+/* Wide, but not pinning - a short window, or reduced motion. The row
+   is swiped instead, and the card takes its width from the screen
+   rather than from a height it is not being held to. */
+@media (min-width: 1024px) {
+  .showcase {
+    --card-w: min(70vw, 56rem);
+  }
+}
+
+@media (min-width: 1024px) and (min-height: 660px) {
+  .showcase {
+    /* 25.5rem is everything a pinned screen spends on something other
+       than the frame: nav clearance, eyebrow, caption, controls. */
+    --stage-h: clamp(14rem, calc(100svh - 25.5rem), 42rem);
+    --card-w: min(calc(var(--stage-h) * 1.6), 68rem);
+  }
+}
+
+.showcase-track {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap);
+}
+
+.showcase-track[data-pan] {
+  will-change: transform;
+}
+
+/* The page margin, as a member of the track - so the first and last
+   cards stop level with the text above them without the track needing
+   padding that its own width measurement would then have to guess at. */
+.showcase-edge {
+  flex: none;
+  /* The gap the track puts after this spacer is part of the margin, so
+     the spacer is the margin less that gap - otherwise the first card
+     sits one gap to the right of the paragraph it is meant to line up
+     with. */
+  width: max(0px, calc(var(--gutter) - var(--gap)));
+}
+
+.showcase-rail {
+  scroll-padding-inline-start: var(--gutter);
+}
+
+/* Whatever is not being read is dimmed rather than hidden, so the row
+   still reads as a body of work while one build has the floor. */
+.showcase-card {
+  flex: none;
+  width: var(--card-w);
+  scroll-snap-align: start;
+  opacity: 0.38;
+  transition: opacity 0.6s var(--ease-out-quint);
+}
+
+.showcase-card[data-active] {
+  opacity: 1;
+}
+
+/* ── the window ────────────────────────────────────────────────
+   A system is an app, so its bar carries the product's own mark and
+   name. A site is a page, so its bar carries window buttons and its
+   address. Same frame under either one. */
 
 .window {
   position: relative;
@@ -519,6 +607,7 @@
     0 40px 90px -50px rgba(0, 0, 0, 1),
     0 10px 40px -24px rgba(255, 74, 23, 0.16);
   overflow: hidden;
+  transition: border-color 0.5s ease, box-shadow 0.5s ease;
 }
 
 /* Light off the beam catching the window's top edge */
@@ -538,115 +627,296 @@
   z-index: 3;
 }
 
+/* Once the pointer has been handed over, the window is lit - otherwise
+   there is nothing to say which of the three on screen is the live one
+   taking your clicks. */
+.showcase-card[data-engaged] .window {
+  border-color: rgba(255, 122, 60, 0.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 40px 90px -50px rgba(0, 0, 0, 1), 0 0 0 1px rgba(255, 74, 23, 0.16),
+    0 18px 70px -34px rgba(255, 74, 23, 0.5);
+}
+
 .window-bar {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0 12px;
-  height: 44px;
+  padding: 0 10px 0 12px;
+  height: 42px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   background: linear-gradient(180deg, #16161c, #101015);
 }
 
-/* On a phone the tab strip is wider than the bar. Fading its right edge
-   is the only cue that there is more of it, since the scrollbar is
-   hidden and a cut-off word could just be a cut-off word. */
-.window-tabs {
-  -webkit-mask-image: linear-gradient(90deg, #000 82%, transparent);
-  mask-image: linear-gradient(90deg, #000 82%, transparent);
-}
-
-@media (min-width: 768px) {
-  .window-tabs {
-    -webkit-mask-image: none;
-    mask-image: none;
-  }
-}
-
-/* A 2.36:1 dashboard shrunk to the width of a phone is 138px tall and
-   nothing in it can be read. So on a small screen the stage keeps a
-   taller frame and shows less of the shot at a bigger scale, rather than
-   all of it at a size that proves nothing. */
-.window-stage {
+/* The frame. Fixed at the aspect every build is rendered at, so a still
+   and the live thing it stands in for occupy the same box exactly and
+   the swap between them is invisible. */
+.window-frame {
   position: relative;
-  aspect-ratio: 3 / 2;
+  width: 100%;
+  /* A 16:10 dashboard at the width of a phone is 209px tall, so the
+     phone keeps a taller frame and shows the top of the shot at a
+     bigger scale rather than all of it at a size that proves nothing.
+     Builds are only ever framed live above 1024px, where this is back
+     to the 1440x900 they are rendered at. */
+  aspect-ratio: 4 / 3;
   background: #0b0b10;
   overflow: hidden;
 }
 
-.window-stage img {
+@media (min-width: 768px) {
+  .window-frame {
+    aspect-ratio: 1440 / 900;
+  }
+}
+
+.window-poster {
   position: absolute;
   inset: 0;
   height: 100%;
   width: 100%;
   object-fit: cover;
-  /* Which corner survives the crop. An app puts its header and its first
-     cards top-left, so that is the part worth keeping; a site is composed
-     centrally and keeps its middle. */
   object-position: top center;
-  transition: opacity 0.5s var(--ease-out-quint),
-    transform 0.9s var(--ease-out-quint);
+  transition: opacity 0.7s var(--ease-out-quint);
 }
 
-.window-stage[data-kind="system"] img {
-  object-position: left top;
-}
-
-/* From tablet up the whole shot fits at a legible size, so the frame
-   matches the still exactly and nothing is cropped. */
-@media (min-width: 768px) {
-  .window-stage {
-    aspect-ratio: 1680 / 712;
-  }
-  .window-stage[data-kind="system"] img {
-    object-position: top center;
-  }
-}
-
-/* ── The rail ──────────────────────────────────────────────────
-   Every build on one line, so the section never asks anyone to
-   scroll to find out what else is in it. */
-.rail-item {
-  position: relative;
-  transition: color 0.3s ease, background-color 0.4s ease;
-}
-
-/* The active cell's top edge is lit, and the auto-advance timer runs
-   along it - so the progress indicator and the selection marker are the
-   same object rather than two competing ones.
-
-   It fills with scaleX rather than width: width would relayout the cell
-   on every frame for seven seconds, and a 2px gradient squashed
-   horizontally looks the same as one revealed. */
-.rail-mark {
+/* The build renders at its real desktop width and is then scaled down
+   to the frame, rather than being handed a 700px viewport and asked to
+   be a tablet. A dashboard in its phone layout is not the dashboard we
+   built, and the whole point of embedding it is that the thing on
+   screen is the thing itself. */
+.window-embed {
   position: absolute;
+  top: 0;
   left: 0;
-  top: -1px;
+  width: 1440px;
+  height: 900px;
+  border: 0;
+  transform: scale(var(--fit));
+  transform-origin: 0 0;
+  transition: opacity 0.7s var(--ease-out-quint);
+}
+
+/* Until it is clicked, the frame is covered. The cover is what keeps
+   the wheel scrolling the page instead of being swallowed by the app
+   inside the frame, and clicking it is the single deliberate act that
+   hands the pointer over. */
+.window-shield {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 14px;
+  cursor: pointer;
+}
+
+.window-shield::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 58%, rgba(6, 6, 9, 0.7));
+  opacity: 0;
+  transition: opacity 0.5s var(--ease-out-quint);
+}
+
+.showcase-card[data-active] .window-shield::before {
+  opacity: 1;
+}
+
+.window-cue {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(12, 12, 16, 0.8);
+  backdrop-filter: blur(8px);
+  padding: 6px 13px;
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--chalk);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.45s var(--ease-out-quint),
+    transform 0.45s var(--ease-out-quint), background-color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.showcase-card[data-active] .window-cue {
+  opacity: 1;
+  transform: none;
+}
+
+.window-shield:hover .window-cue,
+.window-shield:focus-visible .window-cue {
+  border-color: rgba(255, 122, 60, 0.55);
+  background: rgba(255, 74, 23, 0.92);
+}
+
+/* ── chips in the window bar ───────────────────────────────────── */
+
+.bar-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  padding: 3px 9px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ash-dim);
+  white-space: nowrap;
+  transition: color 0.3s ease, border-color 0.3s ease,
+    background-color 0.3s ease;
+}
+
+.bar-chip-live {
+  color: var(--flare);
+  border-color: rgba(255, 162, 77, 0.28);
+  background: rgba(255, 74, 23, 0.08);
+}
+
+button.bar-chip:hover {
+  color: var(--chalk);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.live-dot {
+  height: 5px;
+  width: 5px;
+  border-radius: 999px;
+  background: var(--ember);
+  box-shadow: 0 0 8px var(--ember);
+  animation: live-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-dot {
+    animation: none;
+  }
+}
+
+.bar-icon {
+  display: inline-flex;
+  height: 26px;
+  width: 26px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  color: var(--ash-dim);
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.bar-icon:hover {
+  color: var(--chalk);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+/* ── the controls ──────────────────────────────────────────────
+   One segment per build, so the row is both where you are and where
+   you can go. The active segment widens rather than only changing
+   colour: at 2px tall, length is the difference you can see. */
+
+.seg {
+  position: relative;
+  display: flex;
+  height: 24px;
+  align-items: center;
+  padding: 0 4px;
+}
+
+.seg-bar {
+  display: block;
   height: 2px;
-  width: 100%;
-  transform-origin: left center;
+  width: 24px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.13);
+  transition: width 0.55s var(--ease-out-quint), background-color 0.45s ease,
+    box-shadow 0.45s ease;
+}
+
+.seg:hover .seg-bar {
+  background: rgba(255, 255, 255, 0.32);
+}
+
+.seg[data-on] .seg-bar {
+  width: 52px;
   background: linear-gradient(90deg, var(--ember), var(--flare));
-  box-shadow: 0 0 12px rgba(255, 90, 30, 0.55);
+  box-shadow: 0 0 12px rgba(255, 90, 30, 0.5);
 }
 
-@keyframes rail-fill {
-  from {
-    transform: scaleX(0);
+/* A phone has to fit six of these and the Skip on one line. */
+@media (max-width: 639px) {
+  .seg {
+    padding: 0 3px;
   }
-  to {
-    transform: scaleX(1);
+  .seg-bar {
+    width: 18px;
+  }
+  .seg[data-on] .seg-bar {
+    width: 40px;
   }
 }
 
-/* A CSS animation rather than a scripted one so that hovering can pause
-   it where it stands. Anything that has to be torn down and rebuilt to
-   stop reads as the timer completing and then resetting. */
-.rail-mark[data-timing="true"] {
-  animation: rail-fill var(--dwell, 7s) linear forwards;
+.seg-name {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ash);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s var(--ease-out-quint);
 }
 
-.rail-mark[data-paused="true"] {
-  animation-play-state: paused;
+.seg:hover .seg-name,
+.seg:focus-visible .seg-name {
+  opacity: 1;
+  transform: translateX(-50%);
+}
+
+/* No display of its own: the arrows are hidden on a phone with a
+   utility, and a display here would outrank it. */
+.step-btn {
+  height: 32px;
+  width: 32px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: var(--ash);
+  transition: color 0.3s ease, border-color 0.3s ease,
+    background-color 0.3s ease, opacity 0.3s ease;
+}
+
+.step-btn:hover:not(:disabled) {
+  color: var(--chalk);
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.step-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
 }
 
 /* ── Ember button ──────────────────────────────────────────────── */
@@ -731,6 +1001,60 @@ select.field {
 /* Placeholder colour for an unselected native select */
 select.field[data-empty="true"] {
   color: var(--ash-dim);
+}
+
+/* ═══ ADMIN COST METER ════════════════════════════════════════════
+   The hero's one interactive element: drag to your own admin hours
+   and the year/workweek/client numbers recompute live. Built on the
+   unstyled Radix slider primitive so drag, keyboard and touch all
+   work for free - only the paint below is ours.
+   ═══════════════════════════════════════════════════════════════ */
+
+.admin-slider {
+  position: relative;
+  display: flex;
+  height: 20px;
+  width: 100%;
+  touch-action: none;
+  align-items: center;
+  user-select: none;
+}
+
+.admin-slider-track {
+  position: relative;
+  height: 4px;
+  flex: 1;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.admin-slider-range {
+  position: absolute;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--ember), var(--flare));
+  box-shadow: 0 0 14px rgba(255, 90, 30, 0.45);
+}
+
+.admin-slider-thumb {
+  display: block;
+  height: 18px;
+  width: 18px;
+  border-radius: 999px;
+  background: var(--chalk);
+  border: 3px solid var(--ember);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 0 4px rgba(255, 74, 23, 0.14);
+  cursor: grab;
+  transition: transform 0.2s var(--ease-out-quint), box-shadow 0.2s ease;
+}
+
+.admin-slider-thumb:hover {
+  transform: scale(1.12);
+}
+
+.admin-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.05);
 }
 
 /* ── Utilities ─────────────────────────────────────────────────── */

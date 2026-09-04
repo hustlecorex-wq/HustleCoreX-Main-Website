@@ -11,6 +11,7 @@ import ProofWall from "@/components/site/ProofWall";
 import SectionRule from "@/components/site/SectionRule";
 import Showcase from "@/components/site/Showcase";
 import AdminAccess from "@/components/site/AdminAccess";
+import CostOfAdmin from "@/components/site/CostOfAdmin";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -74,7 +75,7 @@ function Hero() {
                   className="line-rise display-soft text-white/[0.68]"
                   style={{ "--rise-delay": "0.12s" } as React.CSSProperties}
                 >
-                  We build the systems
+                  We help coaches build
                 </span>
               </span>
               <span className="line-mask">
@@ -82,7 +83,7 @@ function Hero() {
                   className="line-rise display text-lit"
                   style={{ "--rise-delay": "0.24s" } as React.CSSProperties}
                 >
-                  online coaches run on
+                  a healthier, happier world.
                 </span>
               </span>
             </h1>
@@ -91,13 +92,20 @@ function Hero() {
               style={{ "--rise-delay": "0.46s" } as React.CSSProperties}
               className="rise-in mx-auto mt-8 max-w-[520px] text-[16px] leading-[1.75] text-white/[0.6] md:text-[16.5px]"
             >
-              Check-ins, lead follow-up and onboarding, handled automatically -
-              so your hours go to coaching instead of admin.
+              Every hour a coach spends on admin is an hour nobody gets
+              coached.
             </p>
 
             <div
-              style={{ "--rise-delay": "0.58s" } as React.CSSProperties}
-              className="rise-in mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row"
+              style={{ "--rise-delay": "0.6s" } as React.CSSProperties}
+              className="rise-in mx-auto mt-10 max-w-[560px] md:mt-12"
+            >
+              <CostOfAdmin />
+            </div>
+
+            <div
+              style={{ "--rise-delay": "0.78s" } as React.CSSProperties}
+              className="rise-in mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row"
             >
               <button
                 onClick={() => goTo("apply")}
@@ -120,7 +128,7 @@ function Hero() {
 
           {/* The roster, lit from below by the strike point. */}
           <div
-            style={{ "--rise-delay": "0.8s" } as React.CSSProperties}
+            style={{ "--rise-delay": "0.98s" } as React.CSSProperties}
             className="rise-in relative z-10 mt-14 md:mt-16"
           >
             <p className="mono-label mb-5 text-center text-ash-faint">
@@ -172,7 +180,9 @@ const CAPABILITIES = [
 
 function Capabilities() {
   return (
-    <section className="relative z-10 py-20 md:py-28">
+    /* The showcase's Skip lands here, so this section needs a name to
+       land on. */
+    <section id="build" className="relative z-10 py-20 md:py-28">
       <Container>
         <Reveal>
           <SectionRule label="What we build" />

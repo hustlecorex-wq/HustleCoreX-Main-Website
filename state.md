@@ -41,7 +41,7 @@ the form.
     *   `Ambient.tsx` - `HeroBeam` (the light source; anchored to its
         container's bottom edge, which is now the line the showcase sits on)
         and `SiteBackdrop` (grain + low warm wash).
-    *   `Showcase.tsx` - the work, all of it, on one screen. See below.
+    *   `Showcase.tsx` - the work, all of it, in one pinned pan. See below.
     *   `SectionRule.tsx` - the eyebrow/rule/count line every section opens
         with. The right-hand slot only ever holds a real count.
     *   `ProofWall.tsx` - filmed and written reviews in one collage.
@@ -68,31 +68,55 @@ the form.
 ### The showcase
 
 `Showcase.tsx` holds every finished build - the dashboards and the websites -
-in one section that stays one screen tall however many are added. A stage shows
-the selected build, a rail underneath carries all of them at once, and picking
-one swaps the stage instead of adding another 700px to the page.
+in one section that pins while you walk it. Scrolling down moves the track
+sideways one pixel per pixel of scroll, so it reads as panning a shelf rather
+than as the page being taken away. The segment row and the arrows jump straight
+to a build, and `Skip ahead` leaves for `#build` (the What we build section,
+which exists to be landed on).
 
 What separates the two kinds of work is the chrome, not the section: a system
-is framed in an app window with the product's own section tabs, a site in a
-browser window with its address bar. The address is only ever a domain we know
-resolves - `isDomain()` decides whether the padlock appears at all.
+is framed in an app window carrying the product's name and mark, a site in a
+browser window carrying its address. A site's `chrome` is an address bar with a
+padlock in it, so it may only ever hold a domain that resolves.
 
-Auto-advance moves the stage every 7s, stops for good on the first deliberate
-pick, pauses on hover, and does not run at all under reduced motion or while
-the section is off screen. The lit rule on the active rail cell is both the
-selection marker and the timer.
+**What is in the frame is the build itself.** Five of the six are loaded live in
+an iframe at 1440x900 - their real desktop width - and scaled to the frame by
+`--fit`, so a visitor can click in and use Katie's dashboard rather than look at
+a picture of it. Three things make that work:
 
-Stills live in `client/public/work/`, cut to 1680x712 to match `.window-stage`.
-The dashboard stills were pulled out of the walkthrough recordings with ffmpeg
-before those were deleted, cropped to clear both the webcam overlay in the
-bottom-right corner and the app's own top nav bar - otherwise the window would
-carry two stacked nav bars, its own and the screenshot's:
+*   The frame is covered by `.window-shield` until it is clicked. An uncovered
+    iframe swallows the wheel, and a carousel driven by the wheel would stop
+    dead over every card. Clicking hands the pointer over; Escape, a click
+    outside, the Release button in the window bar, or moving to another build
+    hands it back.
+*   At most four frames are alive: the build being read, its neighbours, and
+    nothing more than two away. Nothing is mounted at all until the section is
+    within 500px of the viewport, so the page still loads at the cost of six
+    stills.
+*   Below `PAN_QUERY` (1024px wide, 660px tall - mirrored in `index.css`) the
+    pinning is dropped, the same track becomes a swipeable rail, and nothing is
+    framed: a dashboard drawn 335px wide is not a dashboard, so the phone gets
+    the still and a cue that opens the live build in its own tab.
 
-    ffmpeg -ss <t> -i recording.mp4 -frames:v 1       -vf "crop=1817:770:0:90,scale=1680:712:flags=lanczos" -q:v 4 out.jpg
+**Before adding a build with a `live` URL, check the host will be framed:**
 
-On a phone the stage switches to 3:2 and a system anchors to its top-left
-corner: the full 2.36:1 shot at that width is 138px tall and nothing in it can
-be read.
+    curl -sI <url> | grep -i "x-frame-options\|content-security"
+
+Anything answering `X-Frame-Options` or `frame-ancestors` renders as a blank
+box with nothing in our console to say why. BOWT
+(`bowt-preview.vercel.app`) answers `SAMEORIGIN`, which is why it is the one
+card that is a still and a link. One `headers` entry in that project's
+`vercel.json` would let it in.
+
+Posters live in `client/public/work/live-*.jpg`, cut to 1440x900 to match the
+frame exactly - so the swap from still to live build is invisible. They are
+captured from the builds themselves:
+
+    chrome --headless=new --hide-scrollbars --window-size=1440,900       --virtual-time-budget=15000 --screenshot=out.png <url>
+    ffmpeg -y -i out.png -q:v 4 client/public/work/live-<id>.jpg
+
+On a phone the frame switches to 4:3 and shows the top of the shot at a bigger
+scale: the full 16:10 at that width is 209px tall and little in it can be read.
 
 ### Above the fold
 
