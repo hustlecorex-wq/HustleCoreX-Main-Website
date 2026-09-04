@@ -116,7 +116,9 @@ now answers
 instead - which is stricter than `SAMEORIGIN` was for everyone except us.
 That header is the only reason BOWT is in a frame, so if that project ever
 drops it, drop `live` from the BOWT entry and it goes back to a poster and a
-link on its own.
+link on its own. It names the deployed origins only, so the BOWT card is a
+blank frame on `localhost` - that one is expected, and the other five still
+run there.
 
 Posters live in `client/public/work/live-*.jpg`, cut to 1440x900 to match the
 frame exactly - so the swap from still to live build is invisible. They are
