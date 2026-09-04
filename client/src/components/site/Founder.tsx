@@ -14,16 +14,14 @@ import SectionRule from "@/components/site/SectionRule";
  * Showcase, not a list of invented stats.
  *
  * ── Certifications ────────────────────────────────────────────────────────
- * CERTS is empty on purpose. Add an entry only for a certificate you actually
- * hold, using an image of the real issued document - not a template, and not
- * someone else's certificate with the name swapped. Most issuers give you a
- * verify link; include it, so a visitor can check it without taking the
- * image's word for it. One fabricated entry makes every real one worthless.
+ * Seven real certificates, images of the actual issued documents - not
+ * templates, none with a name swapped in. Add another the same way: drop the
+ * image under client/public/founder/certs/ and append an entry below, using
+ * verifyUrl whenever the issuer gives one so a visitor can check it without
+ * taking the image's word for it. Only ever add one you actually hold - one
+ * fabricated entry makes every real one worthless.
  *
  *   { issuer: "...", title: "...", image: "/founder/certs/<slug>.jpg", verifyUrl: "..." }
- *
- * Drop the image under client/public/founder/certs/ and the grid below
- * switches itself on - nothing else to wire up.
  */
 
 const NAME = "Mikolas Micka";
@@ -37,7 +35,45 @@ type Cert = {
   verifyUrl?: string;
 };
 
-const CERTS: Cert[] = [];
+const CERTS: Cert[] = [
+  {
+    issuer: "Anthropic",
+    title: "Claude Certified Architect",
+    image: "/founder/certs/claude-certified-architect.jpg",
+  },
+  {
+    issuer: "Build Fast with AI",
+    title: "Claude Mastery: Cowork & Code",
+    image: "/founder/certs/claude-mastery-cowork-code.jpg",
+  },
+  {
+    issuer: "AI Mastery Academy",
+    title: "AI Mastery for Marketing & Sales",
+    image: "/founder/certs/ai-mastery-marketing-sales.jpg",
+  },
+  {
+    issuer: "Google Cloud · SkillUp",
+    title: "Introduction to Large Language Models",
+    image: "/founder/certs/intro-large-language-models.jpg",
+  },
+  {
+    issuer: "W3Schools",
+    title: "Certified Java Developer",
+    image: "/founder/certs/w3schools-java-developer.jpg",
+    verifyUrl: "https://verify.w3schools.com/1OMS99KSTK",
+  },
+  {
+    issuer: "Coding Ninjas",
+    title: "Data Structures in C++",
+    image: "/founder/certs/coding-ninjas-dsa-cpp.jpg",
+    verifyUrl: "https://students.codingninjas.com/verify/768c56afeceb2023",
+  },
+  {
+    issuer: "CodeWizards",
+    title: "Intro to Programming with Python",
+    image: "/founder/certs/codewizards-python.jpg",
+  },
+];
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
