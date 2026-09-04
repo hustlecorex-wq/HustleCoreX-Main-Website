@@ -102,11 +102,21 @@ a picture of it. Three things make that work:
 
     curl -sI <url> | grep -i "x-frame-options\|content-security"
 
-Anything answering `X-Frame-Options` or `frame-ancestors` renders as a blank
-box with nothing in our console to say why. BOWT
-(`bowt-preview.vercel.app`) answers `SAMEORIGIN`, which is why it is the one
-card that is a still and a link. One `headers` entry in that project's
-`vercel.json` would let it in.
+Anything answering `X-Frame-Options`, or a `frame-ancestors` that does not
+name this site, renders as a blank box with nothing in our console to say why.
+
+All six are framed. Five of them set no framing header at all. BOWT is the
+exception: it used to answer `X-Frame-Options: SAMEORIGIN` and could not be
+framed, so `EliteFitnessApp/vercel.json` in the Main Fitness Dashboard repo
+now answers
+
+    Content-Security-Policy: frame-ancestors 'self' https://hustlecorex.com
+      https://www.hustlecorex.com https://hustlecorex-main-website.vercel.app
+
+instead - which is stricter than `SAMEORIGIN` was for everyone except us.
+That header is the only reason BOWT is in a frame, so if that project ever
+drops it, drop `live` from the BOWT entry and it goes back to a poster and a
+link on its own.
 
 Posters live in `client/public/work/live-*.jpg`, cut to 1440x900 to match the
 frame exactly - so the swap from still to live build is invisible. They are

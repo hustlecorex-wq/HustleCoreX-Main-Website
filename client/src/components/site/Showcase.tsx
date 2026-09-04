@@ -33,10 +33,11 @@ import { goTo } from "@/components/site/Nav";
  *
  *     curl -sI <url> | grep -i "x-frame-options\|content-security"
  *
- * Anything answering X-Frame-Options or frame-ancestors renders as a
- * blank box in the frame, with nothing in the page's own console to say
- * why. Those get the poster and the open-in-a-new-tab link instead,
- * which is what BOWT is doing here.
+ * Anything answering X-Frame-Options, or frame-ancestors that does not
+ * name this site, renders as a blank box in the frame with nothing in
+ * the page's own console to say why. Those get the poster and the
+ * open-in-a-new-tab link instead - which is also what every build gets
+ * on a phone, where nothing is framed.
  *
  * Nothing in here may be invented. Every line describes something that
  * is visible in the build it sits next to.
@@ -112,11 +113,14 @@ const BUILDS: Build[] = [
     role: "Online coach",
     chrome: "BOWT",
     glyph: "#D7F03A",
-    /* BOWT answers X-Frame-Options: SAMEORIGIN, so this one is a still
-       and a link rather than a frame. */
     blurb:
       "The client list ordered by who is closest to leaving. Every card carries the reason - quiet three days, workouts missed - and a message ready to send.",
     href: "https://bowt-preview.vercel.app/preview/coach?view=home",
+    /* BOWT used to answer X-Frame-Options: SAMEORIGIN and could not be
+       framed at all. It now answers frame-ancestors naming this site,
+       so it is the only build here whose own headers have to keep
+       naming us - if it stops, this goes back to a poster and a link. */
+    live: "https://bowt-preview.vercel.app/preview/coach?view=home",
     poster: "/work/live-bowt.jpg",
   },
   {
