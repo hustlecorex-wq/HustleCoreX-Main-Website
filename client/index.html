@@ -6,14 +6,21 @@
     <link rel="icon" type="image/png" href="/favicon.png" />
     <title>HustleCoreX - Systems for online fitness coaches</title>
     <meta name="description" content="We build the systems online fitness coaches run on - automated check-ins, lead follow-up and onboarding - so your hours go to coaching, not admin." />
-    <meta name="theme-color" content="#07070A" />
+    <meta name="theme-color" content="#08080B" />
     <meta property="og:title" content="HustleCoreX - Systems for online fitness coaches" />
     <meta property="og:description" content="Automated check-ins, lead follow-up and onboarding, built for coaching businesses. Apply and we'll build one system free." />
     <meta property="og:type" content="website" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
-    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+    <!-- Satoshi carries the headlines, General Sans the running text. Same
+         foundry, so they share proportions and only the personality changes.
+
+         The indices in f[0]/f[1] are load-bearing. Fontshare's own documented
+         `f[]=a&f[]=b` form does not survive two families: it serves the first
+         one and then substitutes Clash Display for the second, silently, with
+         a 200. Numbering them returns both. -->
+    <link href="https://api.fontshare.com/v2/css?f[0]=general-sans@400,500,600&f[1]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   </head>
   <body>

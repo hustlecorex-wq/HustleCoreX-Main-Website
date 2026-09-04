@@ -5,7 +5,7 @@ import { navigate } from "wouter/use-browser-location";
 import LogoMark from "./LogoMark";
 
 const LINKS = [
-  { id: "system", label: "What we do" },
+  { id: "system", label: "Work" },
   { id: "results", label: "Results" },
   { id: "mission", label: "Mission" },
 ];

@@ -4,36 +4,47 @@
 
 /* ═══════════════════════════════════════════════════════════════
    HustleCoreX - design tokens
-   Palette: a cool near-black so the ember reads hot against it.
-   Type:    General Sans (voice) + JetBrains Mono (instrumentation)
+
+   One light source, one accent, one temperature. The page is a cool
+   near-black room lit by a single ember beam, and everything warm on
+   it is light that reached it from that source. Nothing else glows.
+
+   Type is a sibling pairing out of one foundry: Satoshi does the
+   talking (headlines), General Sans does the explaining (body), and
+   JetBrains Mono does the measuring (labels, counts, URLs).
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
-  /* - surfaces - */
-  --void: #07070A;
+  /* ── surfaces ─────────────────────────────────────────────── */
+  --void: #08080B;
   --panel: #0E0E13;
   --panel-raised: #14141A;
   --hairline: rgba(255, 255, 255, 0.06);
-  --hairline-lit: rgba(255, 255, 255, 0.12);
+  --hairline-lit: rgba(255, 255, 255, 0.13);
 
-  /* - ink - */
-  --chalk: #F5F3F1;
-  --ash: #9A9AA5;
-  --ash-dim: #74747F;
+  /* ── ink ramp ──────────────────────────────────────────────
+     Four steps, each with a job. --ash-dim is the floor for anything
+     that has to be read as a sentence; --ash-faint is for text that
+     only has to be found. */
+  --chalk: #F7F5F3;
+  --ash: #A3A1AB;
+  --ash-dim: #706E7A;
+  --ash-faint: #4C4B56;
 
-  /* - ember - */
+  /* ── ember ────────────────────────────────────────────────── */
   --ember: #FF4A17;
   --ember-deep: #E03600;
   --flare: #FFA24D;
 
-  /* - type - */
-  --font-sans: 'General Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  /* ── type ─────────────────────────────────────────────────── */
+  --font-display: "Satoshi", "General Sans", "Segoe UI", system-ui, sans-serif;
+  --font-sans: "General Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
-  /* - motion - */
+  /* ── motion ───────────────────────────────────────────────── */
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
 
-  /* - shadcn bridge (toaster, tooltip, dialog primitives) - */
+  /* ── shadcn bridge (toaster, tooltip, dialog primitives) ──── */
   --background: 240 14% 4%;
   --foreground: 30 12% 95%;
   --card: 240 12% 6%;
@@ -76,6 +87,11 @@
     overflow-x: hidden;
   }
 
+  /* Progressive: browsers without it just wrap normally. */
+  p {
+    text-wrap: pretty;
+  }
+
   ::selection {
     background: rgba(255, 74, 23, 0.28);
     color: var(--chalk);
@@ -96,51 +112,92 @@
 
   /* Native select popup should not flash white on Windows */
   select option {
-    background: #14141A;
-    color: #F5F3F1;
+    background: #14141a;
+    color: #f5f3f1;
+  }
+
+  /* The default scrollbar is a bright grey slab on a black page - the
+     one piece of browser chrome that lands inside the design. */
+  ::-webkit-scrollbar {
+    width: 11px;
+    height: 11px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--void);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #23222a;
+    border: 3px solid var(--void);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #34333d;
   }
 }
 
-/* ── Typography scale ──────────────────────────────────────────── */
+/* ── Typography scale ──────────────────────────────────────────
+   Satoshi is drawn tighter than General Sans, so it carries negative
+   tracking further before it closes up. The display sizes are where
+   that difference does its work. */
 
 .display {
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-weight: 700;
   letter-spacing: -0.045em;
   line-height: 0.94;
   color: var(--chalk);
+  text-wrap: balance;
 }
 
-.display-light {
+.display-soft {
+  font-family: var(--font-display);
   font-weight: 400;
-  letter-spacing: -0.04em;
-  line-height: 1.02;
+  letter-spacing: -0.038em;
+  line-height: 1;
   color: var(--chalk);
+  text-wrap: balance;
 }
 
 .heading {
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-weight: 700;
   letter-spacing: -0.035em;
   line-height: 1.05;
   color: var(--chalk);
+  text-wrap: balance;
 }
 
-/* Instrument labels - mono, the voice of the system itself */
-.mono-label {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: #86868F;
+.heading-soft {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 1.18;
+  color: var(--chalk);
+  text-wrap: balance;
 }
 
+/* Instrument labels - mono, the voice of the system itself. Numbers in
+   here are data, so they get figures that line up in a column. */
+.mono-label,
 .mono-label-ember {
   font-family: var(--font-mono);
   font-size: 10.5px;
   font-weight: 500;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #FF6A3D;
+  font-variant-numeric: tabular-nums;
+}
+
+.mono-label {
+  color: var(--ash-dim);
+}
+
+.mono-label-ember {
+  color: #ff6a3d;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
 }
 
 .text-ember-grad {
@@ -153,41 +210,95 @@
 /* Headline that looks lit rather than coloured - the warmth only shows
    where the beam would actually reach it. */
 .text-lit {
-  background: linear-gradient(103deg, #EDE9E6 0%, #F7F4F1 38%, #FFD3AC 100%);
+  background: linear-gradient(103deg, #ede9e6 0%, #f7f4f1 38%, #ffd3ac 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
+/* ── Rules ─────────────────────────────────────────────────────
+   The eyebrow says what the section is, the rule carries the eye
+   across it, and the far end carries a real count. If there is no
+   true number to put there, the rule runs to the edge on its own. */
+.rule-line {
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(90deg, var(--hairline), rgba(255, 255, 255, 0.02));
+}
+
+.hairline-rule {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.07) 22%,
+    rgba(255, 255, 255, 0.07) 78%,
+    transparent
+  );
+}
+
 /* ═══ SIGNATURE: the ember beam ═══════════════════════════════════
-   A shaft of light rising behind the hero. The video frame sits in
-   it, so the page has one clear source of light rather than the
-   usual scatter of blurred gradient blobs.
+   A shaft of light rising behind the hero and striking the horizon
+   the work sits on. One clear source, rather than the usual scatter
+   of blurred gradient blobs.
    ═══════════════════════════════════════════════════════════════ */
 
 @keyframes beam-breathe {
-  0%, 100% { opacity: 0.82; transform: translateX(-50%) scaleX(1); }
-  50%      { opacity: 1;    transform: translateX(-50%) scaleX(1.08); }
+  0%,
+  100% {
+    opacity: 0.82;
+    transform: translateX(-50%) scaleX(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scaleX(1.08);
+  }
 }
 
 @keyframes core-flicker {
-  0%, 100% { opacity: 0.9; }
-  38%      { opacity: 0.62; }
-  52%      { opacity: 1; }
-  71%      { opacity: 0.78; }
+  0%,
+  100% {
+    opacity: 0.9;
+  }
+  38% {
+    opacity: 0.62;
+  }
+  52% {
+    opacity: 1;
+  }
+  71% {
+    opacity: 0.78;
+  }
 }
 
 @keyframes bloom-pulse {
-  0%, 100% { opacity: 0.55; transform: translateX(-50%) scale(1); }
-  50%      { opacity: 0.8;  transform: translateX(-50%) scale(1.12); }
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateX(-50%) scale(1.12);
+  }
 }
 
 /* Embers drifting up out of the beam */
 @keyframes ember-rise {
-  0%   { opacity: 0; transform: translate3d(0, 0, 0) scale(0.6); }
-  12%  { opacity: var(--spark-peak, 0.7); }
-  76%  { opacity: var(--spark-peak, 0.7); }
-  100% { opacity: 0; transform: translate3d(var(--spark-drift, 14px), -520px, 0) scale(1); }
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(0.6);
+  }
+  12% {
+    opacity: var(--spark-peak, 0.7);
+  }
+  76% {
+    opacity: var(--spark-peak, 0.7);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--spark-drift, 14px), -520px, 0) scale(1);
+  }
 }
 
 .spark {
@@ -206,18 +317,77 @@
 /* Slow drift on the backdrop grid - keeps the page feeling alive
    without anything visibly "animating" */
 @keyframes grid-drift {
-  from { transform: translateY(0); }
-  to   { transform: translateY(60px); }
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(60px);
+  }
 }
 
 .grid-plane {
   animation: grid-drift 24s linear infinite;
 }
 
+/* ── Hero line reveal ──────────────────────────────────────────
+   Each headline line rises out from behind the one above it. The mask
+   is the whole point: without it the letters slide in over the
+   background and read as one more generic fade-up. */
+@keyframes line-rise {
+  from {
+    transform: translateY(105%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.line-mask {
+  display: block;
+  overflow: hidden;
+  /* descenders need the room back, or the mask crops the g and the y */
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+}
+
+.line-rise {
+  display: block;
+  animation: line-rise 1.15s var(--ease-out-quint) both;
+  animation-delay: var(--rise-delay, 0s);
+  will-change: transform;
+}
+
+/* The rest of the hero comes up behind the headline. This is a CSS
+   animation rather than a scripted one on purpose: everything above the
+   fold has to be readable even when the animation never gets to run.
+   A JS reveal that starts with opacity 0 and waits on a frame callback
+   leaves the page blank if those frames are throttled - which is exactly
+   what a background tab does. Reduced motion lands it on the end state
+   immediately, because the fill is `both`. */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rise-in {
+  animation: rise-in 0.9s var(--ease-out-quint) both;
+  animation-delay: var(--rise-delay, 0s);
+}
+
 /* ── Sheen sweep (video frame, buttons) ────────────────────────── */
 @keyframes sheen {
-  0%   { transform: translateX(-130%) skewX(-18deg); }
-  100% { transform: translateX(230%) skewX(-18deg); }
+  0% {
+    transform: translateX(-130%) skewX(-18deg);
+  }
+  100% {
+    transform: translateX(230%) skewX(-18deg);
+  }
 }
 
 .sheen::after {
@@ -239,13 +409,21 @@
    Tracks hold two identical halves, so shifting by 50% loops seamlessly.
    Reversing the keyframe direction is what sends a row the other way. */
 @keyframes marquee-left {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 @keyframes marquee-right {
-  from { transform: translateX(-50%); }
-  to   { transform: translateX(0); }
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 .marquee-left,
@@ -253,8 +431,12 @@
   will-change: transform;
 }
 
-.marquee-left  { animation: marquee-left linear infinite; }
-.marquee-right { animation: marquee-right linear infinite; }
+.marquee-left {
+  animation: marquee-left linear infinite;
+}
+.marquee-right {
+  animation: marquee-right linear infinite;
+}
 
 .marquee-left:hover,
 .marquee-right:hover {
@@ -263,8 +445,13 @@
 
 /* ── Logo bloom ────────────────────────────────────────────────── */
 @keyframes hx-breathe {
-  0%, 100% { opacity: 0.7; }
-  50%      { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 .hx-bloom {
@@ -274,8 +461,15 @@
 
 /* ── Live dot ──────────────────────────────────────────────────── */
 @keyframes live-dot {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255, 74, 23, 0.5); }
-  70%      { opacity: 0.75; box-shadow: 0 0 0 5px rgba(255, 74, 23, 0); }
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(255, 74, 23, 0.5);
+  }
+  70% {
+    opacity: 0.75;
+    box-shadow: 0 0 0 5px rgba(255, 74, 23, 0);
+  }
 }
 
 .live-dot {
@@ -285,16 +479,18 @@
 /* ── Surfaces ──────────────────────────────────────────────────── */
 
 .panel {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.022), rgba(255, 255, 255, 0) 45%),
+  background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.022),
+      rgba(255, 255, 255, 0) 45%
+    ),
     var(--panel);
   border: 1px solid var(--hairline);
 }
 
 /* Cards lift toward the light source rather than just scaling */
 .lift {
-  transition:
-    transform 0.45s var(--ease-out-quint),
-    border-color 0.45s ease,
+  transition: transform 0.45s var(--ease-out-quint), border-color 0.45s ease,
     background-color 0.45s ease;
 }
 
@@ -303,31 +499,144 @@
   border-color: var(--hairline-lit);
 }
 
-.hairline-rule {
+/* ═══ THE WINDOW ═════════════════════════════════════════════════
+   The showcase frames each build in a window whose chrome matches
+   what is inside it: a browser bar carrying a real URL for a site, an
+   app bar carrying the product's own section tabs for a system. The
+   chrome is how both kinds of work live in one showcase without being
+   sorted into two.
+   ═══════════════════════════════════════════════════════════════ */
+
+.window {
+  position: relative;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: #0b0b10;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 40px 90px -50px rgba(0, 0, 0, 1),
+    0 10px 40px -24px rgba(255, 74, 23, 0.16);
+  overflow: hidden;
+}
+
+/* Light off the beam catching the window's top edge */
+.window::before {
+  content: "";
+  position: absolute;
+  inset-inline: 12%;
+  top: 0;
   height: 1px;
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.07) 22%,
-    rgba(255, 255, 255, 0.07) 78%,
+    rgba(255, 176, 122, 0.55),
     transparent
   );
+  pointer-events: none;
+  z-index: 3;
+}
+
+.window-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  height: 44px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(180deg, #16161c, #101015);
+}
+
+/* On a phone the tab strip is wider than the bar. Fading its right edge
+   is the only cue that there is more of it, since the scrollbar is
+   hidden and a cut-off word could just be a cut-off word. */
+.window-tabs {
+  -webkit-mask-image: linear-gradient(90deg, #000 82%, transparent);
+  mask-image: linear-gradient(90deg, #000 82%, transparent);
+}
+
+@media (min-width: 768px) {
+  .window-tabs {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+
+/* A 2.36:1 dashboard shrunk to the width of a phone is 138px tall and
+   nothing in it can be read. So on a small screen the stage keeps a
+   taller frame and shows less of the shot at a bigger scale, rather than
+   all of it at a size that proves nothing. */
+.window-stage {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  background: #0b0b10;
+  overflow: hidden;
+}
+
+.window-stage img {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  /* Which corner survives the crop. An app puts its header and its first
+     cards top-left, so that is the part worth keeping; a site is composed
+     centrally and keeps its middle. */
+  object-position: top center;
+  transition: opacity 0.5s var(--ease-out-quint),
+    transform 0.9s var(--ease-out-quint);
+}
+
+.window-stage[data-kind="system"] img {
+  object-position: left top;
+}
+
+/* From tablet up the whole shot fits at a legible size, so the frame
+   matches the still exactly and nothing is cropped. */
+@media (min-width: 768px) {
+  .window-stage {
+    aspect-ratio: 1680 / 712;
+  }
+  .window-stage[data-kind="system"] img {
+    object-position: top center;
+  }
+}
+
+/* ── The rail ──────────────────────────────────────────────────
+   Every build on one line, so the section never asks anyone to
+   scroll to find out what else is in it. */
+.rail-item {
+  position: relative;
+  transition: color 0.3s ease, background-color 0.4s ease;
+}
+
+/* The active cell's top edge is lit, and the auto-advance timer runs
+   along it - so the progress indicator and the selection marker are
+   the same object rather than two competing ones. */
+.rail-mark {
+  position: absolute;
+  left: 0;
+  top: -1px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--ember), var(--flare));
+  box-shadow: 0 0 12px rgba(255, 90, 30, 0.55);
 }
 
 /* ── Ember button ──────────────────────────────────────────────── */
 .btn-ember {
   position: relative;
-  background: linear-gradient(180deg, #FF6435 0%, var(--ember) 55%, var(--ember-deep) 100%);
+  background: linear-gradient(
+    180deg,
+    #ff6435 0%,
+    var(--ember) 55%,
+    var(--ember-deep) 100%
+  );
   color: #fff;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28),
     0 6px 22px rgba(255, 74, 23, 0.26);
   transition: box-shadow 0.35s ease, transform 0.35s var(--ease-out-quint);
 }
 
 .btn-ember:hover {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.34),
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.34),
     0 10px 34px rgba(255, 74, 23, 0.42);
   transform: translateY(-1px);
 }
@@ -405,21 +714,33 @@ select.field[data-empty="true"] {
     display: none;
   }
   .edge-fade-x {
-    -webkit-mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
-    mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 9%,
+      #000 91%,
+      transparent
+    );
+    mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 9%,
+      #000 91%,
+      transparent
+    );
   }
 }
 
 /* ═══ VIDEO PLAYBACK ══════════════════════════════════════════════
-   A decoding 1080p video and a compositor busy re-rasterising large
-   blurred light layers are competing for the same GPU, and the video is
-   the one that visibly loses - it drops frames. So while anything on the
-   page is playing, the ambient motion holds still.
+   A decoding video and a compositor busy re-rasterising large blurred
+   light layers compete for the same GPU, and the video is the one that
+   visibly loses - it drops frames. So while anything on the page is
+   playing, the ambient motion holds still.
 
    The grain sheet matters more than it looks: it is fixed and sits above
    the video, so every decoded frame has to be blended with it instead of
    going straight to the compositor. At 0.035 alpha nobody notices it
-   step aside for four minutes, and the stutter goes with it.
+   step aside, and the stutter goes with it.
    ═══════════════════════════════════════════════════════════════ */
 
 .video-surface {

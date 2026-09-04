@@ -8,7 +8,7 @@ import { Logo, goTo } from "./Nav";
    that happened to own the markup. */
 
 const SITE_LINKS = [
-  { id: "system", label: "What we do" },
+  { id: "system", label: "Work" },
   { id: "results", label: "Results" },
   { id: "mission", label: "Mission" },
   { id: "apply", label: "Apply" },
